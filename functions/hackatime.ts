@@ -35,5 +35,3 @@ export async function getUserStats(params?: GetUserStatsParams) {
 		return null;
 	}
 }
-
-getUserStats().then(console.log);
