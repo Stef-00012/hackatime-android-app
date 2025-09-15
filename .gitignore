@@ -41,3 +41,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# My hackatime API key
+.api_key
