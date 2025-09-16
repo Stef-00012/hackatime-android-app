@@ -44,4 +44,7 @@ app-example
 
 # My hackatime API key
 .api_key
+
+# tmp
 /test.ts
+/contexts/UpdateContext.tsx

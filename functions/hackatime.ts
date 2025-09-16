@@ -8,7 +8,7 @@ interface GetUserStatsParams {
 	features?: ("languages" | "projects")[];
 }
 
-export async function getCurrentUserStats(params?: GetUserStatsParams): Promise<UserStatsResponse | null> {
+export async function getCurrentUserStats(params?: GetUserStatsParams): Promise<UserStatsResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -30,16 +30,18 @@ export async function getCurrentUserStats(params?: GetUserStatsParams): Promise<
 			},
 		);
 
-		const data = res.data;
+		const status = res.status;
 
-		return data;
+		const data = res.data as UserStatsResponse;
+
+		return data.data;
 	} catch (_e) {
 		console.error(_e);
 		return null;
 	}
 }
 
-export async function getUserStats(userId: string, params?: GetUserStatsParams): Promise<UserStatsResponse | null> {
+export async function getUserStats(userId: string, params?: GetUserStatsParams): Promise<UserStatsResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -61,16 +63,16 @@ export async function getUserStats(userId: string, params?: GetUserStatsParams):
 			},
 		);
 
-		const data = res.data;
+		const data = res.data as UserStatsResponse;
 
-		return data;
+		return data.data;
 	} catch (_e) {
 		console.error(_e);
 		return null;
 	}
 }
 
-export async function getCurrentUserTodayData(): Promise<UserTodayDataResponse | null> {
+export async function getCurrentUserTodayData(): Promise<UserTodayDataResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -85,16 +87,16 @@ export async function getCurrentUserTodayData(): Promise<UserTodayDataResponse |
 			},
 		);
 
-		const data = res.data;
+		const data = res.data as UserTodayDataResponse;
 
-		return data;
+		return data.data;
 	} catch (_e) {
 		console.error(_e);
 		return null;
 	}
 }
 
-export async function getUserTodayData(userId: string): Promise<UserTodayDataResponse | null> {
+export async function getUserTodayData(userId: string): Promise<UserTodayDataResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -109,9 +111,9 @@ export async function getUserTodayData(userId: string): Promise<UserTodayDataRes
 			},
 		);
 
-		const data = res.data;
+		const data = res.data as UserTodayDataResponse;
 
-		return data;
+		return data.data;
 	} catch (_e) {
 		console.error(_e);
 		return null;
