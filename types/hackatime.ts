@@ -86,24 +86,54 @@ export interface Heartbeat {
 }
 
 export interface HeartbeatRawData {
-    time: number;
-    type: string;
-    lines: number;
-    branch: string;
-    editor: string;
-    entity: string;
-    lineno: number;
-    machine: string;
-    project: string;
-    user_id: number;
-    category: string;
-    is_write: null;
-    language: string;
-    cursorpos: number;
-    user_agent: string;
-    dependencies: [];
-    line_additions: null;
-    line_deletions: null;
-    operating_system: string;
-    project_root_count: number;
-};
+	time: number;
+	type: string;
+	lines: number;
+	branch: string;
+	editor: string;
+	entity: string;
+	lineno: number;
+	machine: string;
+	project: string;
+	user_id: number;
+	category: string;
+	is_write: null;
+	language: string;
+	cursorpos: number;
+	user_agent: string;
+	dependencies: [];
+	line_additions: null;
+	line_deletions: null;
+	operating_system: string;
+	project_root_count: number;
+}
+
+export interface GetUserHeartbeatSpansResponse {
+	spans: HeartbeatSpan[];
+}
+
+export interface HeartbeatSpan {
+	start_time: number;
+	end_time: number;
+	duration: number;
+}
+
+export interface GetUserProjectsResponse {
+	projects: string[];
+}
+
+export interface GetUserProjectDetailsResponse {
+	projects: ProjectDetail[];
+}
+
+export interface ProjectDetail {
+	name: string;
+	total_seconds: number;
+	languages: string[];
+	repo_url: string;
+	total_heartbeats: number;
+	first_heartbeat: string;
+	last_heartbeat: string;
+}
+
+export type GetYSWSResponse = string[]
