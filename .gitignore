@@ -44,3 +44,4 @@ app-example
 
 # My hackatime API key
 .api_key
+/test.ts
