@@ -19,6 +19,34 @@ export interface UserStatsResponse {
 	};
 }
 
+export interface UserStatsLast7DaysResponse {
+	data: {
+		username: string;
+		user_id: string;
+		start: string;
+		end: string;
+		status: string;
+		total_seconds: number;
+		daily_average: number;
+		days_including_holidays: number;
+		range: string;
+		human_readable_range: string;
+		human_readable_total: string;
+		human_readable_daily_average: string;
+		is_coding_activity_visible: boolean;
+		is_other_usage_visible: boolean;
+		editors: EditorsLast7Days[];
+		languages: LanguageLast7Days[];
+		machines: MachinesLast7Days[];
+		projects: ProjectLast7Days[];
+		operating_systems: OperatingSystemsLast7Days[];
+		categories: CategoriesLast7Days[];
+	};
+}
+
+export interface UserStatsTotalSecondsResponse {
+	total_seconds: number;
+}
 interface Language {
 	name: string;
 	total_seconds: number;
@@ -29,7 +57,21 @@ interface Language {
 	digital: string;
 }
 
+type LanguageLast7Days = Language & {
+	seconds: string;
+};
+
 export type Project = Language;
+
+type ProjectLast7Days = LanguageLast7Days;
+
+type EditorsLast7Days = LanguageLast7Days;
+
+type MachinesLast7Days = LanguageLast7Days;
+
+type OperatingSystemsLast7Days = LanguageLast7Days;
+
+type CategoriesLast7Days = LanguageLast7Days;
 
 export interface UserTodayDataResponse {
 	data: {
@@ -136,4 +178,4 @@ export interface ProjectDetail {
 	last_heartbeat: string;
 }
 
-export type GetYSWSResponse = string[]
+export type GetYSWSResponse = string[];

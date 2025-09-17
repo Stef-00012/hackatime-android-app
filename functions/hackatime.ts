@@ -1,36 +1,56 @@
 import * as db from "@/functions/database";
-import type { CurrentUserRawHeartbeats, GetUserHeartbeatSpansResponse, GetUserProjectDetailsResponse, GetUserProjectsResponse, GetYSWSResponse, ProjectDetail, UserStatsResponse, UserTodayDataResponse, UserTrustFactor } from "@/types/hackatime";
+import type {
+	CurrentUserRawHeartbeats,
+	GetUserHeartbeatSpansResponse,
+	GetUserProjectDetailsResponse,
+	GetUserProjectsResponse,
+	GetYSWSResponse,
+	ProjectDetail,
+	UserStatsLast7DaysResponse,
+	UserStatsResponse,
+	UserStatsTotalSecondsResponse,
+	UserTodayDataResponse,
+	UserTrustFactor,
+} from "@/types/hackatime";
 import axios from "axios";
 
 interface GetUserStatsParams {
 	startDate?: `${number}-${number}-${number}`;
 	endDate?: `${number}-${number}-${number}`;
 	features?: ("languages" | "projects")[];
-}
+	filterByProject?: string;
+	limit?: number;
+};
 
-export async function getCurrentUserStats(params?: GetUserStatsParams): Promise<UserStatsResponse["data"] | null> {
+interface GetUserStatsLast7DaysParams {
+	features?: (
+		| "languages"
+		| "projects"
+		| "editors"
+		| "machines"
+		| "operating_systems"
+		| "categories"
+	)[];
+};
+
+export async function getCurrentUserStats(
+	params?: GetUserStatsParams,
+): Promise<UserStatsResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
 
 	const searchParams = new URLSearchParams();
 
-	if (params?.startDate) searchParams.append("start_date", params.startDate);
-	if (params?.endDate) searchParams.append("end_date", params.endDate);
 	if (params?.features)
 		searchParams.append("features", params.features.join(","));
 
 	try {
-		const res = await axios.get(
-			"https://hackatime.hackclub.com/api/v1/users/my/stats",
-			{
-				headers: {
-					Authorization: `Bearer ${apiKey}`,
-				},
+		const res = await axios.get(`https://hackatime.hackclub.com/api/v1/users/my/stats?${searchParams}`, {
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
 			},
-		);
-
-		const status = res.status;
+		});
 
 		const data = res.data as UserStatsResponse;
 
@@ -41,7 +61,57 @@ export async function getCurrentUserStats(params?: GetUserStatsParams): Promise<
 	}
 }
 
-export async function getUserStats(userId: string, params?: GetUserStatsParams): Promise<UserStatsResponse["data"] | null> {
+export async function getCurrentUserStatsLast7Days(params: GetUserStatsLast7DaysParams): Promise<UserStatsLast7DaysResponse["data"] | null> {
+	const apiKey = db.get("api_key");
+
+	if (!apiKey) return null;
+
+	const searchParams = new URLSearchParams();
+
+	if (params?.features)
+		searchParams.append("features", params.features.join(","));
+
+	try {
+		const res = await axios.get(`https://hackatime.hackclub.com/api/hackatime/v1/users/current/stats/last_7_days?${searchParams}`, {
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+			},
+		});
+
+		const data = res.data as UserStatsLast7DaysResponse;
+
+		return data.data;
+	} catch (_e) {
+		console.error(_e);
+		return null;
+	}
+}
+
+export async function getCurrentUserStatsTotalSeconds(): Promise<UserStatsTotalSecondsResponse | null> {
+	const apiKey = db.get("api_key");
+
+	if (!apiKey) return null;
+
+	try {
+		const res = await axios.get(`https://hackatime.hackclub.com/api/v1/users/my/stats?total_seconds=true`, {
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+			},
+		});
+
+		const data = res.data as { total_seconds: number };
+
+		return data;
+	} catch (_e) {
+		console.error(_e);
+		return null;
+	}
+}
+
+export async function getUserStats(
+	userId: string,
+	params?: GetUserStatsParams,
+): Promise<UserStatsResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -72,7 +142,9 @@ export async function getUserStats(userId: string, params?: GetUserStatsParams):
 	}
 }
 
-export async function getCurrentUserTodayData(): Promise<UserTodayDataResponse["data"] | null> {
+export async function getCurrentUserTodayData(): Promise<
+	UserTodayDataResponse["data"] | null
+> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -96,7 +168,9 @@ export async function getCurrentUserTodayData(): Promise<UserTodayDataResponse["
 	}
 }
 
-export async function getUserTodayData(userId: string): Promise<UserTodayDataResponse["data"] | null> {
+export async function getUserTodayData(
+	userId: string,
+): Promise<UserTodayDataResponse["data"] | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -120,7 +194,9 @@ export async function getUserTodayData(userId: string): Promise<UserTodayDataRes
 	}
 }
 
-export async function getUserTrustFactor(userId: string): Promise<UserTrustFactor | null> {
+export async function getUserTrustFactor(
+	userId: string,
+): Promise<UserTrustFactor | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -151,7 +227,9 @@ interface GetCurrentUserRawHeartbeatsParams {
 	mostRecent?: boolean;
 }
 
-export async function getCurrentUserRawHeartbeats(params?: GetCurrentUserRawHeartbeatsParams): Promise<CurrentUserRawHeartbeats | null> {
+export async function getCurrentUserRawHeartbeats(
+	params?: GetCurrentUserRawHeartbeatsParams,
+): Promise<CurrentUserRawHeartbeats | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -160,8 +238,7 @@ export async function getCurrentUserRawHeartbeats(params?: GetCurrentUserRawHear
 
 	if (params?.startDate) searchParams.append("start_date", params.startDate);
 	if (params?.endDate) searchParams.append("end_date", params.endDate);
-	if (params?.limit)
-		searchParams.append("limit", String(params.limit));
+	if (params?.limit) searchParams.append("limit", String(params.limit));
 
 	try {
 		const res = await axios.get(
@@ -189,7 +266,10 @@ interface GetUserHeartbeatSpansParams {
 	filterByProject?: string[];
 }
 
-export async function getUserHeartbeatSpans(userId: string, params?: GetUserHeartbeatSpansParams): Promise<GetUserHeartbeatSpansResponse | null> {
+export async function getUserHeartbeatSpans(
+	userId: string,
+	params?: GetUserHeartbeatSpansParams,
+): Promise<GetUserHeartbeatSpansResponse | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -198,8 +278,7 @@ export async function getUserHeartbeatSpans(userId: string, params?: GetUserHear
 
 	if (params?.startDate) searchParams.append("start_date", params.startDate);
 	if (params?.endDate) searchParams.append("end_date", params.endDate);
-	if (params?.project)
-		searchParams.append("project", params.project);
+	if (params?.project) searchParams.append("project", params.project);
 	if (params?.filterByProject)
 		searchParams.append("filter_by_project", params.filterByProject.join(","));
 
@@ -222,9 +301,18 @@ export async function getUserHeartbeatSpans(userId: string, params?: GetUserHear
 	}
 }
 
-export async function getUserProjects(userId: string, detailed?: false): Promise<GetUserProjectsResponse | null>
-export async function getUserProjects(userId: string, detailed?: true): Promise<GetUserProjectDetailsResponse | null>
-export async function getUserProjects(userId: string, detailed = false): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
+export async function getUserProjects(
+	userId: string,
+	detailed?: false,
+): Promise<GetUserProjectsResponse | null>;
+export async function getUserProjects(
+	userId: string,
+	detailed?: true,
+): Promise<GetUserProjectDetailsResponse | null>;
+export async function getUserProjects(
+	userId: string,
+	detailed = false,
+): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -248,9 +336,15 @@ export async function getUserProjects(userId: string, detailed = false): Promise
 	}
 }
 
-export async function getCurrentUserProjects(detailed?: false): Promise<GetUserProjectsResponse | null>
-export async function getCurrentUserProjects(detailed?: true): Promise<GetUserProjectDetailsResponse | null>
-export async function getCurrentUserProjects(detailed = false): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
+export async function getCurrentUserProjects(
+	detailed?: false,
+): Promise<GetUserProjectsResponse | null>;
+export async function getCurrentUserProjects(
+	detailed?: true,
+): Promise<GetUserProjectDetailsResponse | null>;
+export async function getCurrentUserProjects(
+	detailed = false,
+): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -274,7 +368,9 @@ export async function getCurrentUserProjects(detailed = false): Promise<GetUserP
 	}
 }
 
-export async function getCurrentUserProject(projectName: string): Promise<ProjectDetail | null> {
+export async function getCurrentUserProject(
+	projectName: string,
+): Promise<ProjectDetail | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -298,7 +394,10 @@ export async function getCurrentUserProject(projectName: string): Promise<Projec
 	}
 }
 
-export async function getUserProject(userId: string, projectName: string): Promise<ProjectDetail | null> {
+export async function getUserProject(
+	userId: string,
+	projectName: string,
+): Promise<ProjectDetail | null> {
 	const apiKey = db.get("api_key");
 
 	if (!apiKey) return null;
@@ -334,5 +433,5 @@ export async function getYSWSPrograms(): Promise<GetYSWSResponse | null> {
 	} catch (_e) {
 		console.error(_e);
 		return null;
-	} 
+	}
 }
