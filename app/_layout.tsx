@@ -4,7 +4,7 @@ import { styles } from "@/styles/noInternet";
 import NetInfo from "@react-native-community/netinfo";
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -37,16 +37,16 @@ export default function RootLayout() {
         return () => {
             unsubscribe();
         }
-    })
+    }, [])
 
     if (!loaded && !error) return null;
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: background }}>
             <AuthProvider>
-                {hasInternet ? (
-                    <Slot />
-                ) : (
+                <Slot />
+
+                {!hasInternet && (
                     <View style={styles.noInternetContainer}>
                         <Text style={styles.noInternetText}>
                             No internet connection.

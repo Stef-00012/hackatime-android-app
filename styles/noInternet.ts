@@ -11,10 +11,12 @@ export const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	noInternetContainer: {
+		...StyleSheet.absoluteFillObject,
 		flex: 1,
 		display: "flex",
 		backgroundColor: background,
 		justifyContent: "center",
 		alignItems: "center",
+		zIndex: 999999,
 	},
 });

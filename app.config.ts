@@ -76,9 +76,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		router: {
 			origin: false,
 		},
-		eas: {
-			projectId: "ec797fe5-7e0f-4c3a-8aa9-8588d9f44fb1",
-		},
+		// eas: {
+		// 	projectId: "ec797fe5-7e0f-4c3a-8aa9-8588d9f44fb1",
+		// },
 	},
 	runtimeVersion: {
 		policy: "appVersion",
