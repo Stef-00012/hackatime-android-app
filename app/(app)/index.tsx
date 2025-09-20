@@ -4,6 +4,7 @@ import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
 import Skeleton from "@/components/skeleton/Skeleton";
 import Text from "@/components/Text";
+import { languageColors } from "@/constants/languageColors";
 import { AuthContext } from "@/contexts/AuthProvider";
 import {
 	getCurrentUserStats,
@@ -333,7 +334,7 @@ export default function Index() {
 									<PieChart
 										data={stats?.languages?.map((language) => ({
 											value: language.total_seconds,
-											color: colorHash(language.name) // TODO: Use language main color instead of hash
+											color: languageColors[language.name.toLowerCase() as keyof typeof languageColors] || colorHash(language.name) // TODO: Use language main color instead of hash
 										})) || []}
 									/>
 								) : null}
@@ -343,7 +344,7 @@ export default function Index() {
 						<ChartLegend
 							data={stats?.languages?.map((language) => ({
 								label: language.name,
-								color: colorHash(language.name) // TODO: Use language main color instead of hash
+								color: languageColors[language.name.toLowerCase() as keyof typeof languageColors] || colorHash(language.name) // TODO: Use language main color instead of hash
 							})) || []}
 						/>
 					</View>
