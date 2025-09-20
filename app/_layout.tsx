@@ -1,59 +1,67 @@
+import Text from "@/components/Text";
 import { background } from "@/constants/hcColors";
 import AuthProvider from "@/contexts/AuthProvider";
 import { styles } from "@/styles/noInternet";
 import NetInfo from "@react-native-community/netinfo";
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+import { Host } from "react-native-portalize";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-    const [hasInternet, setHasInternet] = useState<boolean>(false);
+	const [hasInternet, setHasInternet] = useState<boolean>(false);
 
-    const [loaded, error] = useFonts({
-        "Hackclub-Regular": require("../assets/hc_font_regular.otf")
-    })
+	const [loaded, error] = useFonts({
+		"Hackclub-Regular": require("../assets/hc_font_regular.otf"),
+		MaterialSymbols: require("../assets/material-symbols.ttf"),
+	});
 
-    useEffect(() => {
-        if (loaded || error) {
-            SplashScreen.hideAsync();
-        }
+	useEffect(() => {
+		if (loaded || error) {
+			SplashScreen.hideAsync();
+		}
 
-        if (error) console.error(error)
-    }, [loaded, error]);
+		if (error) console.error(error);
+	}, [loaded, error]);
 
-    useEffect(() => {
-        NetInfo.fetch().then(state => {
-            setHasInternet((state.isConnected && state.isInternetReachable) ?? false)
-        })
+	useEffect(() => {
+		NetInfo.fetch().then((state) => {
+			setHasInternet((state.isConnected && state.isInternetReachable) ?? false);
+		});
 
-        const unsubscribe = NetInfo.addEventListener((state) => {
-            setHasInternet((state.isConnected && state.isInternetReachable) ?? false)
-        })
+		const unsubscribe = NetInfo.addEventListener((state) => {
+			setHasInternet((state.isConnected && state.isInternetReachable) ?? false);
+		});
 
-        return () => {
-            unsubscribe();
-        }
-    }, [])
+		return () => {
+			unsubscribe();
+		};
+	}, []);
 
-    if (!loaded && !error) return null;
+	if (!loaded && !error) return null;
 
 	return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: background }}>
-            <AuthProvider>
-                <Slot />
+		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>
+			<KeyboardProvider>
+				<AuthProvider>
+					<Host>
+						<Slot />
 
-                {!hasInternet && (
-                    <View style={styles.noInternetContainer}>
-                        <Text style={styles.noInternetText}>
-                            No internet connection.
-                        </Text>
-                    </View>
-                )}
-            </AuthProvider>
-        </SafeAreaView>
+						{!hasInternet && (
+							<View style={styles.noInternetContainer}>
+								<Text style={styles.noInternetText}>
+									No internet connection.
+								</Text>
+							</View>
+						)}
+					</Host>
+				</AuthProvider>
+			</KeyboardProvider>
+		</SafeAreaView>
 	);
 }

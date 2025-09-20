@@ -12,15 +12,15 @@ import type {
 	UserTodayDataResponse,
 	UserTrustFactor,
 } from "@/types/hackatime";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 
 interface GetUserStatsParams {
-	startDate?: `${number}-${number}-${number}`;
-	endDate?: `${number}-${number}-${number}`;
+	startDate?: `${number}-${number | string}-${number | string}`;
+	endDate?: `${number}-${number | string}-${number | string}`;
 	features?: ("languages" | "projects")[];
 	filterByProject?: string;
 	limit?: number;
-};
+}
 
 interface GetUserStatsLast7DaysParams {
 	features?: (
@@ -31,40 +31,63 @@ interface GetUserStatsLast7DaysParams {
 		| "operating_systems"
 		| "categories"
 	)[];
-};
+}
 
 export async function getCurrentUserStats(
 	params?: GetUserStatsParams,
-): Promise<UserStatsResponse["data"] | null> {
+): Promise<UserStatsResponse["data"] | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	const searchParams = new URLSearchParams();
 
+	if (params?.startDate) searchParams.append("start_date", params.startDate);
+	if (params?.endDate) searchParams.append("end_date", params.endDate);
+	if (params?.limit) searchParams.append("limit", String(params.limit));
+	if (params?.filterByProject)
+		searchParams.append("filter_by_project", params.filterByProject);
 	if (params?.features)
 		searchParams.append("features", params.features.join(","));
 
 	try {
-		const res = await axios.get(`https://hackatime.hackclub.com/api/v1/users/my/stats?${searchParams}`, {
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
+		const res = await axios.get(
+			`https://hackatime.hackclub.com/api/v1/users/my/stats?${searchParams}`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
 			},
-		});
+		);
 
 		const data = res.data as UserStatsResponse;
 
 		return data.data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
-export async function getCurrentUserStatsLast7Days(params: GetUserStatsLast7DaysParams): Promise<UserStatsLast7DaysResponse["data"] | null> {
+export async function getCurrentUserStatsLast7Days(
+	params: GetUserStatsLast7DaysParams,
+): Promise<UserStatsLast7DaysResponse["data"] | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	const searchParams = new URLSearchParams();
 
@@ -72,49 +95,83 @@ export async function getCurrentUserStatsLast7Days(params: GetUserStatsLast7Days
 		searchParams.append("features", params.features.join(","));
 
 	try {
-		const res = await axios.get(`https://hackatime.hackclub.com/api/hackatime/v1/users/current/stats/last_7_days?${searchParams}`, {
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
+		const res = await axios.get(
+			`https://hackatime.hackclub.com/api/hackatime/v1/users/current/stats/last_7_days?${searchParams}`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
 			},
-		});
+		);
 
 		const data = res.data as UserStatsLast7DaysResponse;
 
 		return data.data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
-export async function getCurrentUserStatsTotalSeconds(): Promise<UserStatsTotalSecondsResponse | null> {
+export async function getCurrentUserStatsTotalSeconds(): Promise<
+	UserStatsTotalSecondsResponse | string
+> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
-		const res = await axios.get(`https://hackatime.hackclub.com/api/v1/users/my/stats?total_seconds=true`, {
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
+		const res = await axios.get(
+			`https://hackatime.hackclub.com/api/v1/users/my/stats?total_seconds=true`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
 			},
-		});
+		);
 
 		const data = res.data as { total_seconds: number };
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getUserStats(
 	userId: string,
 	params?: GetUserStatsParams,
-): Promise<UserStatsResponse["data"] | null> {
+): Promise<UserStatsResponse["data"] | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	const searchParams = new URLSearchParams();
 
@@ -136,18 +193,31 @@ export async function getUserStats(
 		const data = res.data as UserStatsResponse;
 
 		return data.data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getCurrentUserTodayData(): Promise<
-	UserTodayDataResponse["data"] | null
+	UserTodayDataResponse["data"] | string
 > {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -162,18 +232,31 @@ export async function getCurrentUserTodayData(): Promise<
 		const data = res.data as UserTodayDataResponse;
 
 		return data.data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getUserTodayData(
 	userId: string,
-): Promise<UserTodayDataResponse["data"] | null> {
+): Promise<UserTodayDataResponse["data"] | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -188,18 +271,31 @@ export async function getUserTodayData(
 		const data = res.data as UserTodayDataResponse;
 
 		return data.data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getUserTrustFactor(
 	userId: string,
-): Promise<UserTrustFactor | null> {
+): Promise<UserTrustFactor | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -214,25 +310,38 @@ export async function getUserTrustFactor(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 interface GetCurrentUserRawHeartbeatsParams {
-	startDate?: `${number}-${number}-${number}`;
-	endDate?: `${number}-${number}-${number}`;
+	startDate?: `${number}-${number | string}-${number | string}`;
+	endDate?: `${number}-${number | string}-${number | string}`;
 	limit?: number; // max 100
 	mostRecent?: boolean;
 }
 
 export async function getCurrentUserRawHeartbeats(
 	params?: GetCurrentUserRawHeartbeatsParams,
-): Promise<CurrentUserRawHeartbeats | null> {
+): Promise<CurrentUserRawHeartbeats | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	const searchParams = new URLSearchParams();
 
@@ -253,15 +362,28 @@ export async function getCurrentUserRawHeartbeats(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 interface GetUserHeartbeatSpansParams {
-	startDate?: `${number}-${number}-${number}`;
-	endDate?: `${number}-${number}-${number}`;
+	startDate?: `${number}-${number | string}-${number | string}`;
+	endDate?: `${number}-${number | string}-${number | string}`;
 	project?: string;
 	filterByProject?: string[];
 }
@@ -269,10 +391,10 @@ interface GetUserHeartbeatSpansParams {
 export async function getUserHeartbeatSpans(
 	userId: string,
 	params?: GetUserHeartbeatSpansParams,
-): Promise<GetUserHeartbeatSpansResponse | null> {
+): Promise<GetUserHeartbeatSpansResponse | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	const searchParams = new URLSearchParams();
 
@@ -295,27 +417,40 @@ export async function getUserHeartbeatSpans(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getUserProjects(
 	userId: string,
 	detailed?: false,
-): Promise<GetUserProjectsResponse | null>;
+): Promise<GetUserProjectsResponse | string>;
 export async function getUserProjects(
 	userId: string,
 	detailed?: true,
-): Promise<GetUserProjectDetailsResponse | null>;
+): Promise<GetUserProjectDetailsResponse | string>;
 export async function getUserProjects(
 	userId: string,
 	detailed = false,
-): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
+): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -330,24 +465,37 @@ export async function getUserProjects(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getCurrentUserProjects(
 	detailed?: false,
-): Promise<GetUserProjectsResponse | null>;
+): Promise<GetUserProjectsResponse | string>;
 export async function getCurrentUserProjects(
 	detailed?: true,
-): Promise<GetUserProjectDetailsResponse | null>;
+): Promise<GetUserProjectDetailsResponse | string>;
 export async function getCurrentUserProjects(
 	detailed = false,
-): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | null> {
+): Promise<GetUserProjectsResponse | GetUserProjectDetailsResponse | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -362,18 +510,31 @@ export async function getCurrentUserProjects(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getCurrentUserProject(
 	projectName: string,
-): Promise<ProjectDetail | null> {
+): Promise<ProjectDetail | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -388,19 +549,32 @@ export async function getCurrentUserProject(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
 export async function getUserProject(
 	userId: string,
 	projectName: string,
-): Promise<ProjectDetail | null> {
+): Promise<ProjectDetail | string> {
 	const apiKey = db.get("api_key");
 
-	if (!apiKey) return null;
+	if (!apiKey) return "Missing API Key";
 
 	try {
 		const res = await axios.get(
@@ -415,13 +589,26 @@ export async function getUserProject(
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		if (error.response?.status === 401) {
+			await db.del("api_key");
+
+			return "Invalid API Key";
+		}
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }
 
-export async function getYSWSPrograms(): Promise<GetYSWSResponse | null> {
+export async function getYSWSPrograms(): Promise<GetYSWSResponse | string> {
 	try {
 		const res = await axios.get(
 			"https://hackatime.hackclub.com/api/v1/ysws_programs",
@@ -430,8 +617,15 @@ export async function getYSWSPrograms(): Promise<GetYSWSResponse | null> {
 		const data = res.data;
 
 		return data;
-	} catch (_e) {
-		console.error(_e);
-		return null;
+	} catch (e) {
+		const error = e as AxiosError;
+
+		const response = error.response?.data as { error?: string } | undefined;
+
+		if (response?.error) {
+			return response.error;
+		}
+
+		return "Something went wrong...";
 	}
 }

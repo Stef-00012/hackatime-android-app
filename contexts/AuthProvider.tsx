@@ -1,10 +1,5 @@
 // import * as LocalAuthentication from "expo-local-authentication";
 import { usePathname, useRouter } from "expo-router";
-// import { BackHandler } from "react-native";
-// import * as db from "@/functions/database";
-// import semver from "semver";
-import { getCurrentUserStats } from "@/functions/hackatime";
-import type { UserStatsResponse } from "@/types/hackatime";
 import type React from "react";
 import {
 	createContext,
@@ -13,22 +8,29 @@ import {
 	useMemo,
 	useState,
 } from "react";
+// import { BackHandler } from "react-native";
+// import * as db from "@/functions/database";
+// import semver from "semver";
+import { getCurrentUserStats } from "@/functions/hackatime";
+import type { UserStatsResponse } from "@/types/hackatime";
 
 interface Props {
 	children: React.ReactNode;
 }
 
 interface AuthData {
-	user: UserStatsResponse["data"] | null;
-	updateAuth: () => Promise<void>;
+	user: UserStatsResponse["data"] | string;
+	updateAuth: () => Promise<UserStatsResponse["data"] | string>;
+	isLoggedIn: boolean;
 	// updateUser: () => Promise<void>;
 	// updateBiometricsSetting: (enabled: boolean) => void;
 	// requestBiometricsAuthentication: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthData>({
-	user: null,
-	updateAuth: async () => {},
+	user: "Not Logged In",
+	updateAuth: async () => "Not Logged In",
+	isLoggedIn: false,
 	// updateUser: async () => {},
 	// updateBiometricsSetting: () => {},
 	// requestBiometricsAuthentication: async () => true,
@@ -41,7 +43,7 @@ export default function AuthProvider({ children }: Props) {
 	// const [role, setRole] = useState<APIUser["role"] | false>(false);
 	// const [version, setVersion] = useState<string>("0.0.0");
 
-	const [user, setUser] = useState<UserStatsResponse["data"] | null>(null);
+	const [user, setUser] = useState<UserStatsResponse["data"] | string>("Not Logged In");
 
 	// const [unlockWithBiometrics, setUnlockWithBiometrics] = useState<boolean>(
 	// 	db.get("unlockWithBiometrics") === "true",
@@ -57,11 +59,15 @@ export default function AuthProvider({ children }: Props) {
 	// 	useState<boolean>(unlockWithBiometrics);
 
 	const updateAuth = useCallback(async () => {
-		const user = await getCurrentUserStats();
+		const user = await getCurrentUserStats({
+			features: []
+		});
 
-		if (!user && pathname !== "/login") router.replace("/login");
+		if (typeof user === "string" && pathname !== "/login") router.replace("/login");
+		if (typeof user !== "string" && pathname === "/login") router.replace("/");
 
-		setUser(user)
+		setUser(user);
+		return user;
 	}, [pathname, router]);
 
 	// const updateUser = useCallback(async () => {
@@ -102,6 +108,7 @@ export default function AuthProvider({ children }: Props) {
 		() => ({
 			user,
 			updateAuth,
+			isLoggedIn: typeof user !== "string",
 		}),
 		[user, updateAuth],
 	);

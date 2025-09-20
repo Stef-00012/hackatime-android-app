@@ -5,13 +5,13 @@ export interface RGBA {
 	a: number;
 }
 
-function isHexColor(hex: string): boolean {
+export function isHexColor(hex: string): boolean {
 	const HEX_REGEXP = /^#?([0-9A-F]{3}){1,2}([0-9A-F]{2})?$/i;
 
 	return HEX_REGEXP.test(hex);
 }
 
-function hexToRgba(color: string): RGBA {
+export function hexToRgba(color: string): RGBA {
 	let hexString = color.replace("#", "");
 
 	if (hexString.length === 3) {
@@ -50,7 +50,7 @@ function hexToRgba(color: string): RGBA {
 	};
 }
 
-function rgbStringToRgba(color: string): RGBA {
+export function rgbStringToRgba(color: string): RGBA {
 	const [r, g, b, a] = color
 		.replace(/[^0-9,./]/g, "")
 		.split(/[/,]/)
@@ -59,7 +59,7 @@ function rgbStringToRgba(color: string): RGBA {
 	return { r, g, b, a: a || 1 };
 }
 
-function hslStringToRgba(hslaString: string): RGBA {
+export function hslStringToRgba(hslaString: string): RGBA {
 	const hslaRegex =
 		/^hsla?\(\s*(\d+)\s*,\s*(\d+%)\s*,\s*(\d+%)\s*(,\s*(0?\.\d+|\d+(\.\d+)?))?\s*\)$/i;
 
@@ -142,11 +142,11 @@ export function toRgba(color: string): RGBA {
 	};
 }
 
-function gammaCorrect(c: number): number {
+export function gammaCorrect(c: number): number {
 	return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
-function getLightnessFromOklch(oklchColor: string): number | null {
+export function getLightnessFromOklch(oklchColor: string): number | null {
 	const match = oklchColor.match(/oklch\((.*?)%\s/);
 	return match ? Number.parseFloat(match[1]) : null;
 }

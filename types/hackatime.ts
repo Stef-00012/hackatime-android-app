@@ -47,7 +47,7 @@ export interface UserStatsLast7DaysResponse {
 export interface UserStatsTotalSecondsResponse {
 	total_seconds: number;
 }
-interface Language {
+export interface Language {
 	name: string;
 	total_seconds: number;
 	text: string;
@@ -57,21 +57,21 @@ interface Language {
 	digital: string;
 }
 
-type LanguageLast7Days = Language & {
+export type LanguageLast7Days = Language & {
 	seconds: string;
 };
 
 export type Project = Language;
 
-type ProjectLast7Days = LanguageLast7Days;
+export type ProjectLast7Days = LanguageLast7Days;
 
-type EditorsLast7Days = LanguageLast7Days;
+export type EditorsLast7Days = LanguageLast7Days;
 
-type MachinesLast7Days = LanguageLast7Days;
+export type MachinesLast7Days = LanguageLast7Days;
 
-type OperatingSystemsLast7Days = LanguageLast7Days;
+export type OperatingSystemsLast7Days = LanguageLast7Days;
 
-type CategoriesLast7Days = LanguageLast7Days;
+export type CategoriesLast7Days = LanguageLast7Days;
 
 export interface UserTodayDataResponse {
 	data: {

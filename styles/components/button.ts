@@ -2,33 +2,39 @@ import { primary, red, shadowCard, white } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-	primary: {
-        borderRadius: 99999,
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: shadowCard,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+	primaryContainer: {
+		overflow: "hidden",
+		borderRadius: 99999,
+		boxShadow: shadowCard,
 		backgroundColor: red,
 	},
-    primaryText: {
-        fontWeight: "bold",
-        color: white,
-    },
+	primary: {
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+	},
+	primaryText: {
+		fontWeight: "bold",
+		color: white,
+	},
+	outlineContainer: {
+		overflow: "hidden",
+		borderRadius: 99999,
+		boxShadow: shadowCard,
+		backgroundColor: "transparent",
+		borderWidth: 2,
+		borderStyle: "solid",
+		borderColor: primary,
+	},
 	outline: {
-        borderRadius: 99999,
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: shadowCard,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        borderStyle: "solid",
-        borderColor: primary,
-    },
-    outlineText: {
-        fontWeight: "bold",
-        color: primary,
-    },
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+	},
+	outlineText: {
+		fontWeight: "bold",
+		color: primary,
+	},
 });

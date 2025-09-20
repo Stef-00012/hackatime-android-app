@@ -1,0 +1,354 @@
+import Button from "@/components/Button";
+import ChartLegend from "@/components/ChartLegend";
+import DatePicker from "@/components/DatePicker";
+import Header from "@/components/Header";
+import Skeleton from "@/components/skeleton/Skeleton";
+import Text from "@/components/Text";
+import { AuthContext } from "@/contexts/AuthProvider";
+import {
+	getCurrentUserStats,
+	getCurrentUserStatsLast7Days,
+} from "@/functions/hackatime";
+import { colorHash, formatDate, getTop } from "@/functions/util";
+import { styles } from "@/styles/home";
+import type {
+	UserStatsLast7DaysResponse,
+	UserStatsResponse,
+} from "@/types/hackatime";
+import { add } from "date-fns/add";
+import ms from "enhanced-ms";
+import { useContext, useEffect, useState } from "react";
+import { ScrollView, View } from "react-native";
+import { PieChart } from "react-native-gifted-charts";
+import type { DateType } from "react-native-ui-datepicker";
+
+export default function Index() {
+	const { user } = useContext(AuthContext);
+
+	const [stats, setStats] = useState<
+		UserStatsLast7DaysResponse["data"] | UserStatsResponse["data"] | null
+	>(null);
+	const [statsRange, setStatsRange] = useState<"7d" | "alltime" | "custom">(
+		"7d",
+	);
+	const [statsRangeName, setStatsRangeName] = useState<string>("Last 7 Days");
+
+	const [range, setRange] = useState<{
+		startDate: DateType;
+		endDate: DateType;
+	}>({
+		startDate: add(new Date(), {
+			weeks: -1,
+		}),
+		endDate: new Date(),
+	});
+
+	const [datePickerOpen, setDatePickerOpen] = useState(false);
+
+	const [topProject, setTopProject] = useState<string>("N/A");
+	const [topLanguage, setTopLanguage] = useState<string>("N/A");
+	const [topOS, setTopOS] = useState<string>("N/A");
+	const [topEditor, setTopEditor] = useState<string>("N/A");
+
+	const [totalTime, setTotalTime] = useState<string>("N/A");
+
+	useEffect(() => {
+		getCurrentUserStatsLast7Days({
+			features: ["projects", "languages", "operating_systems", "editors"],
+		}).then((userStats) => {
+			setStats(typeof userStats === "string" ? null : userStats);
+		});
+	}, []);
+
+	useEffect(() => {
+		if (stats) {
+			const topProject = getTop(stats.projects ?? [])?.name;
+			const topLanguage = getTop(stats.languages ?? [])?.name;
+
+			if ("operating_systems" in stats) {
+				const topOS = getTop(stats.operating_systems ?? [])?.name;
+
+				setTopOS(topOS || "N/A");
+			} else {
+				setTopOS("N/A");
+			}
+
+			if ("editors" in stats) {
+				const topEditor = getTop(stats.editors ?? [])?.name;
+				setTopEditor(topEditor || "N/A");
+			} else {
+				setTopEditor("N/A");
+			}
+
+			if (statsRange === "7d" || statsRange === "alltime") {
+				setTotalTime(
+					ms(stats.total_seconds * 1000, {
+						useAbbreviations: true,
+					}) || "N/A",
+				);
+			} else {
+				const totalSeconds = Array.isArray(stats.languages)
+					? stats.languages.reduce(
+							(seconds, language) => seconds + language.total_seconds,
+							0,
+						)
+					: 0;
+
+				setTotalTime(
+					ms(totalSeconds * 1000, {
+						useAbbreviations: true,
+					}) || "N/A",
+				);
+			}
+
+			setTopProject(topProject || "N/A");
+			setTopLanguage(topLanguage || "N/A");
+		}
+	}, [stats, statsRange]);
+
+	useEffect(() => {
+		setTopEditor("N/A");
+		setTopOS("N/A");
+		setTopProject("N/A");
+		setTopLanguage("N/A");
+		setTotalTime("N/A");
+
+		if (statsRange === "7d" || (!range.startDate && !range.endDate)) {
+			setStatsRangeName("Last 7 Days");
+
+			getCurrentUserStatsLast7Days({
+				features: ["projects", "languages", "operating_systems", "editors"],
+			}).then((userStats) => {
+				setStats(typeof userStats === "string" ? null : userStats);
+			});
+
+			return;
+		}
+
+		if (statsRange === "alltime") {
+			setStatsRangeName("All Time");
+
+			getCurrentUserStats({
+				features: ["projects", "languages"],
+			}).then((userStats) => {
+				setStats(typeof userStats === "string" ? null : userStats);
+			});
+
+			return;
+		}
+
+		if (statsRange === "custom") {
+			if (range.startDate && range.endDate) {
+				const startDate = new Date(range.startDate as string | Date | number);
+				const endDate = new Date(range.endDate as string | Date | number);
+
+				const formattedStartDate = formatDate(startDate);
+				const formattedEndDate = formatDate(endDate);
+
+				if (formattedStartDate === formattedEndDate) {
+					const newEndDate = add(startDate, { days: 1 });
+					const newFormattedEndDate = formatDate(newEndDate);
+
+					setStatsRangeName(`${formattedStartDate} - ${newFormattedEndDate}`);
+
+					getCurrentUserStats({
+						features: ["projects", "languages"],
+						startDate: formattedStartDate,
+						endDate: formattedEndDate,
+					}).then((userStats) => {
+						setStats(typeof userStats === "string" ? null : userStats);
+					});
+
+					return;
+				}
+
+				setStatsRangeName(`${formattedStartDate} - ${formattedEndDate}`);
+
+				getCurrentUserStats({
+					features: ["projects", "languages"],
+					startDate: formattedStartDate,
+					endDate: formattedEndDate,
+				}).then((userStats) => {
+					setStats(typeof userStats === "string" ? null : userStats);
+				});
+
+				return;
+			}
+
+			if (!range.startDate && range.endDate) {
+				const startDate = new Date(range.endDate as string | Date | number);
+				const endDate = add(startDate, { days: 1 });
+
+				const formattedStartDate = formatDate(startDate);
+				const formattedEndDate = formatDate(endDate);
+
+				setStatsRangeName(`${formattedStartDate} - ${formattedEndDate}`);
+
+				getCurrentUserStats({
+					features: ["projects", "languages"],
+					startDate: formattedStartDate,
+					endDate: formattedEndDate,
+				}).then((userStats) => {
+					setStats(typeof userStats === "string" ? null : userStats);
+				});
+
+				return;
+			}
+
+			if (range.startDate && !range.endDate) {
+				const startDate = new Date(range.startDate as string | Date | number);
+				const endDate = add(startDate, { days: 1 });
+
+				const formattedStartDate = formatDate(startDate);
+				const formattedEndDate = formatDate(endDate);
+
+				setStatsRangeName(`${formattedStartDate} - ${formattedEndDate}`);
+
+				getCurrentUserStats({
+					features: ["projects", "languages"],
+					startDate: formattedStartDate,
+					endDate: formattedEndDate,
+				}).then((userStats) => {
+					setStats(typeof userStats === "string" ? null : userStats);
+				});
+
+				return;
+			}
+		}
+	}, [statsRange, range]);
+
+	return (
+		<View>
+			<DatePicker
+				open={datePickerOpen}
+				onClose={() => {
+					setDatePickerOpen(false);
+
+					if (!range.startDate && range.endDate) {
+						setStatsRange("7d");
+					}
+				}}
+				onChange={(params) => {
+					setStatsRange("custom");
+
+					setRange(params);
+
+					console.log(params);
+				}}
+				mode="range"
+				showOutsideDays
+				startDate={range.startDate}
+				endDate={range.endDate}
+				maxDate={new Date()}
+			>
+				<Button
+					text="Show Last 7 Days"
+					type="primary"
+					onPress={() => {
+						setDatePickerOpen(false);
+						setStatsRange("7d");
+
+						setRange({
+							startDate: add(new Date(), {
+								weeks: -1,
+							}),
+							endDate: new Date(),
+						});
+					}}
+					containerStyle={styles.datePickerButton}
+				/>
+
+				<Button
+					text="Show All Time"
+					type="primary"
+					onPress={() => {
+						setDatePickerOpen(false);
+						setStatsRange("alltime");
+					}}
+					containerStyle={styles.datePickerShowAllTimeButton}
+				/>
+			</DatePicker>
+
+			<View>
+				<ScrollView>
+					<Header username={typeof user === "string" ? null : user.username} />
+
+					<Button
+						containerStyle={styles.rangeButton}
+						type="outline"
+						text={`Range: ${statsRangeName}`}
+						onPress={() => {
+							setDatePickerOpen(true);
+						}}
+					/>
+
+					<View style={styles.statContainer}>
+						<Text style={styles.subHeaderText}>Total Time</Text>
+
+						<Skeleton width={160} height={40} radius="squircle">
+							{totalTime === "N/A" ? null : <Text style={styles.statText}>{totalTime}</Text>}
+						</Skeleton>
+					</View>
+
+					<View style={styles.statContainer}>
+						<Text style={styles.subHeaderText}>Top Project</Text>
+
+						<Skeleton width={200} height={40} radius="squircle">
+							{topProject === "N/A" ? null : <Text style={styles.statText}>{topProject}</Text>}
+						</Skeleton>
+					</View>
+
+					<View style={styles.statContainer}>
+						<Text style={styles.subHeaderText}>Top Language</Text>
+
+						<Skeleton width={130} height={40} radius="squircle">
+							{topLanguage === "N/A" ? null : <Text style={styles.statText}>{topLanguage}</Text>}
+						</Skeleton>
+					</View>
+
+					{statsRange === "7d" && (
+						<>
+							<View style={styles.statContainer}>
+								<Text style={styles.subHeaderText}>Top OS</Text>
+
+								<Skeleton width={100} height={40} radius="squircle">
+									{topOS === "N/A" ? null : <Text style={styles.statText}>{topOS}</Text>}
+								</Skeleton>
+							</View>
+
+							<View style={styles.statContainer}>
+								<Text style={styles.subHeaderText}>Top Editor</Text>
+
+								<Skeleton width={140} height={40} radius="squircle">
+									{topEditor === "N/A" ? null : <Text style={styles.statText}>{topEditor}</Text>}
+								</Skeleton>
+							</View>
+						</>
+					)}
+
+					<View style={styles.chartContainer}>
+						<View style={styles.pieChartContainer}>
+							<Skeleton width={250} height={250} radius="round">
+								{(stats?.languages && stats.languages?.length > 0) ? (
+									<PieChart
+										data={stats?.languages?.map((language) => ({
+											value: language.total_seconds,
+											color: colorHash(language.name) // TODO: Use language main color instead of hash
+										})) || []}
+									/>
+								) : null}
+							</Skeleton>
+						</View>
+
+						<ChartLegend
+							data={stats?.languages?.map((language) => ({
+								label: language.name,
+								color: colorHash(language.name) // TODO: Use language main color instead of hash
+							})) || []}
+						/>
+					</View>
+				</ScrollView>
+			</View>
+		</View>
+	);
+}

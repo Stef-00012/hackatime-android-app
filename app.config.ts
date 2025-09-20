@@ -44,13 +44,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			monochromeImage: `${assetsPath}/monochromatic-adaptive-icon.png`,
 			backgroundColor: "#ec3750",
 		},
+		// predictiveBackGestureEnabled: true,
 		versionCode: appVersionCode,
 		version: appVersion,
 		package: appId,
 		scheme: appId,
 		newArchEnabled: true,
 		edgeToEdgeEnabled: true,
-		permissions: ["REQUEST_INSTALL_PACKAGES"],
 	},
 	plugins: [
 		"expo-router",
@@ -65,8 +65,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			},
 		],
 		["expo-secure-store"],
+		["expo-local-authentication"],
 		// ["expo-image-picker"],
-		// ["expo-local-authentication"],
 	],
 	experiments: {
 		typedRoutes: true,
@@ -76,9 +76,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		router: {
 			origin: false,
 		},
-		// eas: {
-		// 	projectId: "ec797fe5-7e0f-4c3a-8aa9-8588d9f44fb1",
-		// },
+		eas: {
+			projectId: "0818e8e4-d637-43be-a6d8-041bac2bf273",
+		},
 	},
 	runtimeVersion: {
 		policy: "appVersion",
