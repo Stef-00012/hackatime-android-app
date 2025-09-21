@@ -1,145 +1,164 @@
 // import * as LocalAuthentication from "expo-local-authentication";
+
+import * as db from "@/functions/database";
+import { getCurrentUserStats } from "@/functions/hackatime";
+import type { UserStatsResponse } from "@/types/hackatime";
+import * as LocalAuthentication from "expo-local-authentication";
 import { usePathname, useRouter } from "expo-router";
-import type React from "react";
 import {
 	createContext,
+	type ReactNode,
 	useCallback,
 	useEffect,
 	useMemo,
 	useState,
 } from "react";
-// import { BackHandler } from "react-native";
-// import * as db from "@/functions/database";
-// import semver from "semver";
-import { getCurrentUserStats } from "@/functions/hackatime";
-import type { UserStatsResponse } from "@/types/hackatime";
+import { BackHandler } from "react-native";
 
 interface Props {
-	children: React.ReactNode;
+	children: ReactNode;
 }
 
 interface AuthData {
 	user: UserStatsResponse["data"] | string;
 	updateAuth: () => Promise<UserStatsResponse["data"] | string>;
 	isLoggedIn: boolean;
-	// updateUser: () => Promise<void>;
-	// updateBiometricsSetting: (enabled: boolean) => void;
-	// requestBiometricsAuthentication: () => Promise<boolean>;
+	updateBiometricsSetting: (enabled: boolean) => void;
+	requestBiometricsAuthentication: () => Promise<boolean>;
+	isAuthenticating: boolean;
+	unlockWithBiometrics: boolean;
+	supportsBiometrics: boolean;
+	hasEnrolledBiometrics: boolean;
+	supportsAuthenticationTypes: LocalAuthentication.AuthenticationType[];
 }
 
 export const AuthContext = createContext<AuthData>({
 	user: "Not Logged In",
 	updateAuth: async () => "Not Logged In",
 	isLoggedIn: false,
-	// updateUser: async () => {},
-	// updateBiometricsSetting: () => {},
-	// requestBiometricsAuthentication: async () => true,
+	updateBiometricsSetting: () => {},
+	requestBiometricsAuthentication: async () => true,
+	isAuthenticating: false,
+	unlockWithBiometrics: false,
+	supportsBiometrics: false,
+	hasEnrolledBiometrics: false,
+	supportsAuthenticationTypes: [],
 });
 
 export default function AuthProvider({ children }: Props) {
 	const router = useRouter();
 	const pathname = usePathname();
 
-	// const [role, setRole] = useState<APIUser["role"] | false>(false);
-	// const [version, setVersion] = useState<string>("0.0.0");
+	const [user, setUser] = useState<UserStatsResponse["data"] | string>(
+		"Not Logged In",
+	);
 
-	const [user, setUser] = useState<UserStatsResponse["data"] | string>("Not Logged In");
+	const [unlockWithBiometrics, setUnlockWithBiometrics] = useState<boolean>(
+		db.get("unlockWithBiometrics") === "true",
+	);
 
-	// const [unlockWithBiometrics, setUnlockWithBiometrics] = useState<boolean>(
-	// 	db.get("unlockWithBiometrics") === "true",
-	// );
+	const [supportsBiometrics, setSupportsBiometrics] = useState<boolean>(false);
+	const [hasEnrolledBiometrics, setHasEnrolledBiometrics] =
+		useState<boolean>(false);
+	const [supportsAuthenticationTypes, setSupportsAuthenticationTypes] =
+		useState<LocalAuthentication.AuthenticationType[]>([]);
 
-	// const [supportsBiometrics, setSupportsBiometrics] = useState<boolean>(false);
-	// const [hasEnrolledBiometrics, setHasEnrolledBiometrics] =
-	// 	useState<boolean>(false);
-	// const [supportsAuthenticationTypes, setSupportsAuthenticationTypes] =
-	// 	useState<LocalAuthentication.AuthenticationType[]>([]);
-
-	// const [isAuthenticating, setIsAuthenticating] =
-	// 	useState<boolean>(unlockWithBiometrics);
+	const [isAuthenticating, setIsAuthenticating] =
+		useState<boolean>(unlockWithBiometrics);
 
 	const updateAuth = useCallback(async () => {
 		const user = await getCurrentUserStats({
-			features: []
+			features: [],
 		});
 
-		if (typeof user === "string" && pathname !== "/login") router.replace("/login");
+		if (typeof user === "string" && pathname !== "/login")
+			router.replace("/login");
 		if (typeof user !== "string" && pathname === "/login") router.replace("/");
 
 		setUser(user);
 		return user;
 	}, [pathname, router]);
 
-	// const updateUser = useCallback(async () => {
-	// 	const currentUser = await getCurrentUser();
-	// 	const currentUserAvatar = await getCurrentUserAvatar();
+	const updateBiometricsSetting = useCallback((enabled: boolean) => {
+		setUnlockWithBiometrics(enabled);
+		db.set("unlockWithBiometrics", enabled ? "true" : "false");
+	}, []);
 
-	// 	setUser(typeof currentUser === "string" ? null : currentUser);
-	// 	setAvatar(currentUserAvatar);
-	// }, []);
+	const requestBiometricsAuthentication = useCallback(async () => {
+		if (unlockWithBiometrics) {
+			setIsAuthenticating(true);
 
-	// const updateBiometricsSetting = useCallback((enabled: boolean) => {
-	// 	setUnlockWithBiometrics(enabled);
-	// 	db.set("unlockWithBiometrics", enabled ? "true" : "false");
-	// }, []);
+			const output = await LocalAuthentication.authenticateAsync({
+				biometricsSecurityLevel: "weak",
+				cancelLabel: "Close App",
+				promptMessage: "Unlock Zipline",
+				requireConfirmation: true,
+			});
 
-	// const requestBiometricsAuthentication = useCallback(async () => {
-	// 	if (unlockWithBiometrics) {
-	// 		setIsAuthenticating(true);
+			if (output.success) {
+				setIsAuthenticating(false);
 
-	// 		const output = await LocalAuthentication.authenticateAsync({
-	// 			biometricsSecurityLevel: "weak",
-	// 			cancelLabel: "Close App",
-	// 			promptMessage: "Unlock Zipline",
-	// 			requireConfirmation: true,
-	// 		});
+				return true;
+			}
 
-	// 		setIsAuthenticating(false);
+			return false;
+		}
 
-	// 		if (output.success) return true;
-
-	// 		return false;
-	// 	}
-
-	// 	return true;
-	// }, [unlockWithBiometrics]);
+		return true;
+	}, [unlockWithBiometrics]);
 
 	const authData = useMemo<AuthData>(
 		() => ({
 			user,
 			updateAuth,
 			isLoggedIn: typeof user !== "string",
+			requestBiometricsAuthentication,
+			updateBiometricsSetting,
+			isAuthenticating,
+			unlockWithBiometrics,
+			supportsBiometrics,
+			hasEnrolledBiometrics,
+			supportsAuthenticationTypes,
 		}),
-		[user, updateAuth],
+		[
+			user,
+			updateAuth,
+			requestBiometricsAuthentication,
+			updateBiometricsSetting,
+			isAuthenticating,
+			unlockWithBiometrics,
+			supportsBiometrics,
+			hasEnrolledBiometrics,
+			supportsAuthenticationTypes,
+		],
 	);
 
 	useEffect(() => {
 		updateAuth();
-		// updateUser();
 
-		// (async () => {
-		// 	const hasHardware = await LocalAuthentication.hasHardwareAsync();
-		// 	const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-		// 	const supportedAuthTypes =
-		// 		await LocalAuthentication.supportedAuthenticationTypesAsync();
+		(async () => {
+			const hasHardware = await LocalAuthentication.hasHardwareAsync();
+			const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+			const supportedAuthTypes =
+				await LocalAuthentication.supportedAuthenticationTypesAsync();
 
-		// 	setSupportsBiometrics(hasHardware);
-		// 	setHasEnrolledBiometrics(isEnrolled);
-		// 	setSupportsAuthenticationTypes(supportedAuthTypes);
-		// })();
+			setSupportsBiometrics(hasHardware);
+			setHasEnrolledBiometrics(isEnrolled);
+			setSupportsAuthenticationTypes(supportedAuthTypes);
+		})();
 	}, [updateAuth]);
 
-	// useEffect(() => {
-	// 	(async () => {
-	// 		if (unlockWithBiometrics) {
-	// 			const authenticated = await requestBiometricsAuthentication();
+	useEffect(() => {
+		(async () => {
+			if (unlockWithBiometrics) {
+				const authenticated = await requestBiometricsAuthentication();
 
-	// 			if (!authenticated) return BackHandler.exitApp();
+				if (!authenticated) return BackHandler.exitApp();
 
-	// 			return;
-	// 		}
-	// 	})();
-	// }, [unlockWithBiometrics]);
+				return;
+			}
+		})();
+	}, [unlockWithBiometrics, requestBiometricsAuthentication]);
 
 	return (
 		<AuthContext.Provider value={authData}>{children}</AuthContext.Provider>

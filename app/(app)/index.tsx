@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import ChartLegend from "@/components/ChartLegend";
 import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 import Skeleton from "@/components/skeleton/Skeleton";
 import Text from "@/components/Text";
 import { languageColors } from "@/constants/languageColors";
@@ -24,7 +25,7 @@ import { PieChart } from "react-native-gifted-charts";
 import type { DateType } from "react-native-ui-datepicker";
 
 export default function Index() {
-	const { user } = useContext(AuthContext);
+	const { isAuthenticating } = useContext(AuthContext);
 
 	const [stats, setStats] = useState<
 		UserStatsLast7DaysResponse["data"] | UserStatsResponse["data"] | null
@@ -50,12 +51,19 @@ export default function Index() {
 	const [topLanguage, setTopLanguage] = useState<string>("N/A");
 	const [topOS, setTopOS] = useState<string>("N/A");
 	const [topEditor, setTopEditor] = useState<string>("N/A");
+	const [topMachine, setTopMachine] = useState<string>("N/A");
 
 	const [totalTime, setTotalTime] = useState<string>("N/A");
 
 	useEffect(() => {
 		getCurrentUserStatsLast7Days({
-			features: ["projects", "languages", "operating_systems", "editors"],
+			features: [
+				"projects",
+				"languages",
+				"operating_systems",
+				"editors",
+				"machines",
+			],
 		}).then((userStats) => {
 			setStats(typeof userStats === "string" ? null : userStats);
 		});
@@ -79,6 +87,13 @@ export default function Index() {
 				setTopEditor(topEditor || "N/A");
 			} else {
 				setTopEditor("N/A");
+			}
+
+			if ("machines" in stats) {
+				const topMachine = getTop(stats.machines ?? [])?.name;
+				setTopMachine(topMachine || "N/A");
+			} else {
+				setTopMachine("N/A");
 			}
 
 			if (statsRange === "7d" || statsRange === "alltime") {
@@ -113,12 +128,19 @@ export default function Index() {
 		setTopProject("N/A");
 		setTopLanguage("N/A");
 		setTotalTime("N/A");
+		setTopMachine("N/A");
 
 		if (statsRange === "7d" || (!range.startDate && !range.endDate)) {
 			setStatsRangeName("Last 7 Days");
 
 			getCurrentUserStatsLast7Days({
-				features: ["projects", "languages", "operating_systems", "editors"],
+				features: [
+					"projects",
+					"languages",
+					"operating_systems",
+					"editors",
+					"machines",
+				],
 			}).then((userStats) => {
 				setStats(typeof userStats === "string" ? null : userStats);
 			});
@@ -219,7 +241,7 @@ export default function Index() {
 	}, [statsRange, range]);
 
 	return (
-		<View>
+		<View style={{ flex: 1 }}>
 			<DatePicker
 				open={datePickerOpen}
 				onClose={() => {
@@ -233,8 +255,6 @@ export default function Index() {
 					setStatsRange("custom");
 
 					setRange(params);
-
-					console.log(params);
 				}}
 				mode="range"
 				showOutsideDays
@@ -271,9 +291,10 @@ export default function Index() {
 			</DatePicker>
 
 			<View>
-				<ScrollView>
-					<Header username={typeof user === "string" ? null : user.username} />
+				<Header />
+				<Sidebar />
 
+				<ScrollView style={styles.mainContent}>
 					<Button
 						containerStyle={styles.rangeButton}
 						type="outline"
@@ -287,7 +308,9 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Total Time</Text>
 
 						<Skeleton width={160} height={40} radius="squircle">
-							{totalTime === "N/A" ? null : <Text style={styles.statText}>{totalTime}</Text>}
+							{isAuthenticating || totalTime === "N/A" ? null : (
+								<Text style={styles.statText}>{totalTime}</Text>
+							)}
 						</Skeleton>
 					</View>
 
@@ -295,7 +318,9 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Project</Text>
 
 						<Skeleton width={200} height={40} radius="squircle">
-							{topProject === "N/A" ? null : <Text style={styles.statText}>{topProject}</Text>}
+							{isAuthenticating || topProject === "N/A" ? null : (
+								<Text style={styles.statText}>{topProject}</Text>
+							)}
 						</Skeleton>
 					</View>
 
@@ -303,7 +328,9 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Language</Text>
 
 						<Skeleton width={130} height={40} radius="squircle">
-							{topLanguage === "N/A" ? null : <Text style={styles.statText}>{topLanguage}</Text>}
+							{isAuthenticating || topLanguage === "N/A" ? null : (
+								<Text style={styles.statText}>{topLanguage}</Text>
+							)}
 						</Skeleton>
 					</View>
 
@@ -313,7 +340,9 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top OS</Text>
 
 								<Skeleton width={100} height={40} radius="squircle">
-									{topOS === "N/A" ? null : <Text style={styles.statText}>{topOS}</Text>}
+									{isAuthenticating || topOS === "N/A" ? null : (
+										<Text style={styles.statText}>{topOS}</Text>
+									)}
 								</Skeleton>
 							</View>
 
@@ -321,33 +350,147 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top Editor</Text>
 
 								<Skeleton width={140} height={40} radius="squircle">
-									{topEditor === "N/A" ? null : <Text style={styles.statText}>{topEditor}</Text>}
+									{isAuthenticating || topEditor === "N/A" ? null : (
+										<Text style={styles.statText}>{topEditor}</Text>
+									)}
+								</Skeleton>
+							</View>
+
+							<View style={styles.statContainer}>
+								<Text style={styles.subHeaderText}>Top Machine</Text>
+
+								<Skeleton width={140} height={40} radius="squircle">
+									{isAuthenticating || topMachine === "N/A" ? null : (
+										<Text style={styles.statText}>{topMachine}</Text>
+									)}
 								</Skeleton>
 							</View>
 						</>
 					)}
 
 					<View style={styles.chartContainer}>
+						<Text style={styles.chartTitle}>Languages</Text>
+
 						<View style={styles.pieChartContainer}>
 							<Skeleton width={250} height={250} radius="round">
-								{(stats?.languages && stats.languages?.length > 0) ? (
+								{!isAuthenticating &&
+								stats?.languages &&
+								stats.languages?.length > 0 ? (
 									<PieChart
-										data={stats?.languages?.map((language) => ({
+										data={stats.languages.map((language) => ({
 											value: language.total_seconds,
-											color: languageColors[language.name.toLowerCase() as keyof typeof languageColors] || colorHash(language.name) // TODO: Use language main color instead of hash
-										})) || []}
+											color:
+												languageColors[
+													language.name.toLowerCase() as keyof typeof languageColors
+												] || colorHash(language.name), // TODO: Use language main color instead of hash
+										}))}
 									/>
 								) : null}
 							</Skeleton>
 						</View>
 
 						<ChartLegend
-							data={stats?.languages?.map((language) => ({
-								label: language.name,
-								color: languageColors[language.name.toLowerCase() as keyof typeof languageColors] || colorHash(language.name) // TODO: Use language main color instead of hash
-							})) || []}
+							data={
+								stats?.languages?.map((language) => ({
+									label: language.name,
+									color:
+										languageColors[
+											language.name.toLowerCase() as keyof typeof languageColors
+										] || colorHash(language.name), // TODO: Use language main color instead of hash
+								})) || []
+							}
 						/>
 					</View>
+
+					{statsRange === "7d" && (
+						<>
+							{stats && "editors" in stats && (
+								<View style={styles.chartContainer}>
+									<Text style={styles.chartTitle}>Editors</Text>
+
+									<View style={styles.pieChartContainer}>
+										<Skeleton width={250} height={250} radius="round">
+											{!isAuthenticating &&
+											stats.editors &&
+											stats.editors.length > 0 ? (
+												<PieChart
+													data={stats.editors.map((editor) => ({
+														value: editor.total_seconds,
+														color: colorHash(editor.name),
+													}))}
+												/>
+											) : null}
+										</Skeleton>
+									</View>
+
+									<ChartLegend
+										data={
+											stats.editors.map((editor) => ({
+												label: editor.name,
+												color: colorHash(editor.name),
+											})) || []
+										}
+									/>
+								</View>
+							)}
+
+							{stats && "operating_systems" in stats && (
+								<View style={styles.chartContainer}>
+									<Text style={styles.chartTitle}>Operating Systems</Text>
+
+									<View style={styles.pieChartContainer}>
+										<Skeleton width={250} height={250} radius="round">
+											{!isAuthenticating &&
+											stats.operating_systems &&
+											stats.operating_systems.length > 0 ? (
+												<PieChart
+													data={stats.operating_systems.map((os) => ({
+														value: os.total_seconds,
+														color: colorHash(os.name),
+													}))}
+												/>
+											) : null}
+										</Skeleton>
+									</View>
+
+									<ChartLegend
+										data={stats.operating_systems.map((os) => ({
+											label: os.name,
+											color: colorHash(os.name),
+										}))}
+									/>
+								</View>
+							)}
+
+							{stats && "machines" in stats && (
+								<View style={styles.chartContainer}>
+									<Text style={styles.chartTitle}>Machines</Text>
+
+									<View style={styles.pieChartContainer}>
+										<Skeleton width={250} height={250} radius="round">
+											{!isAuthenticating &&
+											stats.machines &&
+											stats.machines.length > 0 ? (
+												<PieChart
+													data={stats.machines.map((machine) => ({
+														value: machine.total_seconds,
+														color: colorHash(machine.name),
+													}))}
+												/>
+											) : null}
+										</Skeleton>
+									</View>
+
+									<ChartLegend
+										data={stats?.machines?.map((machine) => ({
+											label: machine.name,
+											color: colorHash(machine.name),
+										}))}
+									/>
+								</View>
+							)}
+						</>
+					)}
 				</ScrollView>
 			</View>
 		</View>

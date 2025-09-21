@@ -13,7 +13,7 @@ import MaterialSymbols from "./MaterialSymbols";
 import Text from "./Text";
 
 interface Props {
-	type?: "primary" | "outline";
+	type?: "primary" | "outline" | "transparent" | "secondary";
 	onPress?: () => void;
 	rippleColor?: string;
 	text?: string;
@@ -24,6 +24,7 @@ interface Props {
 	iconColor?: ColorValue;
 	iconSize?: number;
 	disabled?: boolean;
+	open?: boolean;
 }
 
 export default function Button({
@@ -38,6 +39,7 @@ export default function Button({
 	iconColor = white,
 	iconSize = 20,
 	disabled = false,
+	open,
 }: Props) {
 	switch (type) {
 		case "outline": {
@@ -46,7 +48,10 @@ export default function Button({
 					<Pressable
 						disabled={disabled}
 						android_ripple={{
-							color: rippleColor || getRippleColor(red),
+							color:
+								!rippleColor || rippleColor === "default"
+									? getRippleColor(red)
+									: rippleColor,
 							foreground: true,
 							borderless: true,
 						}}
@@ -60,6 +65,86 @@ export default function Button({
 						{text && (
 							<Text style={[styles.outlineText, textStyle]}>{text}</Text>
 						)}
+
+						{typeof open === "boolean" && (
+							<MaterialSymbols
+								name={open ? "expand_more" : "expand_less"}
+								size={20}
+								color="white"
+							/>
+						)}
+					</Pressable>
+				</View>
+			);
+		}
+
+		case "transparent": {
+			return (
+				<View style={[styles.transparentContainer, containerStyle]}>
+					<Pressable
+						disabled={disabled}
+						android_ripple={{
+							color:
+								!rippleColor || rippleColor === "default"
+									? getRippleColor(red)
+									: rippleColor,
+							foreground: true,
+							borderless: true,
+						}}
+						style={[styles.transparent, buttonStyle]}
+						onPress={onPress}
+					>
+						{icon && (
+							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+						)}
+
+						{text && (
+							<Text style={[styles.transparentText, textStyle]}>{text}</Text>
+						)}
+
+						{typeof open === "boolean" && (
+							<MaterialSymbols
+								name={open ? "expand_more" : "expand_less"}
+								size={20}
+								color="white"
+							/>
+						)}
+					</Pressable>
+				</View>
+			);
+		}
+
+		case "secondary": {
+			return (
+				<View style={[styles.secondaryContainer, containerStyle]}>
+					<Pressable
+						disabled={disabled}
+						android_ripple={{
+							color:
+								!rippleColor || rippleColor === "default"
+									? getRippleColor(red)
+									: rippleColor,
+							foreground: true,
+							borderless: true,
+						}}
+						style={[styles.secondary, buttonStyle]}
+						onPress={onPress}
+					>
+						{icon && (
+							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+						)}
+
+						{text && (
+							<Text style={[styles.secondaryText, textStyle]}>{text}</Text>
+						)}
+
+						{typeof open === "boolean" && (
+							<MaterialSymbols
+								name={open ? "expand_more" : "expand_less"}
+								size={20}
+								color="white"
+							/>
+						)}
 					</Pressable>
 				</View>
 			);
@@ -72,7 +157,10 @@ export default function Button({
 					<Pressable
 						disabled={disabled}
 						android_ripple={{
-							color: rippleColor || getRippleColor(red),
+							color:
+								!rippleColor || rippleColor === "default"
+									? getRippleColor(red)
+									: rippleColor,
 							foreground: true,
 							borderless: true,
 						}}
@@ -85,6 +173,14 @@ export default function Button({
 
 						{text && (
 							<Text style={[styles.primaryText, textStyle]}>{text}</Text>
+						)}
+
+						{typeof open === "boolean" && (
+							<MaterialSymbols
+								name={open ? "expand_more" : "expand_less"}
+								size={20}
+								color="white"
+							/>
 						)}
 					</Pressable>
 				</View>

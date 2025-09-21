@@ -11,6 +11,12 @@ export const styles = StyleSheet.create({
 		borderBottomWidth: 2,
 		borderBottomColor: darkless,
 		marginBottom: 10,
+		zIndex: 10,
+	},
+	headerLeft: {
+		flexDirection: "row",
+		gap: 10,
+		alignItems: "center",
 	},
 	username: {
 		fontSize: 18,

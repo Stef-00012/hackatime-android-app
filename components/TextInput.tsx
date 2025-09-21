@@ -35,7 +35,7 @@ interface Props {
 	password?: boolean;
 	keyboardType?: KeyboardType;
 	placeholder?: string;
-	sideButtonType?: "primary" | "outline";
+	sideButtonType?: "primary" | "outline" | "transparent" | "secondary";
 	sideButtonIconColor?: ColorValue;
 	sideButtonTextStyle?: StyleProp<TextStyle>;
 	sideButtonButtonStyle?: StyleProp<ViewStyle>;

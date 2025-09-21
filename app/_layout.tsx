@@ -1,6 +1,7 @@
 import Text from "@/components/Text";
 import { background } from "@/constants/hcColors";
 import AuthProvider from "@/contexts/AuthProvider";
+import SidebarProvider from "@/contexts/SidebarContext";
 import { styles } from "@/styles/noInternet";
 import NetInfo from "@react-native-community/netinfo";
 import { useFonts } from "expo-font";
@@ -49,17 +50,19 @@ export default function RootLayout() {
 		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>
 			<KeyboardProvider>
 				<AuthProvider>
-					<Host>
-						<Slot />
+					<SidebarProvider>
+						<Host>
+							<Slot />
 
-						{!hasInternet && (
-							<View style={styles.noInternetContainer}>
-								<Text style={styles.noInternetText}>
-									No internet connection.
-								</Text>
-							</View>
-						)}
-					</Host>
+							{!hasInternet && (
+								<View style={styles.noInternetContainer}>
+									<Text style={styles.noInternetText}>
+										No internet connection.
+									</Text>
+								</View>
+							)}
+						</Host>
+					</SidebarProvider>
 				</AuthProvider>
 			</KeyboardProvider>
 		</SafeAreaView>

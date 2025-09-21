@@ -1,50 +1,49 @@
-# Welcome to your Expo app 👋
+# Hackatime Android App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> [!IMPORTANT]
+> iOS is not supported
 
-## Get started
+This is an android app made to view your [Hackatime](https://hackatime.hackclub.com) data.
 
-1. Install dependencies
+# Features
 
-   ```bash
-   npm install
-   ```
+- View your time, top language and top project for any range
+- View your top editor, top OS and top machines when the range is set to "Last 7 Days"
+- View your projects
+- Lock the app behind biometric authentication
 
-2. Start the app
+# Download
 
-   ```bash
-   npx expo start
-   ```
+The app is available on the following platforms:
+<!-- - Google Play Store -->
+- GitHub Releases
 
-In the output, you'll find options to open the app in a
+<!-- [![Get on Google Play](/assets/github/google-play.png)](https://play.google.com/store/apps/details?id=com.stefdp.zipline) -->
+[![Get on GitHub](/assets/github/github.png)](https://github.com/Stef-00012/zipline-android-app/releases/latest/download/app-release.apk)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+# Creating a development build
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+> [!IMPORTANT]
+> Requires an android device connected to the laptop/PC and ADB (Android Debug Bridge) installed
 
-## Get a fresh project
+1. `bun install`
+2. `bun run prebuild`
+3. `bun run run:android`
 
-When you're ready, run:
+(this will create a development APK and automatically install in your device)
 
-```bash
-npm run reset-project
-```
+> Building an APK
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+> [!NOTE]
+> add `--local` flag if you don't have a Expo EAS account or want to build it locally on your PC\
+> add `--output /path/to/file.apk` to save the APK in that path
 
-## Learn more
+1. `bun install`
+2. `bun install --global eas-cli`
+3. `eas build --clear-cache --platform android --profile preview`
 
-To learn more about developing your project with Expo, look at the following resources:
+This will create an APK but won't automatically install
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Known Issues
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- If you enable biometric authentication, then upon opening the app you press the back button (refusing the biometric authentication), the app will correctly close, but if you try to reopen the app right after, it'll show a constant loading and no biometric authentication until the app is completely closed and reopened

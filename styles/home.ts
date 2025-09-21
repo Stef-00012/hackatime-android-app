@@ -48,4 +48,12 @@ export const styles = StyleSheet.create({
 	pieChartContainer: {
 		marginHorizontal: "auto",
 	},
+	chartTitle: {
+		fontWeight: "bold",
+		fontSize: 24,
+		marginBottom: 5,
+	},
+	mainContent: {
+		marginBottom: 70,
+	},
 });

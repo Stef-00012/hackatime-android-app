@@ -1,4 +1,10 @@
-import { primary, red, shadowCard, white } from "@/constants/hcColors";
+import {
+	darkless,
+	primary,
+	red,
+	shadowCard,
+	white,
+} from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -13,8 +19,28 @@ export const styles = StyleSheet.create({
 		justifyContent: "center",
 		paddingHorizontal: 16,
 		paddingVertical: 8,
+		flexDirection: "row",
+		gap: 6,
 	},
 	primaryText: {
+		fontWeight: "bold",
+		color: white,
+	},
+	secondaryContainer: {
+		overflow: "hidden",
+		borderRadius: 99999,
+		boxShadow: shadowCard,
+		backgroundColor: darkless,
+	},
+	secondary: {
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		flexDirection: "row",
+		gap: 6,
+	},
+	secondaryText: {
 		fontWeight: "bold",
 		color: white,
 	},
@@ -32,8 +58,27 @@ export const styles = StyleSheet.create({
 		justifyContent: "center",
 		paddingHorizontal: 16,
 		paddingVertical: 8,
+		flexDirection: "row",
+		gap: 6,
 	},
 	outlineText: {
+		fontWeight: "bold",
+		color: primary,
+	},
+	transparentContainer: {
+		overflow: "hidden",
+		borderRadius: 99999,
+		backgroundColor: "transparent",
+	},
+	transparent: {
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		flexDirection: "row",
+		gap: 6,
+	},
+	transparentText: {
 		fontWeight: "bold",
 		color: primary,
 	},

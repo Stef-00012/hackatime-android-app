@@ -172,7 +172,7 @@ export interface ProjectDetail {
 	name: string;
 	total_seconds: number;
 	languages: string[];
-	repo_url: string;
+	repo_url?: string;
 	total_heartbeats: number;
 	first_heartbeat: string;
 	last_heartbeat: string;

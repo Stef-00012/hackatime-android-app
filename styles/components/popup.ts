@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
 		bottom: 0,
 		right: 0,
 		backgroundColor: "rgba(0, 0, 0, 0.5)",
-		zIndex: 1,
+		zIndex: 3,
 	},
 	popupContainer: {
 		maxHeight: 600,
