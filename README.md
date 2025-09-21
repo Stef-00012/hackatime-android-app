@@ -47,3 +47,7 @@ This will create an APK but won't automatically install
 # Known Issues
 
 - If you enable biometric authentication, then upon opening the app you press the back button (refusing the biometric authentication), the app will correctly close, but if you try to reopen the app right after, it'll show a constant loading and no biometric authentication until the app is completely closed and reopened
+
+# TODO
+- [ ] Fix login page top and bottom (status and nav bar) being different colors
+- [ ] Fix projects page having alot of empty space on bottom
