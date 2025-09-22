@@ -97,7 +97,7 @@ export default function AuthProvider({ children }: Props) {
 			const output = await LocalAuthentication.authenticateAsync({
 				biometricsSecurityLevel: "weak",
 				cancelLabel: "Close App",
-				promptMessage: "Unlock Zipline",
+				promptMessage: "Unlock Hackatime",
 				requireConfirmation: true,
 			});
 
