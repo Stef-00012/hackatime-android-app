@@ -28,7 +28,7 @@ export default function Projects() {
 			<Header />
 			<Sidebar />
 
-			<ScrollView style={styles.mainContent}>
+			<ScrollView>
 				{projects.length === 0 ? (
 					<Text style={styles.noProjectText}>No Projects Available</Text>
 				) : (

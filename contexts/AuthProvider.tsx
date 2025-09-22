@@ -21,7 +21,7 @@ interface Props {
 
 interface AuthData {
 	user: UserStatsResponse["data"] | string;
-	updateAuth: () => Promise<UserStatsResponse["data"] | string>;
+	updateAuth: (apiKey?: string) => Promise<UserStatsResponse["data"] | string>;
 	isLoggedIn: boolean;
 	updateBiometricsSetting: (enabled: boolean) => void;
 	requestBiometricsAuthentication: () => Promise<boolean>;
@@ -66,18 +66,24 @@ export default function AuthProvider({ children }: Props) {
 	const [isAuthenticating, setIsAuthenticating] =
 		useState<boolean>(unlockWithBiometrics);
 
-	const updateAuth = useCallback(async () => {
-		const user = await getCurrentUserStats({
-			features: [],
-		});
+	const updateAuth = useCallback(
+		async (apiKey?: string) => {
+			if (typeof apiKey === "string") db.set("api_key", apiKey);
 
-		if (typeof user === "string" && pathname !== "/login")
-			router.replace("/login");
-		if (typeof user !== "string" && pathname === "/login") router.replace("/");
+			const user = await getCurrentUserStats({
+				features: [],
+			});
 
-		setUser(user);
-		return user;
-	}, [pathname, router]);
+			if (typeof user === "string" && pathname !== "/login")
+				router.replace("/login");
+			if (typeof user !== "string" && pathname === "/login")
+				router.replace("/");
+
+			setUser(user);
+			return user;
+		},
+		[pathname, router],
+	);
 
 	const updateBiometricsSetting = useCallback((enabled: boolean) => {
 		setUnlockWithBiometrics(enabled);

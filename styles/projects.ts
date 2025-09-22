@@ -2,9 +2,6 @@ import { elevated, muted, red } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-	mainContent: {
-		marginBottom: 70,
-	},
 	noProjectText: {
 		fontSize: 32,
 		fontWeight: "bold",

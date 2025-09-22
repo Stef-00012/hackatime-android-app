@@ -11,17 +11,13 @@ import { styles } from "@/styles/settings";
 import { useContext, useState } from "react";
 import { ScrollView, View } from "react-native";
 
-const apiRegex =
-	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export default function Settings() {
-	const dbAPiKey = db.get("api_key")
+	const dbAPiKey = db.get("api_key");
 
 	const [apiKey, setApiKey] = useState(dbAPiKey);
 
 	const {
 		updateAuth,
-		user,
 		updateBiometricsSetting,
 		unlockWithBiometrics,
 		supportsBiometrics,
@@ -81,9 +77,7 @@ export default function Settings() {
 						icon="save"
 						containerStyle={styles.button}
 						onPress={() => {
-							db.set("api_key", apiKey?.trim() || "");
-
-							updateAuth();
+							updateAuth(apiKey?.trim() || "");
 						}}
 					/>
 
@@ -94,9 +88,7 @@ export default function Settings() {
 						iconColor={red}
 						containerStyle={styles.button}
 						onPress={() => {
-							db.del("api_key");
-
-							updateAuth()
+							updateAuth("");
 						}}
 					/>
 				</View>

@@ -2,7 +2,6 @@ import Button from "@/components/Button";
 import Text from "@/components/Text";
 import TextInput from "@/components/TextInput";
 import { AuthContext } from "@/contexts/AuthProvider";
-import * as db from "@/functions/database";
 import { styles } from "@/styles/login";
 import { Link } from "expo-router";
 import { useContext, useState } from "react";
@@ -43,15 +42,11 @@ export default function Login() {
 							return setError("Invalid API key format");
 						}
 
-						db.set("api_key", apiKey);
-
-						const res = await updateAuth();
+						const res = await updateAuth(apiKey);
 
 						if (typeof res === "string") {
 							return setError(res);
 						}
-
-						setError(null);
 					}}
 				/>
 

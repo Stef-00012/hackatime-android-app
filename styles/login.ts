@@ -1,11 +1,11 @@
-import { darkless, muted, red } from "@/constants/hcColors";
+import { background, darkless, muted, red } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
 	loginContainer: {
 		display: "flex",
 		flex: 1,
-		backgroundColor: "#0c101c",
+		backgroundColor: background,
 		justifyContent: "center",
 		alignContent: "center",
 	},
