@@ -156,7 +156,12 @@ export default function AuthProvider({ children }: Props) {
 
 	useEffect(() => {
 		(async () => {
-			if (unlockWithBiometrics) {
+			if (
+				unlockWithBiometrics &&
+				supportsBiometrics &&
+				hasEnrolledBiometrics &&
+				supportsAuthenticationTypes.length > 0
+			) {
 				const authenticated = await requestBiometricsAuthentication();
 
 				if (!authenticated) return BackHandler.exitApp();
@@ -164,7 +169,13 @@ export default function AuthProvider({ children }: Props) {
 				return;
 			}
 		})();
-	}, [unlockWithBiometrics, requestBiometricsAuthentication]);
+	}, [
+		unlockWithBiometrics,
+		hasEnrolledBiometrics,
+		supportsAuthenticationTypes,
+		supportsBiometrics,
+		requestBiometricsAuthentication,
+	]);
 
 	return (
 		<AuthContext.Provider value={authData}>{children}</AuthContext.Provider>
