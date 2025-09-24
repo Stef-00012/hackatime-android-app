@@ -3,7 +3,7 @@ import ChartLegend from "@/components/ChartLegend";
 import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import Skeleton from "@/components/skeleton/Skeleton";
+import Skeleton from "@/components/Skeleton";
 import Text from "@/components/Text";
 import { languageColors } from "@/constants/languageColors";
 import { AuthContext } from "@/contexts/AuthProvider";
@@ -47,13 +47,13 @@ export default function Index() {
 
 	const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-	const [topProject, setTopProject] = useState<string>("N/A");
-	const [topLanguage, setTopLanguage] = useState<string>("N/A");
-	const [topOS, setTopOS] = useState<string>("N/A");
-	const [topEditor, setTopEditor] = useState<string>("N/A");
-	const [topMachine, setTopMachine] = useState<string>("N/A");
+	const [topProject, setTopProject] = useState<string | null>(null);
+	const [topLanguage, setTopLanguage] = useState<string | null>(null);
+	const [topOS, setTopOS] = useState<string | null>(null);
+	const [topEditor, setTopEditor] = useState<string | null>(null);
+	const [topMachine, setTopMachine] = useState<string | null>(null);
 
-	const [totalTime, setTotalTime] = useState<string>("N/A");
+	const [totalTime, setTotalTime] = useState<string | null>(null);
 
 	useEffect(() => {
 		getCurrentUserStatsLast7Days({
@@ -100,7 +100,7 @@ export default function Index() {
 				setTotalTime(
 					ms(stats.total_seconds * 1000, {
 						useAbbreviations: true,
-					}) || "N/A",
+					}) || `${stats.total_seconds}s`,
 				);
 			} else {
 				const totalSeconds = Array.isArray(stats.languages)
@@ -113,7 +113,7 @@ export default function Index() {
 				setTotalTime(
 					ms(totalSeconds * 1000, {
 						useAbbreviations: true,
-					}) || "N/A",
+					}) || `${totalSeconds}s`,
 				);
 			}
 
@@ -123,12 +123,12 @@ export default function Index() {
 	}, [stats, statsRange]);
 
 	useEffect(() => {
-		setTopEditor("N/A");
-		setTopOS("N/A");
-		setTopProject("N/A");
-		setTopLanguage("N/A");
-		setTotalTime("N/A");
-		setTopMachine("N/A");
+		setTopEditor(null);
+		setTopOS(null);
+		setTopProject(null);
+		setTopLanguage(null);
+		setTotalTime(null);
+		setTopMachine(null);
 
 		if (statsRange === "7d" || (!range.startDate && !range.endDate)) {
 			setStatsRangeName("Last 7 Days");
@@ -308,7 +308,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Total Time</Text>
 
 						<Skeleton width={160} height={40} radius="squircle">
-							{isAuthenticating || totalTime === "N/A" ? null : (
+							{isAuthenticating || !totalTime ? null : (
 								<Text style={styles.statText}>{totalTime}</Text>
 							)}
 						</Skeleton>
@@ -318,7 +318,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Project</Text>
 
 						<Skeleton width={200} height={40} radius="squircle">
-							{isAuthenticating || topProject === "N/A" ? null : (
+							{isAuthenticating || !topProject ? null : (
 								<Text style={styles.statText}>{topProject}</Text>
 							)}
 						</Skeleton>
@@ -328,7 +328,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Language</Text>
 
 						<Skeleton width={130} height={40} radius="squircle">
-							{isAuthenticating || topLanguage === "N/A" ? null : (
+							{isAuthenticating || !topLanguage ? null : (
 								<Text style={styles.statText}>{topLanguage}</Text>
 							)}
 						</Skeleton>
@@ -340,7 +340,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top OS</Text>
 
 								<Skeleton width={100} height={40} radius="squircle">
-									{isAuthenticating || topOS === "N/A" ? null : (
+									{isAuthenticating || !topOS ? null : (
 										<Text style={styles.statText}>{topOS}</Text>
 									)}
 								</Skeleton>
@@ -350,7 +350,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top Editor</Text>
 
 								<Skeleton width={140} height={40} radius="squircle">
-									{isAuthenticating || topEditor === "N/A" ? null : (
+									{isAuthenticating || !topEditor ? null : (
 										<Text style={styles.statText}>{topEditor}</Text>
 									)}
 								</Skeleton>
@@ -360,7 +360,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top Machine</Text>
 
 								<Skeleton width={140} height={40} radius="squircle">
-									{isAuthenticating || topMachine === "N/A" ? null : (
+									{isAuthenticating || !topMachine ? null : (
 										<Text style={styles.statText}>{topMachine}</Text>
 									)}
 								</Skeleton>
@@ -382,7 +382,7 @@ export default function Index() {
 											color:
 												languageColors[
 													language.name.toLowerCase() as keyof typeof languageColors
-												] || colorHash(language.name), // TODO: Use language main color instead of hash
+												] || colorHash(language.name),
 										}))}
 									/>
 								) : null}

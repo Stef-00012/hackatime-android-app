@@ -17,6 +17,11 @@ export const styles = StyleSheet.create({
 		marginVertical: 5,
 		padding: 15,
 	},
+	skeletonProjectContainer: {
+		marginHorizontal: 10,
+		borderRadius: 10,
+		marginVertical: 5,
+	},
 	header: {
 		flexDirection: "row",
 		alignItems: "center",

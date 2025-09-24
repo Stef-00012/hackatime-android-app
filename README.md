@@ -18,7 +18,7 @@ The app is available on the following platforms:
 <!-- - Google Play Store -->
 - GitHub Releases
 
-<!-- [![Get on Google Play](/assets/github/google-play.png)](https://play.google.com/store/apps/details?id=com.stefdp.zipline) -->
+<!-- [![Get on Google Play](/assets/github/google-play.png)](https://play.google.com/store/apps/details?id=com.stefdp.hackatime) -->
 [![Get on GitHub](/assets/github/github.png)](https://github.com/Stef-00012/zipline-android-app/releases/latest/download/app-release.apk)
 
 # Creating a development build
@@ -27,8 +27,9 @@ The app is available on the following platforms:
 > Requires an android device connected to the laptop/PC and ADB (Android Debug Bridge) installed
 
 1. `bun install`
-2. `bun run prebuild`
-3. `bun run run:android`
+2. `bun run materialSymbols:setup`
+3. `bun run prebuild`
+4. `bun run run:android`
 
 (this will create a development APK and automatically install in your device)
 
@@ -39,15 +40,12 @@ The app is available on the following platforms:
 > add `--output /path/to/file.apk` to save the APK in that path
 
 1. `bun install`
-2. `bun install --global eas-cli`
-3. `eas build --clear-cache --platform android --profile preview`
+2. `bun run materialSymbols:setup`
+3. `bun install --global eas-cli`
+4. `eas build --clear-cache --platform android --profile preview`
 
 This will create an APK but won't automatically install
 
 # Known Issues
 
 - If you enable biometric authentication, then upon opening the app you press the back button (refusing the biometric authentication), the app will correctly close, but if you try to reopen the app right after, it'll show a constant loading and no biometric authentication until the app is completely closed and reopened
-
-# TODO
-- [ ] fix constantly showing skeleton when there's no data on an account
-- [ ] Add Skeleton UI for the projects loading

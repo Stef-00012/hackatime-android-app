@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "expo-router";
 import { useContext } from "react";
 import { View } from "react-native";
 import Button from "./Button";
-import Skeleton from "./skeleton/Skeleton";
+import Skeleton from "./Skeleton";
 import Text from "./Text";
 
 export default function Header() {

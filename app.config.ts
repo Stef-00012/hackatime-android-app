@@ -8,18 +8,18 @@ const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PRERELEASE = process.env.APP_VARIANT === "prerelease";
 // const IS_PRODUCTION = process.env.APP_VARIANT === "production";
 
-let appName = "Hackatime";
+let appName = "Hackatime Stats";
 let appId = "com.stefdp.hackatime";
 let assetsPath = "./assets/images";
 
 if (IS_DEV) {
-	appName = "Hackatime (Dev)";
+	appName = "Hackatime Stats (Dev)";
 	appId += ".dev";
 	assetsPath += "/dev";
 }
 
 if (IS_PRERELEASE) {
-	appName = "Hackatime (Pre)";
+	appName = "Hackatime Stats (Pre)";
 	appId += ".pre";
 	assetsPath += "/pre";
 }
@@ -27,11 +27,11 @@ if (IS_PRERELEASE) {
 export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: appName,
-	slug: "hackatime",
+	slug: "hackatime-stats",
 	version: appVersion,
 	orientation: "portrait",
 	icon: `${assetsPath}/icon.png`,
-	scheme: "hackatime",
+	scheme: "hackatime-stats",
 	newArchEnabled: true,
 	userInterfaceStyle: "automatic",
 	platforms: ["android"],
@@ -44,7 +44,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			monochromeImage: `${assetsPath}/monochromatic-adaptive-icon.png`,
 			backgroundColor: "#ec3750",
 		},
-		// predictiveBackGestureEnabled: true,
+		predictiveBackGestureEnabled: true,
 		versionCode: appVersionCode,
 		version: appVersion,
 		package: appId,
