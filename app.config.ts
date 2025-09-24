@@ -77,7 +77,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			origin: false,
 		},
 		eas: {
-			projectId: "0818e8e4-d637-43be-a6d8-041bac2bf273",
+			projectId: "cb5c2f76-5092-481c-908d-aa65a1c2f29d",
 		},
 	},
 	runtimeVersion: {
