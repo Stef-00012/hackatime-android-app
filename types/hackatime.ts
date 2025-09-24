@@ -1,6 +1,6 @@
 export interface UserStatsResponse {
 	data: {
-		username: string;
+		username: string | null;
 		user_id: string;
 		is_coding_activity_visible: boolean;
 		is_other_usage_visible: boolean;
@@ -21,8 +21,8 @@ export interface UserStatsResponse {
 
 export interface UserStatsLast7DaysResponse {
 	data: {
-		username: string;
-		user_id: string;
+		username: string | null;
+		user_id: string | null;
 		start: string;
 		end: string;
 		status: string;
