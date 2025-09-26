@@ -5,14 +5,16 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Skeleton from "@/components/Skeleton";
 import Text from "@/components/Text";
+import { elevated, red, slate } from "@/constants/hcColors";
 import { languageColors } from "@/constants/languageColors";
 import { AuthContext } from "@/contexts/AuthProvider";
 import {
 	getCurrentUserStats,
 	getCurrentUserStatsLast7Days,
 } from "@/functions/hackatime";
+import { getLast7DaysData } from "@/functions/hackatime-util";
 import { colorHash, formatDate, getTop } from "@/functions/util";
-import { styles } from "@/styles/home";
+import { lineChartWidth, styles } from "@/styles/home";
 import type {
 	UserStatsLast7DaysResponse,
 	UserStatsResponse,
@@ -21,7 +23,7 @@ import { add } from "date-fns/add";
 import ms from "enhanced-ms";
 import { useContext, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { PieChart } from "react-native-gifted-charts";
+import { CurveType, LineChart, PieChart } from "react-native-gifted-charts";
 import type { DateType } from "react-native-ui-datepicker";
 
 export default function Index() {
@@ -30,6 +32,9 @@ export default function Index() {
 	const [stats, setStats] = useState<
 		UserStatsLast7DaysResponse["data"] | UserStatsResponse["data"] | null
 	>(null);
+	const [last7DaysData, setLast7DaysData] = useState<Awaited<
+		ReturnType<typeof getLast7DaysData>
+	> | null>(null);
 	const [statsRange, setStatsRange] = useState<"7d" | "alltime" | "custom">(
 		"7d",
 	);
@@ -66,6 +71,10 @@ export default function Index() {
 			],
 		}).then((userStats) => {
 			setStats(typeof userStats === "string" ? null : userStats);
+		});
+
+		getLast7DaysData().then((data) => {
+			setLast7DaysData(data);
 		});
 	}, []);
 
@@ -143,6 +152,10 @@ export default function Index() {
 				],
 			}).then((userStats) => {
 				setStats(typeof userStats === "string" ? null : userStats);
+			});
+
+			getLast7DaysData().then((data) => {
+				setLast7DaysData(data);
 			});
 
 			return;
@@ -364,6 +377,74 @@ export default function Index() {
 										<Text style={styles.statText}>{topMachine}</Text>
 									)}
 								</Skeleton>
+							</View>
+
+							<View style={styles.chartContainer}>
+								<Text style={styles.chartTitle}>Last 7 Days Overview</Text>
+
+								<View style={styles.pieChartContainer}>
+									<Skeleton width={"100%"} height={220} radius="squircle">
+										{!isAuthenticating && last7DaysData ? (
+											<LineChart
+												data={Object.values(last7DaysData).map((dayData) => {
+													const totalSeconds =
+														typeof dayData.data === "string"
+															? 0
+															: Array.isArray(dayData.data.languages)
+																? dayData.data.languages.reduce(
+																		(seconds, language) =>
+																			seconds + language.total_seconds,
+																		0,
+																	)
+																: 0;
+
+													const value = totalSeconds;
+
+													const label = new Date(
+														dayData.date,
+													).toLocaleDateString("en-US", { weekday: "short" });
+
+													// const dataPointText =
+													// 	ms(Number(totalSeconds) * 1000, {
+													// 		useAbbreviations: true,
+													// 		unitLimit: 1,
+													// 	}) || "0s";
+
+													return {
+														value,
+														label,
+														dataPointColor: red,
+														// dataPointText,
+													};
+												})}
+												formatYLabel={(value) =>
+													ms(Number(value) * 1000, {
+														useAbbreviations: true,
+														unitLimit: 1,
+													}) || "0s"
+												}
+												width={lineChartWidth}
+												curved
+												backgroundColor={elevated}
+												color={red}
+												curveType={CurveType.QUADRATIC}
+												xAxisColor={slate}
+												yAxisColor={slate}
+												yAxisTextStyle={styles.lineChartAxisText}
+												xAxisLabelTextStyle={[
+													styles.lineChartAxisText,
+													styles.lineChartXAxisText,
+												]}
+												yAxisLabelWidth={40}
+												rulesColor={slate}
+												disableScroll
+												initialSpacing={3}
+												endSpacing={0}
+												spacing={lineChartWidth / 6 - 1}
+											/>
+										) : null}
+									</Skeleton>
+								</View>
 							</View>
 						</>
 					)}

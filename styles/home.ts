@@ -1,5 +1,5 @@
 import { darkless, elevated, muted } from "@/constants/hcColors";
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
 	scrollView: {
@@ -56,4 +56,18 @@ export const styles = StyleSheet.create({
 	mainContent: {
 		marginBottom: 70,
 	},
+	lineChartAxisText: {
+		color: muted,
+	},
+	lineChartXAxisText: {
+		overflow: "visible",
+	},
 });
+
+const windowWidth = Dimensions.get("window").width;
+
+export const lineChartWidth =
+	windowWidth -
+	styles.chartContainer.margin * 2 -
+	styles.chartContainer.padding * 2 -
+	40;
