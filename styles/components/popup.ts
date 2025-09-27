@@ -10,6 +10,8 @@ export const styles = StyleSheet.create({
 		right: 0,
 		backgroundColor: "rgba(0, 0, 0, 0.5)",
 		zIndex: 3,
+		paddingVertical: 40,
+		marginVertical: -40,
 	},
 	popupContainer: {
 		maxHeight: 600,

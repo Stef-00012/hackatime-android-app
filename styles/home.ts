@@ -1,4 +1,4 @@
-import { darkless, elevated, muted } from "@/constants/hcColors";
+import { darkless, elevated, muted, slate } from "@/constants/hcColors";
 import { Dimensions, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
 	chartTitle: {
 		fontWeight: "bold",
 		fontSize: 24,
-		marginBottom: 5,
+		marginBottom: 10,
 	},
 	mainContent: {
 		marginBottom: 70,
@@ -61,6 +61,38 @@ export const styles = StyleSheet.create({
 	},
 	lineChartXAxisText: {
 		overflow: "visible",
+	},
+	lineChartYAxisText: {
+		textAlign: "right",
+	},
+	barChartAxisText: {
+		color: muted,
+	},
+	barChartXAxisText: {
+		fontSize: 12,
+		transform: [{ rotate: "-120deg" }, { translateX: -5 }, { translateY: -5 }],
+	},
+	barChartContainer: {
+		marginHorizontal: "auto",
+		marginBottom: 20,
+	},
+	barChartPopupTitle: {
+		fontWeight: "bold",
+		fontSize: 20,
+		textAlign: "center",
+		marginBottom: 5,
+	},
+	barChartPopupScrollView: {
+		maxHeight: 400,
+	},
+	barChartPopupProjectContainer: {
+		justifyContent: "space-between",
+		flexDirection: "row",
+		borderWidth: 1,
+		borderColor: slate,
+		borderRadius: 8,
+		padding: 5,
+		marginVertical: 5,
 	},
 });
 

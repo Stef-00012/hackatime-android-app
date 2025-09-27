@@ -12,6 +12,9 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Host } from "react-native-portalize";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// import { LogBox } from 'react-native';
+// LogBox.ignoreAllLogs();//Ignore all log notifications
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {

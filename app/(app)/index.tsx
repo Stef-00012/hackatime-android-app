@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import ChartLegend from "@/components/ChartLegend";
 import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
+import Popup from "@/components/Popup";
 import Sidebar from "@/components/Sidebar";
 import Skeleton from "@/components/Skeleton";
 import Text from "@/components/Text";
@@ -9,10 +10,19 @@ import { elevated, red, slate } from "@/constants/hcColors";
 import { languageColors } from "@/constants/languageColors";
 import { AuthContext } from "@/contexts/AuthProvider";
 import {
+	formatLast7DaysChartYAxisLabel,
+	getLast7DaysChartData,
+	getProjectsTimelineChartData,
+	getProjectsTimelineChartLegend,
+} from "@/functions/chart";
+import {
 	getCurrentUserStats,
 	getCurrentUserStatsLast7Days,
 } from "@/functions/hackatime";
-import { getLast7DaysData } from "@/functions/hackatime-util";
+import {
+	getLast7DaysData,
+	getProjectsTimelineData,
+} from "@/functions/hackatime-util";
 import { colorHash, formatDate, getTop } from "@/functions/util";
 import { lineChartWidth, styles } from "@/styles/home";
 import type {
@@ -23,7 +33,12 @@ import { add } from "date-fns/add";
 import ms from "enhanced-ms";
 import { useContext, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { CurveType, LineChart, PieChart } from "react-native-gifted-charts";
+import {
+	BarChart,
+	CurveType,
+	LineChart,
+	PieChart,
+} from "react-native-gifted-charts";
 import type { DateType } from "react-native-ui-datepicker";
 
 export default function Index() {
@@ -32,9 +47,7 @@ export default function Index() {
 	const [stats, setStats] = useState<
 		UserStatsLast7DaysResponse["data"] | UserStatsResponse["data"] | null
 	>(null);
-	const [last7DaysData, setLast7DaysData] = useState<Awaited<
-		ReturnType<typeof getLast7DaysData>
-	> | null>(null);
+
 	const [statsRange, setStatsRange] = useState<"7d" | "alltime" | "custom">(
 		"7d",
 	);
@@ -49,6 +62,18 @@ export default function Index() {
 		}),
 		endDate: new Date(),
 	});
+
+	const [last7DaysData, setLast7DaysData] = useState<Awaited<
+		ReturnType<typeof getLast7DaysData>
+	> | null>(null);
+
+	const [timelineData, setTimelineData] = useState<Awaited<
+		ReturnType<typeof getProjectsTimelineData>
+	> | null>(null);
+
+	const [timelineDetails, setTimelineDetails] = useState<
+		"r1" | "r2" | "r3" | "r4" | "r5" | "r6" | "r7" | null
+	>(null);
 
 	const [datePickerOpen, setDatePickerOpen] = useState(false);
 
@@ -75,6 +100,10 @@ export default function Index() {
 
 		getLast7DaysData().then((data) => {
 			setLast7DaysData(data);
+		});
+
+		getProjectsTimelineData().then((data) => {
+			setTimelineData(data);
 		});
 	}, []);
 
@@ -138,6 +167,10 @@ export default function Index() {
 		setTopLanguage(null);
 		setTotalTime(null);
 		setTopMachine(null);
+
+		getProjectsTimelineData().then((data) => {
+			setTimelineData(data);
+		});
 
 		if (statsRange === "7d" || (!range.startDate && !range.endDate)) {
 			setStatsRangeName("Last 7 Days");
@@ -303,6 +336,47 @@ export default function Index() {
 				/>
 			</DatePicker>
 
+			<Popup
+				hidden={!timelineDetails}
+				onClose={() => {
+					setTimelineDetails(null);
+				}}
+			>
+				{timelineData &&
+					timelineDetails &&
+					typeof timelineData[timelineDetails].data !== "string" && (
+						<>
+							<Text style={styles.barChartPopupTitle}>
+								Range: {formatDate(timelineData[timelineDetails].startDate)} -{" "}
+								{formatDate(timelineData[timelineDetails].endDate)}
+							</Text>
+
+							{Array.isArray(timelineData[timelineDetails].data.projects) &&
+							timelineData[timelineDetails].data.projects.length > 0 ? (
+								<ScrollView style={styles.barChartPopupScrollView}>
+									{timelineData[timelineDetails].data.projects.map(
+										(project) => (
+											<View
+												key={project.name}
+												style={styles.barChartPopupProjectContainer}
+											>
+												<Text>{project.name}</Text>
+												<Text>
+													{ms(project.total_seconds * 1000, {
+														useAbbreviations: true,
+													}) || `${project.total_seconds}s`}
+												</Text>
+											</View>
+										),
+									)}
+								</ScrollView>
+							) : (
+								<Text>No Data Available</Text>
+							)}
+						</>
+					)}
+			</Popup>
+
 			<View>
 				<Header />
 				<Sidebar />
@@ -378,75 +452,87 @@ export default function Index() {
 									)}
 								</Skeleton>
 							</View>
-
-							<View style={styles.chartContainer}>
-								<Text style={styles.chartTitle}>Last 7 Days Overview</Text>
-
-								<View style={styles.pieChartContainer}>
-									<Skeleton width={"100%"} height={220} radius="squircle">
-										{!isAuthenticating && last7DaysData ? (
-											<LineChart
-												data={Object.values(last7DaysData).map((dayData) => {
-													const totalSeconds =
-														typeof dayData.data === "string"
-															? 0
-															: Array.isArray(dayData.data.languages)
-																? dayData.data.languages.reduce(
-																		(seconds, language) =>
-																			seconds + language.total_seconds,
-																		0,
-																	)
-																: 0;
-
-													const value = totalSeconds;
-
-													const label = new Date(
-														dayData.date,
-													).toLocaleDateString("en-US", { weekday: "short" });
-
-													// const dataPointText =
-													// 	ms(Number(totalSeconds) * 1000, {
-													// 		useAbbreviations: true,
-													// 		unitLimit: 1,
-													// 	}) || "0s";
-
-													return {
-														value,
-														label,
-														dataPointColor: red,
-														// dataPointText,
-													};
-												})}
-												formatYLabel={(value) =>
-													ms(Number(value) * 1000, {
-														useAbbreviations: true,
-														unitLimit: 1,
-													}) || "0s"
-												}
-												width={lineChartWidth}
-												curved
-												backgroundColor={elevated}
-												color={red}
-												curveType={CurveType.QUADRATIC}
-												xAxisColor={slate}
-												yAxisColor={slate}
-												yAxisTextStyle={styles.lineChartAxisText}
-												xAxisLabelTextStyle={[
-													styles.lineChartAxisText,
-													styles.lineChartXAxisText,
-												]}
-												yAxisLabelWidth={40}
-												rulesColor={slate}
-												disableScroll
-												initialSpacing={3}
-												endSpacing={0}
-												spacing={lineChartWidth / 6 - 1}
-											/>
-										) : null}
-									</Skeleton>
-								</View>
-							</View>
 						</>
+					)}
+
+					<View style={styles.chartContainer}>
+						<Text style={styles.chartTitle}>Project Timeline</Text>
+
+						<View style={styles.barChartContainer}>
+							<Skeleton width={"100%"} height={220} radius="squircle">
+								{!isAuthenticating && timelineData ? (
+									<BarChart
+										stackData={getProjectsTimelineChartData(
+											timelineData,
+											setTimelineDetails,
+										)}
+										formatYLabel={(value) =>
+											ms(Number(value) * 1000, {
+												useAbbreviations: true,
+												includedUnits: ["hour"],
+											}) || "0s"
+										}
+										width={lineChartWidth}
+										backgroundColor={elevated}
+										xAxisColor={slate}
+										yAxisColor={slate}
+										yAxisTextStyle={styles.barChartAxisText}
+										xAxisLabelTextStyle={[
+											styles.barChartAxisText,
+											styles.barChartXAxisText,
+										]}
+										labelsDistanceFromXaxis={5}
+										rotateLabel
+										yAxisLabelWidth={40}
+										rulesColor={slate}
+										disableScroll
+										initialSpacing={3}
+										endSpacing={0}
+										spacing={20}
+										noOfSections={6}
+									/>
+								) : null}
+							</Skeleton>
+						</View>
+
+						<ChartLegend data={getProjectsTimelineChartLegend(timelineData)} />
+					</View>
+
+					{statsRange === "7d" && (
+						<View style={styles.chartContainer}>
+							<Text style={styles.chartTitle}>Last 7 Days Overview</Text>
+
+							<View style={styles.pieChartContainer}>
+								<Skeleton width={"100%"} height={220} radius="squircle">
+									{!isAuthenticating && last7DaysData ? (
+										<LineChart
+											data={getLast7DaysChartData(last7DaysData)}
+											formatYLabel={formatLast7DaysChartYAxisLabel}
+											width={lineChartWidth}
+											curved
+											dataPointsColor={red}
+											backgroundColor={elevated}
+											color={red}
+											curveType={CurveType.QUADRATIC}
+											xAxisColor={slate}
+											yAxisColor={slate}
+											yAxisTextStyle={styles.lineChartAxisText}
+											xAxisLabelTextStyle={[
+												styles.lineChartAxisText,
+												styles.lineChartXAxisText,
+											]}
+											yAxisLabelWidth={40}
+											rulesColor={slate}
+											disableScroll
+											initialSpacing={3}
+											endSpacing={0}
+											spacing={lineChartWidth / 6 - 1}
+											noOfSections={6}
+										/>
+									) : null}
+								</Skeleton>
+							</View>
+						</View>
 					)}
 
 					<View style={styles.chartContainer}>

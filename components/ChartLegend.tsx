@@ -2,7 +2,7 @@ import { styles } from "@/styles/components/chartLegend";
 import { type ColorValue, View } from "react-native";
 import Text from "./Text";
 
-interface Props {
+export interface Props {
 	data: {
 		label: string;
 		color: ColorValue;

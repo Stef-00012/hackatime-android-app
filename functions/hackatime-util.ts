@@ -22,10 +22,7 @@ export async function getLast7DaysData(): Promise<
 
 	const last7DaysData: Record<
 		"0d" | "1d" | "2d" | "3d" | "4d" | "5d" | "6d",
-		{
-			date: Date;
-			data: Awaited<ReturnType<typeof getCurrentUserStats>>;
-		}
+		DateData
 	> = {
 		"0d": {
 			date: last7Days["0d"],
@@ -76,4 +73,135 @@ export async function getLast7DaysData(): Promise<
 	}
 
 	return last7DaysData;
+}
+
+interface TimelineData {
+	startDate: Date;
+	endDate: Date;
+	data: Awaited<ReturnType<typeof getCurrentUserStats>>;
+}
+
+export async function getProjectsTimelineData(): Promise<
+	Record<"r1" | "r2" | "r3" | "r4" | "r5" | "r6" | "r7", TimelineData>
+> {
+	const now = new Date();
+
+	const last7Ranges = {
+		"r1": {
+			startDate: add(now, {
+				weeks: -2
+			}),
+			endDate: now
+		},
+		"r2": {
+			startDate: add(now, {
+				weeks: -4
+			}),
+			endDate: add(now, {
+				weeks: -2
+			})
+		},
+		"r3": {
+			startDate: add(now, {
+				weeks: -6
+			}),
+			endDate: add(now, {
+				weeks: -4
+			})
+		},
+		"r4": {
+			startDate: add(now, {
+				weeks: -8
+			}),
+			endDate: add(now, {
+				weeks: -6
+			})
+		},
+		"r5": {
+			startDate: add(now, {
+				weeks: -10
+			}),
+			endDate: add(now, {
+				weeks: -8
+			})
+		},
+		"r6": {
+			startDate: add(now, {
+				weeks: -12
+			}),
+			endDate: add(now, {
+				weeks: -10
+			})
+		},
+		"r7": {
+			startDate: add(now, {
+				weeks: -14
+			}),
+			endDate: add(now, {
+				weeks: -12
+			})
+		},
+	};
+
+	const timelineData: Record<
+		"r1" | "r2" | "r3" | "r4" | "r5" | "r6" | "r7",
+		TimelineData
+	> = {
+		"r1": {
+			startDate: last7Ranges.r1.startDate,
+			endDate: last7Ranges.r1.endDate,
+			data: "missing data",
+		},
+		"r2": {
+			startDate: last7Ranges.r2.startDate,
+			endDate: last7Ranges.r2.endDate,
+			data: "missing data",
+		},
+		"r3": {
+			startDate: last7Ranges.r3.startDate,
+			endDate: last7Ranges.r3.endDate,
+			data: "missing data",
+		},
+		"r4": {
+			startDate: last7Ranges.r4.startDate,
+			endDate: last7Ranges.r4.endDate,
+			data: "missing data",
+		},
+		"r5": {
+			startDate: last7Ranges.r5.startDate,
+			endDate: last7Ranges.r5.endDate,
+			data: "missing data",
+		},
+		"r6": {
+			startDate: last7Ranges.r6.startDate,
+			endDate: last7Ranges.r6.endDate,
+			data: "missing data",
+		},
+		"r7": {
+			startDate: last7Ranges.r7.startDate,
+			endDate: last7Ranges.r7.endDate,
+			data: "missing data",
+		},
+	};
+
+	for (const _range in last7Ranges) {
+		const rangeNumber = _range as keyof typeof last7Ranges;
+		const range = last7Ranges[rangeNumber];
+
+		const startDate = range.startDate;
+		const endDate = range.endDate;
+
+		const formattedStartDate = formatDate(startDate);
+		const formattedEndDate = formatDate(endDate);
+
+		const res = await getCurrentUserStats({
+			startDate: formattedStartDate,
+			endDate: formattedEndDate,
+			features: ["projects", "languages"],
+		});
+
+		timelineData[rangeNumber].data = res;
+	}
+
+	return timelineData;
 }
