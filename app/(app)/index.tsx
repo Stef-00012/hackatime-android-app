@@ -563,7 +563,7 @@ export default function Index() {
 									color:
 										languageColors[
 											language.name.toLowerCase() as keyof typeof languageColors
-										] || colorHash(language.name), // TODO: Use language main color instead of hash
+										] || colorHash(language.name),
 								})) || []
 							}
 						/>

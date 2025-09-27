@@ -29,16 +29,9 @@ export function getLast7DaysChartData(
 				weekday: "short",
 			});
 
-			// const dataPointText =
-			// 	ms(Number(totalSeconds) * 1000, {
-			// 		useAbbreviations: true,
-			// 		unitLimit: 1,
-			// 	}) || "0s";
-
 			return {
 				value,
 				label,
-				// dataPointText,
 			} satisfies lineDataItem;
 		})
 		.reverse();
@@ -68,20 +61,10 @@ export function getProjectsTimelineChartData(
 						? rangeData.data.projects
 						: [];
 
-			// const totalSeconds = projects.reduce((seconds, project) => seconds + project.total_seconds, 0)
-
-			// const value = totalSeconds;
-
 			const label = new Date(rangeData.startDate).toLocaleDateString("en-US", {
 				month: "short",
 				day: "numeric",
 			});
-
-			// const dataPointText =
-			// 	ms(Number(totalSeconds) * 1000, {
-			// 		useAbbreviations: true,
-			// 		unitLimit: 1,
-			// 	}) || "0s";
 
 			const stacks: stackDataItem["stacks"] = projects.map((project) => {
 				return {

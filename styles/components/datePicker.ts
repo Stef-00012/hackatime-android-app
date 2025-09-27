@@ -31,21 +31,26 @@ export const styles = StyleSheet.create({
 	todayTextStyle: {
 		fontWeight: "bold",
 		color: red,
+		fontFamily: "PhantomSans",
 	},
 	monthSelectorLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	yearSelectorLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	weekdayLabel: {
 		color: muted,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	dayLabel: {
 		color: white,
+		fontFamily: "PhantomSans",
 	},
 	rangeFill: {
 		backgroundColor: redOverlay,
@@ -62,17 +67,21 @@ export const styles = StyleSheet.create({
 	selectedLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	rangeEndLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	rangeStartLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 	rangeMiddleLabel: {
 		color: white,
 		fontWeight: "bold",
+		fontFamily: "PhantomSans",
 	},
 });

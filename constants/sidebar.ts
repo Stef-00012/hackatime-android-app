@@ -15,20 +15,4 @@ export const sidebarOptions: SidebarOption[] = [
         icon: "dashboard",
         subMenus: [],
     },
-
-    // {
-    //     type: "select",
-    //     route: null,
-    //     name: "test",
-    //     icon: "folder",
-    //     subMenus: [
-    //         {
-    //             type: "button",
-    //             route: "/",
-    //             name: "Home",
-    //             icon: "home",
-    //             subMenus: [],
-    //         },
-    //     ]
-    // }
 ];

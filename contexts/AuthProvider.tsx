@@ -1,5 +1,3 @@
-// import * as LocalAuthentication from "expo-local-authentication";
-
 import * as db from "@/functions/database";
 import { getCurrentUserStats } from "@/functions/hackatime";
 import type { UserStatsResponse } from "@/types/hackatime";

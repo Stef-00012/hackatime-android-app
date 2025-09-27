@@ -54,7 +54,48 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	},
 	plugins: [
 		"expo-router",
-		"expo-font",
+		[
+			"expo-font",
+			{
+				fonts: [
+					"./assets/fonts/PhantomSans-Regular.otf",
+					"./assets/fonts/material-symbols.ttf",
+				],
+				android: {
+					fonts: [
+						{
+							fontFamily: "PhantomSans",
+							fontDefinitions: [
+								{
+									path: "./assets/fonts/PhantomSans-Regular.otf",
+									weight: 400,
+									style: "normal",
+								},
+								{
+									path: "./assets/fonts/PhantomSans-Italic.otf",
+									weight: 400,
+									style: "italic",
+								},
+								{
+									path: "./assets/fonts/PhantomSans-Bold.otf",
+									weight: 700,
+								},
+							],
+						},
+						{
+							fontFamily: "MaterialSymbols",
+							fontDefinitions: [
+								{
+									path: "./assets/fonts/material-symbols.ttf",
+									weight: 400,
+									style: "normal",
+								},
+							],
+						}
+					],
+				},
+			},
+		],
 		[
 			"expo-splash-screen",
 			{

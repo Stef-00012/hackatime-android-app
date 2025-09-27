@@ -58,6 +58,7 @@ export const styles = StyleSheet.create({
 	},
 	lineChartAxisText: {
 		color: muted,
+		fontFamily: "PhantomSans",
 	},
 	lineChartXAxisText: {
 		overflow: "visible",
@@ -67,6 +68,7 @@ export const styles = StyleSheet.create({
 	},
 	barChartAxisText: {
 		color: muted,
+		fontFamily: "PhantomSans",
 	},
 	barChartXAxisText: {
 		fontSize: 12,

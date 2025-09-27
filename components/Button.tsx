@@ -150,7 +150,6 @@ export default function Button({
 			);
 		}
 
-		// case "primary":
 		default: {
 			return (
 				<View style={[styles.primaryContainer, containerStyle]}>

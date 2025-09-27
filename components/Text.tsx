@@ -10,7 +10,7 @@ export default function Text({ style, ...props }: Props) {
 		<RNText
 			style={[
 				{
-					fontFamily: "Hackclub-Regular, MaterialSymbols",
+					fontFamily: "PhantomSans",
 					color: text,
 				},
 				style,
