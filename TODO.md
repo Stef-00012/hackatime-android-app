@@ -1,3 +1,2 @@
-- [ ] Add a stacked chart with the projects with intervals of 2 weeks (7 intervals)
-- [ ] Display the app version in the settings
-- [ ] Add a label to the datapoints in the line charts (`dataPointText`)
+- [x] Add a stacked chart with the projects with intervals of 2 weeks (7 intervals)
+- [x] Display the app version in the settings

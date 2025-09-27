@@ -7,6 +7,7 @@ import TextInput from "@/components/TextInput";
 import { red } from "@/constants/hcColors";
 import { AuthContext } from "@/contexts/AuthProvider";
 import * as db from "@/functions/database";
+import { version, versionCode } from "@/package.json";
 import { styles } from "@/styles/settings";
 import { useContext, useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -91,6 +92,11 @@ export default function Settings() {
 							updateAuth("");
 						}}
 					/>
+
+					<Text style={styles.appVersionText}>
+						<Text style={styles.appVersionTitle}>App Version:</Text> {version}{" "}
+						<Text style={styles.appVersionBuildNumber}>({versionCode})</Text>
+					</Text>
 				</View>
 			</ScrollView>
 		</View>

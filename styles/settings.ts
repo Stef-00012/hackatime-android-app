@@ -1,4 +1,4 @@
-import { elevated, red } from "@/constants/hcColors";
+import { elevated, muted, red } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -23,5 +23,15 @@ export const styles = StyleSheet.create({
 	},
 	button: {
 		marginTop: 10,
+	},
+	appVersionText: {
+		marginTop: 10,
+	},
+	appVersionTitle: {
+		fontWeight: "bold",
+	},
+	appVersionBuildNumber: {
+		fontSize: 12,
+		color: muted,
 	},
 });
