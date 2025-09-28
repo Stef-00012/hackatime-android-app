@@ -1,4 +1,4 @@
-import { darkless, elevated, muted, slate } from "@/constants/hcColors";
+import { darkless, elevated, muted, red, slate } from "@/constants/hcColors";
 import { Dimensions, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -95,6 +95,11 @@ export const styles = StyleSheet.create({
 		borderRadius: 8,
 		padding: 5,
 		marginVertical: 5,
+	},
+	noDataMessage: {
+		color: red,
+		textAlign: "center",
+		fontWeight: "bold",
 	},
 });
 

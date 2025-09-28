@@ -1,8 +1,8 @@
 {
   "name": "hackatime-stats",
   "main": "expo-router/entry",
-  "version": "1.1.1",
-  "versionCode": 4,
+  "version": "1.1.2",
+  "versionCode": 5,
   "scripts": {
     "start": "expo start",
     "start:dev": "APP_VARIANT=development EDGE_PATH=/etc/profiles/per-user/stef/bin/chromium expo start --dev-client",

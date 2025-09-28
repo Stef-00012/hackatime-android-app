@@ -11,6 +11,7 @@ import { languageColors } from "@/constants/languageColors";
 import { AuthContext } from "@/contexts/AuthProvider";
 import {
 	formatLast7DaysChartYAxisLabel,
+	formatProjectsTimelineChartYAxisLabel,
 	getLast7DaysChartData,
 	getProjectsTimelineChartData,
 	getProjectsTimelineChartLegend,
@@ -371,7 +372,7 @@ export default function Index() {
 									)}
 								</ScrollView>
 							) : (
-								<Text>No Data Available</Text>
+								<Text style={styles.noDataMessage}>No Data Available</Text>
 							)}
 						</>
 					)}
@@ -466,12 +467,7 @@ export default function Index() {
 											timelineData,
 											setTimelineDetails,
 										)}
-										formatYLabel={(value) =>
-											ms(Number(value) * 1000, {
-												useAbbreviations: true,
-												includedUnits: ["hour"],
-											}) || "0s"
-										}
+										formatYLabel={formatProjectsTimelineChartYAxisLabel}
 										width={lineChartWidth}
 										backgroundColor={elevated}
 										xAxisColor={slate}

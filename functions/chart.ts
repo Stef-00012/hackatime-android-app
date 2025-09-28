@@ -1,4 +1,5 @@
 import type { Props as ChartLegendProps } from "@/components/ChartLegend";
+import type { Units } from "@/types/ms";
 import ms from "enhanced-ms";
 import type { Dispatch, SetStateAction } from "react";
 import type { lineDataItem, stackDataItem } from "react-native-gifted-charts";
@@ -38,9 +39,19 @@ export function getLast7DaysChartData(
 }
 
 export function formatLast7DaysChartYAxisLabel(value: string) {
+	const seconds = Number(value);
+	const hours = Math.floor(seconds / 3600);
+	const days = Math.floor(hours / 24);
+
+	let unit: Units = "minute";
+
+	if (hours > 0) unit = "hour";
+	if (days > 0) unit = "day";
+
 	return (
-		ms(Number(value) * 1000, {
+		ms(seconds * 1000, {
 			useAbbreviations: true,
+			includedUnits: [unit],
 			unitLimit: 1,
 		}) || "0s"
 	);
@@ -66,12 +77,20 @@ export function getProjectsTimelineChartData(
 				day: "numeric",
 			});
 
-			const stacks: stackDataItem["stacks"] = projects.map((project) => {
-				return {
-					value: project.total_seconds,
-					color: colorHash(project.name),
-				};
-			});
+			const stacks: stackDataItem["stacks"] =
+				projects.length === 0
+					? [
+							{
+								value: 0,
+								color: "transparent",
+							},
+						]
+					: projects.map((project) => {
+							return {
+								value: project.total_seconds,
+								color: colorHash(project.name),
+							};
+						});
 
 			return {
 				stacks,
@@ -111,4 +130,23 @@ export function getProjectsTimelineChartLegend(
 		label: name,
 		color,
 	}));
+}
+
+export function formatProjectsTimelineChartYAxisLabel(value: string) {
+	const seconds = Number(value);
+	const hours = Math.floor(seconds / 3600);
+	const days = Math.floor(hours / 24);
+
+	let unit: Units = "minute";
+
+	if (hours > 0) unit = "hour";
+	if (days > 0) unit = "day";
+
+	return (
+		ms(seconds * 1000, {
+			useAbbreviations: true,
+			includedUnits: [unit],
+			unitLimit: 1,
+		}) || "0s"
+	);
 }
