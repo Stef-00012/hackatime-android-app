@@ -1,6 +1,7 @@
 import Text from "@/components/Text";
 import { background } from "@/constants/hcColors";
 import AuthProvider from "@/contexts/AuthProvider";
+import NotificationsProvider from "@/contexts/NotificationsContext";
 import SidebarProvider from "@/contexts/SidebarContext";
 import { styles } from "@/styles/noInternet";
 import NetInfo from "@react-native-community/netinfo";
@@ -30,23 +31,25 @@ export default function RootLayout() {
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>
-			<KeyboardProvider>
-				<AuthProvider>
-					<SidebarProvider>
-						<Host>
-							<Slot />
+			<NotificationsProvider>
+				<KeyboardProvider>
+					<AuthProvider>
+						<SidebarProvider>
+							<Host>
+								<Slot />
 
-							{!hasInternet && (
-								<View style={styles.noInternetContainer}>
-									<Text style={styles.noInternetText}>
-										No internet connection.
-									</Text>
-								</View>
-							)}
-						</Host>
-					</SidebarProvider>
-				</AuthProvider>
-			</KeyboardProvider>
+								{!hasInternet && (
+									<View style={styles.noInternetContainer}>
+										<Text style={styles.noInternetText}>
+											No internet connection.
+										</Text>
+									</View>
+								)}
+							</Host>
+						</SidebarProvider>
+					</AuthProvider>
+				</KeyboardProvider>
+			</NotificationsProvider>
 		</SafeAreaView>
 	);
 }

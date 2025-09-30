@@ -1,4 +1,6 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+// @ts-ignore "bunx expo install ..." fails without the ".ts"
+import { red } from "./constants/hcColors.ts";
 import {
 	version as appVersion,
 	versionCode as appVersionCode,
@@ -54,6 +56,26 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	},
 	plugins: [
 		"expo-router",
+		"expo-secure-store",
+		"expo-local-authentication",
+		"expo-background-task",
+		[
+			"expo-splash-screen",
+			{
+				image: `${assetsPath}/splash-icon.png`,
+				imageWidth: 300,
+				resizeMode: "contain",
+				backgroundColor: "#ec3750",
+			},
+		],
+		[
+			"expo-notifications",
+			{
+				color: red,
+				icon: `${assetsPath}/notification-icon.png`,
+				defaultChannel: "motivational-quotes"
+			},
+		],
 		[
 			"expo-font",
 			{
@@ -91,23 +113,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 									style: "normal",
 								},
 							],
-						}
+						},
 					],
 				},
 			},
 		],
-		[
-			"expo-splash-screen",
-			{
-				image: `${assetsPath}/splash-icon.png`,
-				imageWidth: 300,
-				resizeMode: "contain",
-				backgroundColor: "#ec3750",
-			},
-		],
-		["expo-secure-store"],
-		["expo-local-authentication"],
-		// ["expo-image-picker"],
 	],
 	experiments: {
 		typedRoutes: true,
