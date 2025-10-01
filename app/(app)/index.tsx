@@ -396,7 +396,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Total Time</Text>
 
 						<Skeleton width={160} height={40} radius="squircle">
-							{isAuthenticating || !totalTime ? null : (
+							{!totalTime ? null : (
 								<Text style={styles.statText}>{totalTime}</Text>
 							)}
 						</Skeleton>
@@ -406,7 +406,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Project</Text>
 
 						<Skeleton width={200} height={40} radius="squircle">
-							{isAuthenticating || !topProject ? null : (
+							{!topProject ? null : (
 								<Text style={styles.statText}>{topProject}</Text>
 							)}
 						</Skeleton>
@@ -416,7 +416,7 @@ export default function Index() {
 						<Text style={styles.subHeaderText}>Top Language</Text>
 
 						<Skeleton width={130} height={40} radius="squircle">
-							{isAuthenticating || !topLanguage ? null : (
+							{!topLanguage ? null : (
 								<Text style={styles.statText}>{topLanguage}</Text>
 							)}
 						</Skeleton>
@@ -428,9 +428,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top OS</Text>
 
 								<Skeleton width={100} height={40} radius="squircle">
-									{isAuthenticating || !topOS ? null : (
-										<Text style={styles.statText}>{topOS}</Text>
-									)}
+									{!topOS ? null : <Text style={styles.statText}>{topOS}</Text>}
 								</Skeleton>
 							</View>
 
@@ -438,7 +436,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top Editor</Text>
 
 								<Skeleton width={140} height={40} radius="squircle">
-									{isAuthenticating || !topEditor ? null : (
+									{!topEditor ? null : (
 										<Text style={styles.statText}>{topEditor}</Text>
 									)}
 								</Skeleton>
@@ -448,7 +446,7 @@ export default function Index() {
 								<Text style={styles.subHeaderText}>Top Machine</Text>
 
 								<Skeleton width={140} height={40} radius="squircle">
-									{isAuthenticating || !topMachine ? null : (
+									{!topMachine ? null : (
 										<Text style={styles.statText}>{topMachine}</Text>
 									)}
 								</Skeleton>
@@ -461,7 +459,7 @@ export default function Index() {
 
 						<View style={styles.barChartContainer}>
 							<Skeleton width={"100%"} height={220} radius="squircle">
-								{!isAuthenticating && timelineData ? (
+								{timelineData ? (
 									<BarChart
 										stackData={getProjectsTimelineChartData(
 											timelineData,
@@ -500,7 +498,7 @@ export default function Index() {
 
 							<View style={styles.pieChartContainer}>
 								<Skeleton width={"100%"} height={220} radius="squircle">
-									{!isAuthenticating && last7DaysData ? (
+									{last7DaysData ? (
 										<LineChart
 											data={getLast7DaysChartData(last7DaysData)}
 											formatYLabel={formatLast7DaysChartYAxisLabel}

@@ -22,7 +22,10 @@ interface AuthData {
 	updateAuth: (apiKey?: string) => Promise<UserStatsResponse["data"] | string>;
 	isLoggedIn: boolean;
 	updateBiometricsSetting: (enabled: boolean) => void;
-	requestBiometricsAuthentication: () => Promise<boolean>;
+	requestBiometricsAuthentication: (
+		hideBiometricOverlay?: boolean,
+		ignoreBiometricAuthState?: boolean,
+	) => Promise<boolean>;
 	isAuthenticating: boolean;
 	unlockWithBiometrics: boolean;
 	supportsBiometrics: boolean;
@@ -85,31 +88,38 @@ export default function AuthProvider({ children }: Props) {
 
 	const updateBiometricsSetting = useCallback((enabled: boolean) => {
 		setUnlockWithBiometrics(enabled);
+
 		db.set("unlockWithBiometrics", enabled ? "true" : "false");
 	}, []);
 
-	const requestBiometricsAuthentication = useCallback(async () => {
-		if (unlockWithBiometrics) {
-			setIsAuthenticating(true);
+	const requestBiometricsAuthentication = useCallback(
+		async (
+			hideBiometricOverlay?: boolean,
+			ignoreBiometricAuthState?: boolean,
+		) => {
+			if (unlockWithBiometrics || ignoreBiometricAuthState) {
+				if (!hideBiometricOverlay) setIsAuthenticating(true);
 
-			const output = await LocalAuthentication.authenticateAsync({
-				biometricsSecurityLevel: "weak",
-				cancelLabel: "Close App",
-				promptMessage: "Unlock Hackatime",
-				requireConfirmation: true,
-			});
+				const output = await LocalAuthentication.authenticateAsync({
+					biometricsSecurityLevel: "weak",
+					cancelLabel: "Close App",
+					promptMessage: "Unlock Hackatime",
+					requireConfirmation: true,
+				});
 
-			if (output.success) {
-				setIsAuthenticating(false);
+				if (output.success) {
+					if (!hideBiometricOverlay) setIsAuthenticating(false);
 
-				return true;
+					return true;
+				}
+
+				return false;
 			}
 
-			return false;
-		}
-
-		return true;
-	}, [unlockWithBiometrics]);
+			return true;
+		},
+		[unlockWithBiometrics],
+	);
 
 	const authData = useMemo<AuthData>(
 		() => ({
@@ -148,10 +158,19 @@ export default function AuthProvider({ children }: Props) {
 
 			setSupportsBiometrics(hasHardware);
 			setHasEnrolledBiometrics(isEnrolled);
-			setSupportsAuthenticationTypes(supportedAuthTypes);
+			setSupportsAuthenticationTypes((prev) => {
+				if (JSON.stringify(prev) === JSON.stringify(supportedAuthTypes))
+					return prev;
+
+				return supportedAuthTypes;
+			});
 		})();
 	}, [updateAuth]);
 
+	/*
+		biome-ignore lint/correctness/useExhaustiveDependencies: adding requestBiometricsAuthentication and unlockWithBiometrics
+		causes requestBiometricsAuthentication to run when unlockWithBiometrics changes which i do not want
+	*/
 	useEffect(() => {
 		(async () => {
 			if (
@@ -168,11 +187,11 @@ export default function AuthProvider({ children }: Props) {
 			}
 		})();
 	}, [
-		unlockWithBiometrics,
+		// unlockWithBiometrics,
 		hasEnrolledBiometrics,
 		supportsAuthenticationTypes,
 		supportsBiometrics,
-		requestBiometricsAuthentication,
+		// requestBiometricsAuthentication,
 	]);
 
 	return (

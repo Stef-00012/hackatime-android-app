@@ -6,15 +6,11 @@ import Text from "@/components/Text";
 import TextInput from "@/components/TextInput";
 import { red } from "@/constants/hcColors";
 import { AuthContext } from "@/contexts/AuthProvider";
-import { MOTIVATIONAL_QUOTES_TASK } from "@/contexts/NotificationsContext";
 import * as db from "@/functions/database";
 import { version, versionCode } from "@/package.json";
 import { styles } from "@/styles/settings";
-import * as BackgroundTask from "expo-background-task";
-import * as Notifications from "expo-notifications";
-import * as TaskManager from "expo-task-manager";
 import { useContext, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, ToastAndroid, View } from "react-native";
 
 export default function Settings() {
 	const dbAPiKey = db.get("api_key");
@@ -28,6 +24,7 @@ export default function Settings() {
 		supportsBiometrics,
 		hasEnrolledBiometrics,
 		supportsAuthenticationTypes,
+		requestBiometricsAuthentication,
 	} = useContext(AuthContext);
 
 	return (
@@ -48,6 +45,16 @@ export default function Settings() {
 							setApiKey(event.nativeEvent.text);
 						}}
 						sideButtonContainerStyle={styles.passwordButton}
+						onBeforeSideButtonPress={async (_id, isPasswordVisible) => {
+							if (isPasswordVisible) return true;
+
+							const success = await requestBiometricsAuthentication(true);
+
+							if (!success)
+								ToastAndroid.show("Authentication failed", ToastAndroid.SHORT);
+
+							return success;
+						}}
 					/>
 
 					<Switch
@@ -66,8 +73,10 @@ export default function Settings() {
 								: ""
 						}`}
 						value={unlockWithBiometrics}
-						onValueChange={() => {
-							updateBiometricsSetting(!unlockWithBiometrics);
+						onValueChange={async () => {
+							const success = await requestBiometricsAuthentication(true, true);
+
+							if (success) updateBiometricsSetting(!unlockWithBiometrics);
 						}}
 						disabled={
 							!supportsBiometrics ||
@@ -81,7 +90,17 @@ export default function Settings() {
 						text="Save"
 						icon="save"
 						containerStyle={styles.button}
-						onPress={() => {
+						onPress={async () => {
+							const success = await requestBiometricsAuthentication(true);
+
+							if (!success)
+								return ToastAndroid.show(
+									"Authentication failed",
+									ToastAndroid.SHORT,
+								);
+
+							ToastAndroid.show("Settings saved", ToastAndroid.SHORT);
+
 							updateAuth(apiKey?.trim() || "");
 						}}
 					/>
@@ -109,60 +128,20 @@ export default function Settings() {
 
 						<Button
 							type="primary"
-							text="Test Notification Task"
+							text="Request Biometric Authentication"
+							icon="fingerprint"
 							containerStyle={styles.button}
 							onPress={async () => {
-								await BackgroundTask.triggerTaskWorkerForTestingAsync();
+								const success = await requestBiometricsAuthentication(true);
+
+								ToastAndroid.show(
+									success
+										? "Biometric authentication successful"
+										: "Biometric authentication failed",
+									ToastAndroid.SHORT,
+								);
 							}}
 						/>
-
-						<Button
-							type="primary"
-							text="Register Notification Task"
-							containerStyle={styles.button}
-							onPress={() => {
-								BackgroundTask.registerTaskAsync(MOTIVATIONAL_QUOTES_TASK);
-							}}
-						/>
-
-						<Button
-							type="primary"
-							text="Unregister Notification Task"
-							containerStyle={styles.button}
-							onPress={() => {
-								BackgroundTask.unregisterTaskAsync(MOTIVATIONAL_QUOTES_TASK);
-							}}
-						/>
-
-						<Button
-							type="primary"
-							text="Send Test Notification"
-							containerStyle={styles.button}
-							onPress={async () => {
-								Notifications.scheduleNotificationAsync({
-									content: {
-										title: "test notif",
-									},
-									trigger: null,
-								});
-							}}
-						/>
-
-						<Button
-							type="primary"
-							text="Show Bakcground Tasks"
-							containerStyle={styles.button}
-							onPress={async () => {
-								TaskManager.getRegisteredTasksAsync().then((tasks) => {
-									console.log(tasks);
-								});
-							}}
-						/>
-
-						<Text style={styles.appVersionText}>
-							<Text style={styles.appVersionTitle}>App Version:</Text> {version}{" "}
-							<Text style={styles.appVersionBuildNumber}>({versionCode})</Text>
-						</Text>
 					</View>
 				)}
 			</ScrollView>

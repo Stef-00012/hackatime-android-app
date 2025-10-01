@@ -1,5 +1,5 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
-// @ts-ignore "bunx expo install ..." fails without the ".ts"
+// @ts-expect-error "bunx expo install ..." fails without the ".ts"
 import { red } from "./constants/hcColors.ts";
 import {
 	version as appVersion,
@@ -44,7 +44,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		adaptiveIcon: {
 			foregroundImage: `${assetsPath}/adaptive-icon.png`,
 			monochromeImage: `${assetsPath}/monochromatic-adaptive-icon.png`,
-			backgroundColor: "#ec3750",
+			backgroundColor: red,
 		},
 		predictiveBackGestureEnabled: true,
 		versionCode: appVersionCode,
@@ -65,17 +65,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 				image: `${assetsPath}/splash-icon.png`,
 				imageWidth: 300,
 				resizeMode: "contain",
-				backgroundColor: "#ec3750",
+				backgroundColor: red,
 			},
 		],
-		[
-			"expo-notifications",
-			{
-				color: red,
-				icon: `${assetsPath}/notification-icon.png`,
-				defaultChannel: "motivational-quotes"
-			},
-		],
+		// [
+		// 	"expo-notifications",
+		// 	{
+		// 		color: red,
+		// 		icon: `${assetsPath}/notification-icon.png`,
+		// 		defaultChannel: "motivational-quotes"
+		// 	},
+		// ],
 		[
 			"expo-font",
 			{

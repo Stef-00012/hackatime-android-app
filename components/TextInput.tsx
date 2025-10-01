@@ -54,6 +54,10 @@ interface Props {
 		id?: Props["id"],
 	) => void | Promise<void>;
 	returnKeyType?: ReturnKeyTypeOptions;
+	onBeforeSideButtonPress?: (
+		id?: Props["id"],
+		isPasswordVisible?: boolean,
+	) => boolean | Promise<boolean>;
 }
 
 export default function TextInput({
@@ -61,6 +65,7 @@ export default function TextInput({
 	onValueChange = () => {},
 	onPasswordToggle = () => {},
 	onSideButtonPress = () => {},
+	onBeforeSideButtonPress = () => true,
 	disabled = false,
 	showDisabledStyle = true,
 	disableContext = false,
@@ -140,7 +145,14 @@ export default function TextInput({
 						defaultValue={defaultValue}
 					/>
 					<Button
-						onPress={() => {
+						onPress={async () => {
+							const shouldRun = await onBeforeSideButtonPress(
+								id,
+								displayPassword,
+							);
+
+							if (!shouldRun) return;
+
 							onPasswordToggle(!displayPassword, id);
 							onSideButtonPress(id);
 							setDisplayPassword((prev) => !prev);
@@ -214,7 +226,11 @@ export default function TextInput({
 						defaultValue={defaultValue}
 					/>
 					<Button
-						onPress={() => {
+						onPress={async () => {
+							const shouldRun = await onBeforeSideButtonPress(id);
+
+							if (!shouldRun) return;
+
 							onSideButtonPress(id);
 						}}
 						icon={sideButtonIcon}
