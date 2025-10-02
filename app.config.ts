@@ -58,7 +58,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"expo-router",
 		"expo-secure-store",
 		"expo-local-authentication",
-		"expo-background-task",
+		// "expo-background-task",
+		[
+			"expo-dev-client",
+			{
+				launchMode: "most-recent",
+				addGeneratedScheme: false,
+			}
+		],
 		[
 			"expo-splash-screen",
 			{

@@ -93,6 +93,7 @@ export default function Projects() {
 					// biome-ignore lint/complexity/noUselessFragments: The fragment is required
 					<>
 						{new Array(5).fill(0).map((_, i) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: the index is the only non-duplicate key
 							<View key={i} style={styles.skeletonProjectContainer}>
 								<Skeleton width="100%" height={160} radius={10} />
 							</View>
