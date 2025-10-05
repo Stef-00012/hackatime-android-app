@@ -81,22 +81,22 @@ const widgetConfig: WithAndroidWidgetsParams = {
 		},
 
 		// 2x1 to 5x2
-		{
-			name: "Goal",
-			label: "Hour Goal",
-			minWidth: "130dp", // 2 cells
-			minHeight: "51dp", // 1 cell
-			targetCellWidth: 5,
-			targetCellHeight: 2,
-			maxResizeWidth: "422dp", // 5 cells
-			maxResizeHeight: "183dp", // 2 cells
-			resizeMode: "horizontal|vertical",
-			description:
-				"Display a goal of hours chosen by you. Updates every 30 minutes",
-			previewImage: "./assets/widget-preview/topStats.png",
-			updatePeriodMillis: 30 * 60 * 1000,
-			widgetFeatures: "reconfigurable|configuration_optional",
-		},
+		// {
+		// 	name: "Goal",
+		// 	label: "Hour Goal",
+		// 	minWidth: "130dp", // 2 cells
+		// 	minHeight: "51dp", // 1 cell
+		// 	targetCellWidth: 5,
+		// 	targetCellHeight: 2,
+		// 	maxResizeWidth: "422dp", // 5 cells
+		// 	maxResizeHeight: "183dp", // 2 cells
+		// 	resizeMode: "horizontal|vertical",
+		// 	description:
+		// 		"Display a goal of hours chosen by you. Updates every 30 minutes",
+		// 	previewImage: "./assets/widget-preview/topStats.png",
+		// 	updatePeriodMillis: 30 * 60 * 1000,
+		// 	widgetFeatures: "reconfigurable|configuration_optional",
+		// },
 	],
 };
 
