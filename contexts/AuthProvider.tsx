@@ -1,6 +1,3 @@
-import * as db from "@/functions/database";
-import { getCurrentUserStats } from "@/functions/hackatime";
-import type { UserStatsResponse } from "@/types/hackatime";
 import * as LocalAuthentication from "expo-local-authentication";
 import { usePathname, useRouter } from "expo-router";
 import {
@@ -12,6 +9,9 @@ import {
 	useState,
 } from "react";
 import { BackHandler } from "react-native";
+import * as db from "@/functions/database";
+import { getCurrentUserStats } from "@/functions/hackatime";
+import type { UserStatsResponse } from "@/types/hackatime";
 
 interface Props {
 	children: ReactNode;

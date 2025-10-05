@@ -1,2 +1,2 @@
-- [x] Add a stacked chart with the projects with intervals of 2 weeks (7 intervals)
-- [x] Display the app version in the settings
+- [x] Add a configuration screen for dark/light mode and transparency to today hours widget
+- [x] Add a "Top Stats" widget that shows less or more data based on size

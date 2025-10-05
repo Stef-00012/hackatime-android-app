@@ -4,7 +4,8 @@ import SidebarProvider from "@/contexts/SidebarContext";
 import BiometricAuthenticationPage from "@/pages/biometricAuth";
 import NoInternetPage from "@/pages/noInternet";
 import NetInfo from "@react-native-community/netinfo";
-import { Slot } from "expo-router";
+import * as DevClient from "expo-dev-client";
+import { Slot, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Host } from "react-native-portalize";
@@ -12,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
 	const [hasInternet, setHasInternet] = useState<boolean>(false);
+	const router = useRouter();
 
 	useEffect(() => {
 		NetInfo.fetch().then((state) => {
@@ -26,6 +28,17 @@ export default function RootLayout() {
 			unsubscribe();
 		};
 	}, []);
+
+	useEffect(() => {
+		if (__DEV__) DevClient.registerDevMenuItems([
+			{
+				name: "Go to Settings",
+				callback: () => {
+					router.replace("/settings");
+				},
+			},
+		]);
+	}, [router]);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>

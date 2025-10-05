@@ -1,3 +1,4 @@
+import axios, { type AxiosError } from "axios";
 import * as db from "@/functions/database";
 import type {
 	CurrentUserRawHeartbeats,
@@ -12,7 +13,6 @@ import type {
 	UserTodayDataResponse,
 	UserTrustFactor,
 } from "@/types/hackatime";
-import axios, { type AxiosError } from "axios";
 
 interface GetUserStatsParams {
 	startDate?: `${number}-${number | string}-${number | string}`;

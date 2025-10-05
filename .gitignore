@@ -46,7 +46,5 @@ app-example
 .api_key
 
 # tmp
-/test.ts
 /contexts/UpdateContext.tsx
-tmp.json
-devlog.md
+/plugins

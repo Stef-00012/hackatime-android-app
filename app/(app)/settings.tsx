@@ -9,8 +9,17 @@ import { AuthContext } from "@/contexts/AuthProvider";
 import * as db from "@/functions/database";
 import { version, versionCode } from "@/package.json";
 import { styles } from "@/styles/settings";
+import {
+	Widget as TodayTimeWidget,
+	handleUpdate as todayTimeWidgetHandleUpdate,
+} from "@/widgets/todayTime/Widget";
+import {
+	Widget as TopStatsWidget,
+	handleUpdate as topStatsWidgetHandleUpdate,
+} from "@/widgets/topStats/Widget";
 import { useContext, useState } from "react";
 import { ScrollView, ToastAndroid, View } from "react-native";
+import { requestWidgetUpdate } from "react-native-android-widget";
 
 export default function Settings() {
 	const dbAPiKey = db.get("api_key");
@@ -138,6 +147,67 @@ export default function Settings() {
 									success
 										? "Biometric authentication successful"
 										: "Biometric authentication failed",
+									ToastAndroid.SHORT,
+								);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="Update Today Time Widget"
+							icon="refresh"
+							containerStyle={styles.button}
+							onPress={async () => {
+								const widgetData = await todayTimeWidgetHandleUpdate();
+
+								await requestWidgetUpdate({
+									widgetName: "TodayTime",
+									renderWidget: () => <TodayTimeWidget data={widgetData} />,
+									widgetNotFound: () => {
+										ToastAndroid.show(
+											"Today Time Widget not found",
+											ToastAndroid.SHORT,
+										);
+									},
+								});
+
+								ToastAndroid.show("Widget Updated", ToastAndroid.SHORT);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="Update Top Stats Widget"
+							icon="refresh"
+							containerStyle={styles.button}
+							onPress={async () => {
+								const widgetData = await topStatsWidgetHandleUpdate();
+
+								await requestWidgetUpdate({
+									widgetName: "TopStats",
+									renderWidget: () => <TopStatsWidget data={widgetData} />,
+									widgetNotFound: () => {
+										ToastAndroid.show(
+											"Today Time Widget not found",
+											ToastAndroid.SHORT,
+										);
+									},
+								});
+
+								ToastAndroid.show("Widget Updated", ToastAndroid.SHORT);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="Delete Widget Preview Background"
+							icon="delete"
+							containerStyle={styles.button}
+							onPress={async () => {
+								db.del("widgetPreviewBackground");
+
+								ToastAndroid.show(
+									"Widget Background Removed",
 									ToastAndroid.SHORT,
 								);
 							}}
