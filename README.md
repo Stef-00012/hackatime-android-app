@@ -12,6 +12,32 @@ This is an android app made to view your [Hackatime](https://hackatime.hackclub.
 - View your projects
 - Lock the app behind biometric authentication
 
+# Images
+
+<details>
+
+<summary>Click here to view the app's images</summary>
+
+<table>
+    <tr>
+        <td><img width="1080" height="2340" alt="image1" src="https://github.com/user-attachments/assets/bc7aff48-fb50-4e4f-b555-0f72ffc1abf3" /></td>
+        <td><img width="1080" height="2340" alt="image2" src="https://github.com/user-attachments/assets/90bbbd0f-fd7f-40bb-a6f2-559f52bce239" /></td>
+        <td><img width="1080" height="2340" alt="image3" src="https://github.com/user-attachments/assets/a0eb8f37-b3c5-44b5-b588-aecd2122ecf7" /></td>
+    </tr>
+    <tr>
+        <td><img width="1080" height="2340" alt="image4" src="https://github.com/user-attachments/assets/af1f963c-52cd-48f9-90c1-ccfe8b066f24" /></td>
+        <td><img width="1080" height="2340" alt="image5" src="https://github.com/user-attachments/assets/49d1664e-5b70-488f-a377-c0545c316e7c" /></td>
+        <td><img width="1080" height="2340" alt="image6" src="https://github.com/user-attachments/assets/a417ea7d-20a2-4e08-9c59-bf4ba315fdfc" /></td>
+    </tr>
+    <tr>
+        <td><img width="1080" height="2340" alt="image7" src="https://github.com/user-attachments/assets/e50ffa1f-8542-4ffc-9285-e589f768884e" /></td>
+        <td><img width="1080" height="2340" alt="image8" src="https://github.com/user-attachments/assets/7623ba98-1f7f-4b0b-8596-59b6f5b39326" /></td>
+        <td><img width="1080" height="2340" alt="image9" src="https://github.com/user-attachments/assets/76b83728-6c7d-4e88-a6f7-fafc0e7220e9" /></td>
+    </tr>
+</table>
+
+</details>
+
 # Download
 
 The app is available on the following platforms:
