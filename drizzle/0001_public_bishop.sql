@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `notification_categories` text DEFAULT '[]' NOT NULL;

@@ -14,6 +14,6 @@ export const users = sqliteTable("users", {
 		mode: "json",
 	})
 		.notNull()
-		.default([])
+		.default({})
 		.$type<Record<NotificationCategory, boolean>>(),
 });

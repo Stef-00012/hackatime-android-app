@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6ce1ba1e-da5c-4c32-bcc3-f06c6812dcfd",
+  "id": "a0a489ba-37d5-4ca8-a5c6-e1531139c929",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "admins": {
@@ -100,6 +100,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "notification_categories": {
+          "name": "notification_categories",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'{}'"
         }
       },
       "indexes": {},
