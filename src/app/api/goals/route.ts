@@ -8,7 +8,11 @@ const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 export async function GET(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey) return new Response("Unauthorized", { status: 401 });
+	if (!apiKey)
+		return NextResponse.json(
+			{ error: "Unauthorized", success: false },
+			{ status: 401 },
+		);
 
 	const url = new URL(req.url);
 
@@ -78,7 +82,11 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey) return new Response("Unauthorized", { status: 401 });
+	if (!apiKey)
+		return NextResponse.json(
+			{ error: "Unauthorized", success: false },
+			{ status: 401 },
+		);
 
 	const body = (await req.json()) as {
 		date: string;

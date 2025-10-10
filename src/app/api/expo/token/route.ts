@@ -6,7 +6,11 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey) return new Response("Unauthorized", { status: 401 });
+	if (!apiKey)
+		return NextResponse.json(
+			{ error: "Unauthorized", success: false },
+			{ status: 401 },
+		);
 
 	const body = (await req.json()) as {
 		expoPushToken: string;

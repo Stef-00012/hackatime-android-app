@@ -10,6 +10,8 @@ export async function getMotivationalNotificationsUsersList() {
 	const notifUsers: (typeof schema.users.$inferSelect)[] = [];
 
 	for (const user of users) {
+		if (!user.notificationCategories.includes("motivational-quotes")) continue;
+
 		const todayData = await getCurrentUserTodayData(user.apiKey);
 
 		if (todayData === "Invalid API Key") {

@@ -32,35 +32,41 @@ export async function goalCronJob() {
 			});
 
 			if (!goal) {
-                await db.insert(schema.goals).values({
-                    apiKey: apiKey,
-                    date: new Date(),
-                    achieved: userTodayData.grand_total.total_seconds,
-                    goal: 0,
-                })
+				await db.insert(schema.goals).values({
+					apiKey: apiKey,
+					date: new Date(),
+					achieved: userTodayData.grand_total.total_seconds,
+					goal: 0,
+				});
 
-                continue;
-            }
+				continue;
+			}
 
-            if (formatDate(goal.date) !== formatDate(new Date())) {
-                await db
-                    .insert(schema.goals)
-                    .values({
-                        apiKey: apiKey,
-                        date: new Date(),
-                        achieved: userTodayData.grand_total.total_seconds,
-                        goal: goal.goal,
-                    })
+			if (formatDate(goal.date) !== formatDate(new Date())) {
+				await db
+					.insert(schema.goals)
+					.values({
+						apiKey: apiKey,
+						date: new Date(),
+						achieved: userTodayData.grand_total.total_seconds,
+						goal: goal.goal,
+					})
+					.onConflictDoUpdate({
+						target: [schema.goals.apiKey, schema.goals.date],
+						set: {
+							achieved: userTodayData.grand_total.total_seconds,
+						},
+					});
 
-                continue;
-            }
+				continue;
+			}
 
 			await db
 				.update(schema.goals)
 				.set({
 					achieved: userTodayData.grand_total.total_seconds,
 				})
-                .where(eq(schema.goals.apiKey, apiKey));
+				.where(eq(schema.goals.apiKey, apiKey));
 		}
 
 		await sleep(10 * 1000); // wait 10 seconds between chunks to avoid spamming the API too much
