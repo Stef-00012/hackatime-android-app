@@ -14,12 +14,16 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "axios": "^1.12.2",
     "drizzle-orm": "^0.44.6",
     "expo-server-sdk": "^4.0.0",
     "next": "15.5.4",
     "node-schedule": "^2.1.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-slick": "^0.31.0",
+    "react-tooltip": "^5.29.1",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -28,6 +32,7 @@
     "@types/node-schedule": "^2.1.8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-slick": "^0.23.13",
     "drizzle-kit": "^0.31.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
