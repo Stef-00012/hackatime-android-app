@@ -58,6 +58,13 @@ export default function Login() {
 					>
 						here
 					</Link>
+					{"\n"}
+					<Link
+						style={styles.linkText}
+						href="https://hackatime.stefdp.com/privacy"
+					>
+						Privacy Policy
+					</Link>
 				</Text>
 			</View>
 		</KeyboardAvoidingView>

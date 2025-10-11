@@ -15,18 +15,6 @@ let appName = "Hackatime Stats";
 let appId = "com.stefdp.hackatime";
 let assetsPath = "./assets/images";
 
-if (IS_DEV) {
-	appName = "Hackatime Stats (Dev)";
-	appId += ".dev";
-	assetsPath += "/dev";
-}
-
-if (IS_PRERELEASE) {
-	appName = "Hackatime Stats (Pre)";
-	appId += ".pre";
-	assetsPath += "/pre";
-}
-
 const widgetConfig: WithAndroidWidgetsParams = {
 	fonts: [
 		"./assets/fonts/PhantomSans-Regular.otf",
@@ -100,7 +88,17 @@ const widgetConfig: WithAndroidWidgetsParams = {
 	],
 };
 
+if (IS_PRERELEASE) {
+	appName = "Hackatime Stats (Pre)";
+	appId += ".pre";
+	assetsPath += "/pre";
+}
+
 if (IS_DEV) {
+	appName = "Hackatime Stats (Dev)";
+	appId += ".dev";
+	assetsPath += "/dev";
+
 	// any size
 	widgetConfig.widgets.push({
 		name: "Test",
@@ -129,6 +127,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	newArchEnabled: true,
 	userInterfaceStyle: "automatic",
 	platforms: ["android"],
+	description: "An android app made to view your Hackatime stats & projects.",
+	primaryColor: red,
+	githubUrl: "https://github.com/Stef-00012/hackatime-android-app",
+	owner: "stef_dp",
 	ios: {
 		bundleIdentifier: appId,
 	},
@@ -138,6 +140,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			monochromeImage: `${assetsPath}/monochromatic-adaptive-icon.png`,
 			backgroundColor: red,
 		},
+		googleServicesFile: "./google-services.json",
+		playStoreUrl: "https://play.google.com/store/apps/details?id=com.stefdp.hackatime",
 		backgroundColor: red,
 		predictiveBackGestureEnabled: true,
 		versionCode: appVersionCode,
@@ -170,14 +174,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 				backgroundColor: red,
 			},
 		],
-		// [
-		// 	"expo-notifications",
-		// 	{
-		// 		color: red,
-		// 		icon: `${assetsPath}/notification-icon.png`,
-		// 		defaultChannel: "motivational-quotes"
-		// 	},
-		// ],
+		[
+			"expo-notifications",
+			{
+				color: red,
+				icon: `${assetsPath}/notification-icon.png`,
+				defaultChannel: "default"
+			},
+		],
 		[
 			"expo-font",
 			{

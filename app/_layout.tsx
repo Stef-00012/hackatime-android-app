@@ -5,6 +5,7 @@ import BiometricAuthenticationPage from "@/pages/biometricAuth";
 import NoInternetPage from "@/pages/noInternet";
 import NetInfo from "@react-native-community/netinfo";
 import * as DevClient from "expo-dev-client";
+import * as Notifications from "expo-notifications";
 import { Slot, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -30,15 +31,27 @@ export default function RootLayout() {
 	}, []);
 
 	useEffect(() => {
-		if (__DEV__) DevClient.registerDevMenuItems([
-			{
-				name: "Go to Settings",
-				callback: () => {
-					router.replace("/settings");
+		if (__DEV__)
+			DevClient.registerDevMenuItems([
+				{
+					name: "Go to Settings",
+					callback: () => {
+						router.replace("/settings");
+					},
 				},
-			},
-		]);
+			]);
 	}, [router]);
+
+	useEffect(() => {
+		Notifications.setNotificationHandler({
+			handleNotification: async () => ({
+				shouldPlaySound: true,
+				shouldSetBadge: true,
+				shouldShowBanner: true,
+				shouldShowList: true,
+			}),
+		});
+	}, []);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>

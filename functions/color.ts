@@ -193,3 +193,13 @@ export function rgbaToHex(r: number, g: number, b: number, a = 1): string {
 
 	return `#${(alpha + red + green + blue).toString(16).slice(1).toUpperCase()}`;
 }
+
+export function darken(color: string, amount: number): string {
+	const { r, g, b, a } = toRgba(color);
+
+	const newR = Math.round(r * (1 - amount));
+	const newG = Math.round(g * (1 - amount));
+	const newB = Math.round(b * (1 - amount));
+
+	return rgbaToHex(newR, newG, newB, a);
+}

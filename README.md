@@ -11,6 +11,8 @@ This is an android app made to view your [Hackatime](https://hackatime.hackclub.
 - View your top editor, top OS and top machines when the range is set to "Last 7 Days"
 - View your projects
 - Lock the app behind biometric authentication
+- Widgets
+- Motivational Push Notifications
 
 # Images
 

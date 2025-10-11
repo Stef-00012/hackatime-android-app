@@ -3,6 +3,7 @@ import { styles } from "@/styles/components/switch";
 import { Switch as NativeSwitch } from "@react-native-material/core";
 import { View } from "react-native";
 import Text from "./Text";
+import { darken } from "@/functions/color";
 
 interface Props {
     value: boolean;
@@ -27,10 +28,13 @@ export default function Switch({
                 disabled={disabled}
                 value={value}
                 onValueChange={(value) => onValueChange(value, id)}
-                thumbColor={value ? red : darkless}
+                thumbColor={value
+                    ? disabled ? darken(red, 0.4) : red
+                    : disabled ? darken(darkless, 0.4) : darkless
+                }
                 trackColor={{
-                    true: muted,
-                    false: slate,
+                    true: disabled ? darken(muted, 0.6) : muted,
+                    false: disabled ? darken(slate, 0.4) : slate,
                 }}
             />
 

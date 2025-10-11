@@ -2,9 +2,6 @@ import { elevated, muted, red } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-	mainContent: {
-		marginBottom: 70,
-	},
 	settingContainer: {
 		backgroundColor: elevated,
 		borderWidth: 1,
@@ -24,13 +21,13 @@ export const styles = StyleSheet.create({
 	button: {
 		marginTop: 10,
 	},
-	appVersionText: {
+	containerFooterText: {
 		marginTop: 10,
 	},
-	appVersionTitle: {
+	containerFooterTextTitle: {
 		fontWeight: "bold",
 	},
-	appVersionBuildNumber: {
+	containerFooterTextSubtitle: {
 		fontSize: 12,
 		color: muted,
 	},
