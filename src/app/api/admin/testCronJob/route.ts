@@ -1,7 +1,7 @@
+import { goalsCronJob } from "@/cronJobs/goals";
+import { motivationalNotificationsCronJob } from "@/cronJobs/motivationalNotifications";
 import db, { schema } from "@/db/db";
-import { sendPushNotifications } from "@/functions/expo";
 import { eq } from "drizzle-orm";
-import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -24,32 +24,28 @@ export async function POST(req: NextRequest) {
 		);
 
 	const body = (await req.json()) as {
-		expoPushToken: string;
-		notification: ExpoPushMessage;
+		cronJob: "goals" | "motivational-notifications";
 	};
 
-	const expoPushToken = body.expoPushToken;
-	const notificationData = body.notification;
+	const cronJob = body.cronJob;
 
-	if (
-		!expoPushToken ||
-		!Expo.isExpoPushToken(expoPushToken) ||
-		!notificationData ||
-		!notificationData.title
-	)
+	if (!["goals", "motivational-notifications"].includes(cronJob))
 		return NextResponse.json(
 			{ error: "Invalid body", success: false },
 			{ status: 400 },
 		);
 
-	const expo = new Expo();
+	console.log(`Admin "${admin.username}" started a cronJob: ${cronJob}`);
 
-	console.log(
-		`Admin "${admin.username}" sent a notification to "${expoPushToken}". Notification data:`,
-		notificationData,
-	);
+	switch (cronJob) {
+		case "goals":
+			await goalsCronJob();
+			break;
 
-	const receipts = await sendPushNotifications(expo, [notificationData]);
+		case "motivational-notifications":
+			await motivationalNotificationsCronJob();
+			break;
+	}
 
-	return NextResponse.json({ success: true, receipt: receipts[0] });
+	return NextResponse.json({ success: true });
 }

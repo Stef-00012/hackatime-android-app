@@ -1,12 +1,9 @@
-import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 import next from "next";
 import schedule from "node-schedule";
 import { createServer } from "node:http";
 import { parse } from "node:url";
-import { motivationalMessages } from "./constants/motivationalNotifications";
-import { goalCronJob } from "./cronJobs/goals";
-import { getMotivationalNotificationsUsersList } from "./cronJobs/motivationalNotifications";
-import { sendPushNotifications } from "./functions/expo";
+import { goalsCronJob } from "./cronJobs/goals";
+import { motivationalNotificationsCronJob } from "./cronJobs/motivationalNotifications";
 
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -41,39 +38,16 @@ app.prepare().then(async () => {
 			`\x1b[33m[\x1b[1m${new Date().toISOString()}\x1b[0;33m] \x1b[34mStarted cron jobs\x1b[0m`,
 		);
 
-		const expo = new Expo();
-
 		const motivationalNotifsCronJobInterval = "0 */12 * * *"; // every 12 hours
 
-		schedule.scheduleJob(motivationalNotifsCronJobInterval, async () => {
-			const userList = await getMotivationalNotificationsUsersList();
-
-			const notifications: ExpoPushMessage[] = [];
-
-			for (const user of userList) {
-				const userNotifications = user.expoPushTokens.map((token) => {
-					const motivationalMessage =
-						motivationalMessages[
-							Math.floor(Math.random() * motivationalMessages.length)
-						];
-
-					return {
-						to: token,
-						channelId: "motivational-quotes",
-						title: "Keep hacking!",
-						body: motivationalMessage,
-					} satisfies ExpoPushMessage;
-				});
-
-				notifications.push(...userNotifications);
-			}
-
-			await sendPushNotifications(expo, notifications);
-		});
+		schedule.scheduleJob(
+			motivationalNotifsCronJobInterval,
+			motivationalNotificationsCronJob,
+		);
 
 		const goalCronJobInterval = "*/30 * * * *"; // every 30 minutes
 
-		schedule.scheduleJob(goalCronJobInterval, goalCronJob);
+		schedule.scheduleJob(goalCronJobInterval, goalsCronJob);
 	} else {
 		console.info(
 			"\x1b[31mCron jobs are not started in development mode\x1b[0m",

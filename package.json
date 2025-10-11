@@ -7,6 +7,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:wipe": "rm -r ./drizzle ./data/data.db && bun db:setup",
+    "android:bridge": "adb reverse tcp:3000 tcp:3000",
     "dev": "NEXT_TELEMETRY_DISABLED=1 bun src/server.ts",
     "build": "NEXT_TELEMETRY_DISABLED=1 next build",
     "start": "NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production bun src/server.ts",

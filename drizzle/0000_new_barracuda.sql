@@ -1,6 +1,6 @@
 CREATE TABLE `admins` (
 	`username` text PRIMARY KEY NOT NULL,
-	`password_hash` text NOT NULL
+	`api_key` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `goals` (

@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 		await db.insert(schema.users).values({
 			apiKey: apiKey,
 			expoPushTokens: [expoPushToken],
-			primaryExpoPushToken: expoPushToken,
+			primaryExpoPushToken: setAsPrimary ? expoPushToken : null,
 		});
 
 		return NextResponse.json({ success: true });

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a0a489ba-37d5-4ca8-a5c6-e1531139c929",
+  "id": "403c2541-68c2-4f18-bfc6-4f7f4de62c89",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "admins": {
@@ -14,8 +14,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "password_hash": {
-          "name": "password_hash",
+        "api_key": {
+          "name": "api_key",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

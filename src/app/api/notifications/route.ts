@@ -19,11 +19,23 @@ export async function GET(req: NextRequest) {
 
 	if (!user)
 		return NextResponse.json(
-			{ error: "User not found", success: false },
-			{ status: 404 },
+			{
+				notificationCategories: notificationCategories.reduce(
+					(acc, category) => {
+						acc[category] = false
+
+						return acc;
+					},
+					{} as Record<NotificationCategory, boolean>
+				),
+				success: true
+			},
 		);
 
-	return NextResponse.json(user.notificationCategories);
+	return NextResponse.json({
+		notificationCategories: user.notificationCategories,
+		success: true,
+	});
 }
 
 export async function PATCH(req: NextRequest) {

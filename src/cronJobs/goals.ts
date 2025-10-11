@@ -3,7 +3,7 @@ import { getCurrentUserTodayData } from "@/functions/hackatime";
 import { chunk, formatDate, sleep } from "@/functions/util";
 import { eq } from "drizzle-orm";
 
-export async function goalCronJob() {
+export async function goalsCronJob() {
 	const users = await db.query.users.findMany();
 
 	const userChunks = chunk(users, 200);
