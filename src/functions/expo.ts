@@ -1,6 +1,7 @@
 import type Expo from "expo-server-sdk";
 import type {
     ExpoPushMessage,
+    ExpoPushReceipt,
     ExpoPushReceiptId,
     ExpoPushTicket,
 } from "expo-server-sdk";
@@ -33,6 +34,8 @@ export async function sendPushNotifications(
 
 	const receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
 
+	const receipts: ExpoPushReceipt[] = []
+
 	for (const chunk of receiptIdChunks) {
 		try {
             const receipts = await expo.getPushNotificationReceiptsAsync(chunk);
@@ -49,4 +52,6 @@ export async function sendPushNotifications(
             console.error(e);
         }
 	}
+
+	return receipts;
 }
