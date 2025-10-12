@@ -19,26 +19,18 @@ export async function GET(req: NextRequest) {
 	const date = url.searchParams.get("date");
 	const startDate = url.searchParams.get("start_date");
 	const endDate = url.searchParams.get("end_date");
+	const all = url.searchParams.get("all") === "true";
 
-	if (date && dateRegex.test(date)) {
-		const goal = await db.query.goals.findFirst({
-			where: and(
-				eq(schema.goals.apiKey, apiKey),
-				eq(schema.goals.date, new Date(date)),
-			),
+	if (all) {
+		const goals = await db.query.goals.findMany({
+			where: eq(schema.goals.apiKey, apiKey),
 			columns: {
 				apiKey: false,
 			},
+			orderBy: (goals, { desc }) => [desc(goals.date)],
 		});
 
-		if (!goal)
-			return NextResponse.json({
-				date,
-				achieved: 0,
-				goal: 0,
-			});
-
-		return NextResponse.json(goal);
+		return NextResponse.json(goals);
 	}
 
 	if (
@@ -62,6 +54,30 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json(goals);
 	}
 
+	if (date && dateRegex.test(date)) {
+		const goal = await db.query.goals.findFirst({
+			where: and(
+				eq(schema.goals.apiKey, apiKey),
+				eq(schema.goals.date, new Date(date)),
+			),
+			columns: {
+				apiKey: false,
+				notificationsSent: false,
+			},
+		});
+
+		if (!goal)
+			return NextResponse.json([
+				{
+					date,
+					achieved: 0,
+					goal: 0,
+				},
+			]);
+
+		return NextResponse.json([goal]);
+	}
+
 	const todayGoal = await db.query.goals.findFirst({
 		where: and(
 			eq(schema.goals.apiKey, apiKey),
@@ -70,13 +86,15 @@ export async function GET(req: NextRequest) {
 	});
 
 	if (!todayGoal)
-		return NextResponse.json({
-			date,
-			achieved: 0,
-			goal: 0,
-		});
+		return NextResponse.json([
+			{
+				date: new Date(),
+				achieved: 0,
+				goal: 0,
+			},
+		]);
 
-	return NextResponse.json(todayGoal);
+	return NextResponse.json([todayGoal]);
 }
 
 export async function PATCH(req: NextRequest) {
@@ -113,17 +131,25 @@ export async function PATCH(req: NextRequest) {
 			{ status: 400 },
 		);
 
-	if (typeof body.goal !== "number" || body.goal < 0)
+	if (
+		typeof body.goal !== "number" ||
+		body.goal < 60 || // less than 1 minute
+		body.goal > 60 * 60 * 23 // more than 23h
+	)
 		return NextResponse.json(
 			{ error: "Invalid goal", success: false },
 			{ status: 400 },
 		);
 
+	const formattedDate = new Date(new Date(body.date));
+
+	formattedDate.setUTCHours(0, 0, 0, 0);
+
 	const newGoal = await db
 		.insert(schema.goals)
 		.values({
 			apiKey: apiKey,
-			date: new Date(body.date),
+			date: formattedDate,
 			goal: body.goal,
 		})
 		.onConflictDoUpdate({

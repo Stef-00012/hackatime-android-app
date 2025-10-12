@@ -29,9 +29,9 @@ export function formatDate(date: Date): string {
 // today or future date
 export function isValidDate(date: Date): boolean {
 	const today = new Date();
-	today.setHours(0, 0, 0, 0);
+	today.setUTCHours(0, 0, 0, 0);
 
-	date.setHours(0, 0, 0, 0);
+	date.setUTCHours(0, 0, 0, 0);
 
 	return date.getTime() >= today.getTime();
 }
