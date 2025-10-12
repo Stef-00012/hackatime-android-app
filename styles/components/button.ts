@@ -1,10 +1,4 @@
-import {
-	darkless,
-	primary,
-	red,
-	shadowCard,
-	white,
-} from "@/constants/hcColors";
+import { shadowCard, white } from "@/constants/hcColors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -12,7 +6,6 @@ export const styles = StyleSheet.create({
 		overflow: "hidden",
 		borderRadius: 99999,
 		boxShadow: shadowCard,
-		backgroundColor: red,
 	},
 	primary: {
 		alignItems: "center",
@@ -24,13 +17,11 @@ export const styles = StyleSheet.create({
 	},
 	primaryText: {
 		fontWeight: "bold",
-		color: white,
 	},
 	secondaryContainer: {
 		overflow: "hidden",
 		borderRadius: 99999,
 		boxShadow: shadowCard,
-		backgroundColor: darkless,
 	},
 	secondary: {
 		alignItems: "center",
@@ -51,7 +42,6 @@ export const styles = StyleSheet.create({
 		backgroundColor: "transparent",
 		borderWidth: 2,
 		borderStyle: "solid",
-		borderColor: primary,
 	},
 	outline: {
 		alignItems: "center",
@@ -63,7 +53,6 @@ export const styles = StyleSheet.create({
 	},
 	outlineText: {
 		fontWeight: "bold",
-		color: primary,
 	},
 	transparentContainer: {
 		overflow: "hidden",
@@ -80,6 +69,5 @@ export const styles = StyleSheet.create({
 	},
 	transparentText: {
 		fontWeight: "bold",
-		color: primary,
 	},
 });

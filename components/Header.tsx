@@ -23,6 +23,7 @@ export default function Header() {
 					type="transparent"
 					icon="menu"
 					iconSize={32}
+					iconColor={white}
 					buttonStyle={{
 						paddingVertical: 5,
 						paddingHorizontal: 9,

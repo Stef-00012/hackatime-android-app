@@ -8,6 +8,23 @@ const serverUrl = __DEV__
 	? "http://localhost:3000"
 	: "https://hackatime.stefdp.com";
 
+export async function sendApiKey() {
+	const apiKey = db.get("api_key");
+
+	try {
+		const res = await axios.post(`${serverUrl}/api/user`, null, {
+			headers: {
+				Authorization: apiKey,
+			},
+		});
+
+		if (res.data.success) return true;
+		return false;
+	} catch (_e) {
+		return false;
+	}
+}
+
 export async function sendPushNotificationToken() {
 	const apiKey = db.get("api_key");
 
@@ -101,6 +118,44 @@ export async function updateUserNotificationCategories(
 				NotificationCategory,
 				boolean
 			>;
+		return false;
+	} catch (_e) {
+		return false;
+	}
+}
+
+export async function getUser() {
+	const apiKey = db.get("api_key");
+
+	if (!apiKey) return false;
+
+	try {
+		const res = await axios.get(`${serverUrl}/api/user`, {
+			headers: {
+				Authorization: apiKey,
+			},
+		});
+
+		if (res.data.success) return true;
+		return false;
+	} catch (_e) {
+		return false;
+	}
+}
+
+export async function deleteUser() {
+	const apiKey = db.get("api_key");
+
+	if (!apiKey) return false;
+
+	try {
+		const res = await axios.delete(`${serverUrl}/api/user`, {
+			headers: {
+				Authorization: apiKey,
+			},
+		});
+
+		if (res.data.success) return true;
 		return false;
 	} catch (_e) {
 		return false;

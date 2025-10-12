@@ -4,12 +4,15 @@ import Sidebar from "@/components/Sidebar";
 import Switch from "@/components/Switch";
 import Text from "@/components/Text";
 import TextInput from "@/components/TextInput";
-import { red } from "@/constants/hcColors";
+import { muted, red, white } from "@/constants/hcColors";
 import { notificationCategories } from "@/constants/notifications";
 import { AuthContext } from "@/contexts/AuthProvider";
 import * as db from "@/functions/database";
 import {
+	deleteUser,
+	getUser,
 	getUserNotificationCategories,
+	sendApiKey,
 	sendPushNotificationToken,
 	updateUserNotificationCategories,
 } from "@/functions/server";
@@ -34,6 +37,10 @@ export default function Settings() {
 	const dbAPiKey = db.get("api_key");
 
 	const [apiKey, setApiKey] = useState(dbAPiKey);
+	const [shareAPIKey, setShareAPIKey] = useState<boolean>(
+		db.get("share_api_key") === "true",
+	);
+	const [isApiKeyOnServer, setIsApiKeyOnServer] = useState<boolean>(false);
 
 	const [notificationsPermissionStatus, setNotificationsPermissionStatus] =
 		useState<Notifications.PermissionStatus>(
@@ -70,6 +77,8 @@ export default function Settings() {
 		getUserNotificationCategories().then((categories) => {
 			setUserNotificationCategories(categories);
 		});
+
+		getUser().then(setIsApiKeyOnServer);
 	}, []);
 
 	return (
@@ -100,6 +109,15 @@ export default function Settings() {
 
 							return success;
 						}}
+					/>
+
+					<Switch
+						title="Share API key with the app's server"
+						description={`If you don't share the API key, you won't be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server`}
+						onValueChange={(value) => {
+							setShareAPIKey(value);
+						}}
+						value={shareAPIKey}
 					/>
 
 					<Switch
@@ -144,9 +162,46 @@ export default function Settings() {
 									ToastAndroid.SHORT,
 								);
 
+							const shareApiKeyCurrentStatus =
+								db.get("share_api_key") === "true";
+
+							if (
+								shareAPIKey &&
+								!shareApiKeyCurrentStatus &&
+								!isApiKeyOnServer
+							) {
+								db.set("share_api_key", "true");
+
+								const apiKeySent = await sendApiKey();
+
+								if (!apiKeySent)
+									ToastAndroid.show(
+										"Failed to send API key to server",
+										ToastAndroid.SHORT,
+									);
+
+								setIsApiKeyOnServer(apiKeySent);
+							} else if (
+								!shareAPIKey &&
+								shareApiKeyCurrentStatus &&
+								isApiKeyOnServer
+							) {
+								db.set("share_api_key", "false");
+
+								const userDeleted = await deleteUser();
+
+								if (!userDeleted)
+									ToastAndroid.show(
+										"Failed to delete user from server",
+										ToastAndroid.SHORT,
+									);
+
+								setIsApiKeyOnServer(false);
+							}
+
 							ToastAndroid.show("Settings saved", ToastAndroid.SHORT);
 
-							updateAuth(apiKey?.trim() || "");
+							updateAuth(apiKey?.trim() || "", true);
 						}}
 					/>
 
@@ -154,7 +209,6 @@ export default function Settings() {
 						type="outline"
 						text="Logout"
 						icon="logout"
-						iconColor={red}
 						containerStyle={styles.button}
 						onPress={() => {
 							updateAuth("");
@@ -171,7 +225,16 @@ export default function Settings() {
 				</View>
 
 				<View style={styles.settingContainer}>
-					<Text style={styles.settingTitle}>Notifications</Text>
+					<Text
+						style={[
+							styles.settingTitle,
+							{
+								color: isApiKeyOnServer ? white : muted,
+							},
+						]}
+					>
+						Notifications
+					</Text>
 
 					<Switch
 						title="Motivational Notifications"
@@ -189,8 +252,9 @@ export default function Settings() {
 							}));
 						}}
 						disabled={
+							!isApiKeyOnServer ||
 							notificationsPermissionStatus !==
-							Notifications.PermissionStatus.GRANTED
+								Notifications.PermissionStatus.GRANTED
 						}
 					/>
 
@@ -202,6 +266,7 @@ export default function Settings() {
 							type="outline"
 							iconColor={red}
 							containerStyle={styles.button}
+							disabled={!isApiKeyOnServer}
 							onPress={async () => {
 								const { status } =
 									await Notifications.requestPermissionsAsync();
@@ -237,6 +302,7 @@ export default function Settings() {
 							type="outline"
 							iconColor={red}
 							containerStyle={styles.button}
+							disabled={!isApiKeyOnServer}
 							onPress={async () => {
 								const { status } = await Notifications.getPermissionsAsync();
 
@@ -270,6 +336,7 @@ export default function Settings() {
 						text="Save"
 						icon="save"
 						containerStyle={styles.button}
+						disabled={!isApiKeyOnServer}
 						onPress={async () => {
 							const newCategories = await updateUserNotificationCategories(
 								userNotificationCategories,

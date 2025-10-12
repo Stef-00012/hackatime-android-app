@@ -1,4 +1,5 @@
-import { red, white } from "@/constants/hcColors";
+import { darkless, muted, red, white } from "@/constants/hcColors";
+import { darken } from "@/functions/color";
 import { getRippleColor } from "@/functions/util";
 import { styles } from "@/styles/components/button";
 import {
@@ -36,15 +37,25 @@ export default function Button({
 	buttonStyle,
 	containerStyle,
 	icon,
-	iconColor = white,
+	iconColor,
 	iconSize = 20,
 	disabled = false,
 	open,
 }: Props) {
 	switch (type) {
 		case "outline": {
+			const color = disabled ? darken(red, 0.4) : red;
+
 			return (
-				<View style={[styles.outlineContainer, containerStyle]}>
+				<View
+					style={[
+						styles.outlineContainer,
+						{
+							borderColor: color,
+						},
+						containerStyle,
+					]}
+				>
 					<Pressable
 						disabled={disabled}
 						android_ripple={{
@@ -59,11 +70,17 @@ export default function Button({
 						onPress={onPress}
 					>
 						{icon && (
-							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+							<MaterialSymbols
+								name={icon}
+								size={iconSize}
+								color={iconColor || color}
+							/>
 						)}
 
 						{text && (
-							<Text style={[styles.outlineText, textStyle]}>{text}</Text>
+							<Text style={[styles.outlineText, { color }, textStyle]}>
+								{text}
+							</Text>
 						)}
 
 						{typeof open === "boolean" && (
@@ -79,6 +96,8 @@ export default function Button({
 		}
 
 		case "transparent": {
+			const color = disabled ? darken(red, 0.4) : red;
+
 			return (
 				<View style={[styles.transparentContainer, containerStyle]}>
 					<Pressable
@@ -95,11 +114,17 @@ export default function Button({
 						onPress={onPress}
 					>
 						{icon && (
-							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+							<MaterialSymbols
+								name={icon}
+								size={iconSize}
+								color={iconColor || color}
+							/>
 						)}
 
 						{text && (
-							<Text style={[styles.transparentText, textStyle]}>{text}</Text>
+							<Text style={[styles.transparentText, { color }, textStyle]}>
+								{text}
+							</Text>
 						)}
 
 						{typeof open === "boolean" && (
@@ -115,8 +140,17 @@ export default function Button({
 		}
 
 		case "secondary": {
+			const color = disabled ? darken(darkless, 0.4) : darkless;
+			const textColor = disabled ? muted : white;
+
 			return (
-				<View style={[styles.secondaryContainer, containerStyle]}>
+				<View
+					style={[
+						styles.secondaryContainer,
+						{ backgroundColor: color },
+						containerStyle,
+					]}
+				>
 					<Pressable
 						disabled={disabled}
 						android_ripple={{
@@ -131,11 +165,19 @@ export default function Button({
 						onPress={onPress}
 					>
 						{icon && (
-							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+							<MaterialSymbols
+								name={icon}
+								size={iconSize}
+								color={iconColor || textColor}
+							/>
 						)}
 
 						{text && (
-							<Text style={[styles.secondaryText, textStyle]}>{text}</Text>
+							<Text
+								style={[styles.secondaryText, { color: textColor }, textStyle]}
+							>
+								{text}
+							</Text>
 						)}
 
 						{typeof open === "boolean" && (
@@ -151,8 +193,17 @@ export default function Button({
 		}
 
 		default: {
+			const color = disabled ? darken(red, 0.4) : red;
+			const textColor = disabled ? muted : white;
+
 			return (
-				<View style={[styles.primaryContainer, containerStyle]}>
+				<View
+					style={[
+						styles.primaryContainer,
+						{ backgroundColor: color },
+						containerStyle,
+					]}
+				>
 					<Pressable
 						disabled={disabled}
 						android_ripple={{
@@ -167,11 +218,19 @@ export default function Button({
 						onPress={onPress}
 					>
 						{icon && (
-							<MaterialSymbols name={icon} size={iconSize} color={iconColor} />
+							<MaterialSymbols
+								name={icon}
+								size={iconSize}
+								color={iconColor || textColor}
+							/>
 						)}
 
 						{text && (
-							<Text style={[styles.primaryText, textStyle]}>{text}</Text>
+							<Text
+								style={[styles.primaryText, { color: textColor }, textStyle]}
+							>
+								{text}
+							</Text>
 						)}
 
 						{typeof open === "boolean" && (

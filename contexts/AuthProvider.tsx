@@ -1,3 +1,7 @@
+import * as db from "@/functions/database";
+import { getCurrentUserStats } from "@/functions/hackatime";
+import { sendApiKey } from "@/functions/server";
+import type { UserStatsResponse } from "@/types/hackatime";
 import * as LocalAuthentication from "expo-local-authentication";
 import { usePathname, useRouter } from "expo-router";
 import {
@@ -8,10 +12,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { BackHandler } from "react-native";
-import * as db from "@/functions/database";
-import { getCurrentUserStats } from "@/functions/hackatime";
-import type { UserStatsResponse } from "@/types/hackatime";
+import { BackHandler, ToastAndroid } from "react-native";
 
 interface Props {
 	children: ReactNode;
@@ -19,7 +20,10 @@ interface Props {
 
 interface AuthData {
 	user: UserStatsResponse["data"] | string;
-	updateAuth: (apiKey?: string) => Promise<UserStatsResponse["data"] | string>;
+	updateAuth: (
+		apiKey?: string,
+		skipSendApiKey?: boolean,
+	) => Promise<UserStatsResponse["data"] | string>;
 	isLoggedIn: boolean;
 	updateBiometricsSetting: (enabled: boolean) => void;
 	requestBiometricsAuthentication: (
@@ -68,7 +72,7 @@ export default function AuthProvider({ children }: Props) {
 		useState<boolean>(unlockWithBiometrics);
 
 	const updateAuth = useCallback(
-		async (apiKey?: string) => {
+		async (apiKey?: string, skipSendApiKey?: boolean) => {
 			if (typeof apiKey === "string") db.set("api_key", apiKey);
 
 			const user = await getCurrentUserStats({
@@ -81,6 +85,19 @@ export default function AuthProvider({ children }: Props) {
 				router.replace("/");
 
 			setUser(user);
+
+			const shareToServer = db.get("share_api_key") === "true";
+
+			if (shareToServer && !skipSendApiKey) {
+				const apiKeySent = await sendApiKey();
+
+				if (!apiKeySent)
+					ToastAndroid.show(
+						"Failed to send API key to server",
+						ToastAndroid.SHORT,
+					);
+			}
+
 			return user;
 		},
 		[pathname, router],
