@@ -13,7 +13,6 @@ CREATE TABLE `goals` (
 --> statement-breakpoint
 CREATE TABLE `users` (
 	`api_key` text PRIMARY KEY NOT NULL,
-	`expo_push_tokens` text DEFAULT '[]' NOT NULL,
-	`primary_expo_push_token` text,
+	`expo_push_token` text NOT NULL,
 	`notification_categories` text DEFAULT '{}' NOT NULL
 );

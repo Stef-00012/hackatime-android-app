@@ -45,26 +45,28 @@ export async function motivationalNotificationsCronJob() {
 	const notifications: ExpoPushMessage[] = [];
 
 	for (const user of userList) {
-		const userNotifications = user.expoPushTokens.map((token) => {
-			const motivationalMessage =
-				motivationalMessages[
-					Math.floor(Math.random() * motivationalMessages.length)
-				];
+		const token = user.expoPushToken;
 
-			const title =
-				motivationalTitles[
-					Math.floor(Math.random() * motivationalTitles.length)
-				];
+		const motivationalMessage =
+			motivationalMessages[
+				Math.floor(Math.random() * motivationalMessages.length)
+			];
 
-			return {
-				to: token,
-				channelId: "motivational-quotes",
-				title: title,
-				body: motivationalMessage,
-			} satisfies ExpoPushMessage;
-		});
+		const title =
+			motivationalTitles[
+				Math.floor(Math.random() * motivationalTitles.length)
+			];
 
-		notifications.push(...userNotifications);
+		const userNotification: ExpoPushMessage = {
+			to: token,
+			channelId: "motivational-quotes",
+			title: title,
+			body: motivationalMessage,
+			priority: "high",
+			sound: "default",
+		}
+
+		notifications.push(userNotification);
 	}
 
 	const expo = new Expo();

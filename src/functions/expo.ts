@@ -1,9 +1,9 @@
 import type Expo from "expo-server-sdk";
 import type {
-    ExpoPushMessage,
-    ExpoPushReceipt,
-    ExpoPushReceiptId,
-    ExpoPushTicket,
+	ExpoPushMessage,
+	ExpoPushReceipt,
+	ExpoPushReceiptId,
+	ExpoPushTicket,
 } from "expo-server-sdk";
 
 // https://github.com/expo/expo-server-sdk-node#usage

@@ -14,8 +14,6 @@ export async function POST(req: NextRequest) {
 
 	const body = (await req.json()) as {
 		expoPushToken: string;
-		setAsPrimary?: boolean;
-		delete?: boolean;
 	};
 
 	if (!body.expoPushToken)
@@ -25,8 +23,6 @@ export async function POST(req: NextRequest) {
 		);
 
 	const expoPushToken = body.expoPushToken;
-	const setAsPrimary = body.setAsPrimary ?? false;
-	const deleteToken = body.delete ?? false;
 
 	if (!Expo.isExpoPushToken(expoPushToken))
 		return NextResponse.json(
@@ -38,53 +34,21 @@ export async function POST(req: NextRequest) {
 		where: eq(schema.users.apiKey, apiKey),
 	});
 
-	if (deleteToken) {
-		if (!user) return NextResponse.json({ success: true });
-		if (!user.expoPushTokens.includes(expoPushToken))
-			return NextResponse.json({ success: true });
-
-		const updatedTokens = user.expoPushTokens.filter(
-			(token) => token !== expoPushToken,
-		);
-		const isPrimary = user.primaryExpoPushToken === expoPushToken;
-
-		await db
-			.update(schema.users)
-			.set({
-				expoPushTokens: updatedTokens,
-				primaryExpoPushToken: isPrimary
-					? updatedTokens[0] || null
-					: user.primaryExpoPushToken,
-			})
-			.where(eq(schema.users.apiKey, user.apiKey));
-
+	if (user?.expoPushToken === expoPushToken)
 		return NextResponse.json({ success: true });
-	}
-
-	if (!user) {
-		await db.insert(schema.users).values({
-			apiKey: apiKey,
-			expoPushTokens: [expoPushToken],
-			primaryExpoPushToken: setAsPrimary ? expoPushToken : null,
-		});
-
-		return NextResponse.json({ success: true });
-	}
-
-	if (user.expoPushTokens.includes(expoPushToken))
-		return NextResponse.json({ success: true });
-
-	const updatedTokens = [...user.expoPushTokens, expoPushToken];
 
 	await db
-		.update(schema.users)
-		.set({
-			expoPushTokens: updatedTokens,
-			primaryExpoPushToken: setAsPrimary
-				? expoPushToken
-				: user.primaryExpoPushToken,
+		.insert(schema.users)
+		.values({
+			apiKey: apiKey,
+			expoPushToken,
 		})
-		.where(eq(schema.users.apiKey, user.apiKey));
+		.onConflictDoUpdate({
+			target: schema.users.apiKey,
+			set: {
+				expoPushToken,
+			},
+		});
 
 	return NextResponse.json({ success: true });
 }

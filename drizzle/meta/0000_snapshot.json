@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "403c2541-68c2-4f18-bfc6-4f7f4de62c89",
+  "id": "c16da8f5-cab0-424e-84f5-91158208624a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "admins": {
@@ -86,19 +86,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "expo_push_tokens": {
-          "name": "expo_push_tokens",
+        "expo_push_token": {
+          "name": "expo_push_token",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'[]'"
-        },
-        "primary_expo_push_token": {
-          "name": "primary_expo_push_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "notification_categories": {
