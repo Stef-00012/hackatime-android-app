@@ -19,11 +19,8 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
 	const widgetInfo = props.widgetInfo;
 	const widgetName = widgetInfo.widgetName as WidgetNames;
 
-	console.log(props.widgetAction);
-
 	switch (props.widgetAction) {
 		case "WIDGET_ADDED": {
-			console.log("WIDGET_ADDED", widgetName);
 			switch (widgetName) {
 				case "TodayTime": {
 					const widgetData = await todayTimeHandleSetup();

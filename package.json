@@ -1,8 +1,8 @@
 {
   "name": "hackatime-stats",
   "main": "index.ts",
-  "version": "1.4.0",
-  "versionCode": 8,
+  "version": "1.5.0",
+  "versionCode": 9,
   "scripts": {
     "start": "expo start --host localhost",
     "start:dev": "APP_VARIANT=development EDGE_PATH=/etc/profiles/per-user/stef/bin/chromium expo start --dev-client --host localhost",
@@ -27,6 +27,7 @@
     "date-fns": "^4.1.0",
     "enhanced-ms": "^4.1.0",
     "expo": "~54.0.7",
+    "expo-clipboard": "~8.0.7",
     "expo-constants": "~18.0.8",
     "expo-dev-client": "~6.0.13",
     "expo-document-picker": "~14.0.7",

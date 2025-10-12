@@ -24,6 +24,7 @@ import {
 	Widget as TopStatsWidget,
 	handleUpdate as topStatsWidgetHandleUpdate,
 } from "@/widgets/topStats/Widget";
+import * as Clipboard from "expo-clipboard";
 import * as Notifications from "expo-notifications";
 import { useContext, useEffect, useState } from "react";
 import { ScrollView, ToastAndroid, View } from "react-native";
@@ -357,6 +358,48 @@ export default function Settings() {
 								}
 
 								setNotificationsPermissionStatus(status);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="List Notification Channels"
+							icon="notifications_active"
+							containerStyle={styles.button}
+							onPress={async () => {
+								const channels =
+									await Notifications.getNotificationChannelsAsync();
+
+								const stringifiedChannels = JSON.stringify(channels, null, 2);
+
+								console.debug(stringifiedChannels);
+
+								Clipboard.setStringAsync(stringifiedChannels);
+
+								ToastAndroid.show(
+									`Copied ${channels.length} channels to clipboard and console`,
+									ToastAndroid.SHORT,
+								);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="Get Expo Push Token"
+							icon="content_copy"
+							containerStyle={styles.button}
+							onPress={async () => {
+								const expoPushToken =
+									await Notifications.getExpoPushTokenAsync();
+
+								console.debug(expoPushToken.data);
+
+								Clipboard.setStringAsync(expoPushToken.data);
+
+								ToastAndroid.show(
+									`Copied expo push token to clipboard and console`,
+									ToastAndroid.SHORT,
+								);
 							}}
 						/>
 

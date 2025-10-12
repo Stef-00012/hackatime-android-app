@@ -1,6 +1,7 @@
 import { background } from "@/constants/hcColors";
 import AuthProvider from "@/contexts/AuthProvider";
 import SidebarProvider from "@/contexts/SidebarContext";
+import { sendPushNotificationToken } from "@/functions/server";
 import BiometricAuthenticationPage from "@/pages/biometricAuth";
 import NoInternetPage from "@/pages/noInternet";
 import NetInfo from "@react-native-community/netinfo";
@@ -51,6 +52,37 @@ export default function RootLayout() {
 				shouldShowList: true,
 			}),
 		});
+
+		(async () => {
+			await Notifications.setNotificationChannelAsync("motivational-quotes", {
+				name: "Motivational Quotes",
+				description:
+					"Receive motivational notification to encourage you to code more often",
+				importance: Notifications.AndroidImportance.HIGH,
+				sound: "default",
+				vibrationPattern: [0, 250, 250, 250],
+				enableVibrate: true,
+				audioAttributes: {
+					usage: Notifications.AndroidAudioUsage.NOTIFICATION,
+				},
+			});
+
+			await Notifications.setNotificationChannelAsync("goals", {
+				name: "Goals",
+				description: "Alert when you completed a goal or your progress it",
+				importance: Notifications.AndroidImportance.HIGH,
+				sound: "default",
+				vibrationPattern: [0, 250, 250, 250],
+				enableVibrate: true,
+				audioAttributes: {
+					usage: Notifications.AndroidAudioUsage.NOTIFICATION,
+				},
+			});
+
+			const hasNotifPermisision = await Notifications.getPermissionsAsync();
+
+			if (hasNotifPermisision.granted) await sendPushNotificationToken();
+		})();
 	}, []);
 
 	return (
