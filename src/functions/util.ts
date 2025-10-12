@@ -1,4 +1,5 @@
 import { promisify } from "node:util";
+import { getCurrentUserTodayData } from "./hackatime";
 
 export const sleep = promisify(setTimeout);
 
@@ -33,4 +34,16 @@ export function isValidDate(date: Date): boolean {
 	date.setHours(0, 0, 0, 0);
 
 	return date.getTime() >= today.getTime();
+}
+
+export async function isHackatimeApiKey(apiKey: string, checkApi = false) {
+	if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey)) return false;
+
+	if (!checkApi) return true;
+
+	const userData = await getCurrentUserTodayData(apiKey);
+
+	if (userData === "Invalid API Key") return false;
+
+	return true;
 }

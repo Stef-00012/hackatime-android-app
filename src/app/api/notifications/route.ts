@@ -1,5 +1,6 @@
 import { notificationCategories } from "@/constants/notifications";
 import db, { schema } from "@/db/db";
+import { isHackatimeApiKey } from "@/functions/util";
 import type { NotificationCategory } from "@/types/notifications";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey)
+	if (!apiKey || !isHackatimeApiKey(apiKey))
 		return NextResponse.json(
 			{ error: "Unauthorized", success: false },
 			{ status: 401 },
@@ -18,19 +19,17 @@ export async function GET(req: NextRequest) {
 	});
 
 	if (!user)
-		return NextResponse.json(
-			{
-				notificationCategories: notificationCategories.reduce(
-					(acc, category) => {
-						acc[category] = false
+		return NextResponse.json({
+			notificationCategories: notificationCategories.reduce(
+				(acc, category) => {
+					acc[category] = false;
 
-						return acc;
-					},
-					{} as Record<NotificationCategory, boolean>
-				),
-				success: true
-			},
-		);
+					return acc;
+				},
+				{} as Record<NotificationCategory, boolean>,
+			),
+			success: true,
+		});
 
 	return NextResponse.json({
 		notificationCategories: user.notificationCategories,
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey)
+	if (!apiKey || !isHackatimeApiKey(apiKey))
 		return NextResponse.json(
 			{ error: "Unauthorized", success: false },
 			{ status: 401 },

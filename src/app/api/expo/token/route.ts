@@ -1,4 +1,5 @@
 import db, { schema } from "@/db/db";
+import { isHackatimeApiKey } from "@/functions/util";
 import { eq } from "drizzle-orm";
 import Expo from "expo-server-sdk";
 import { type NextRequest, NextResponse } from "next/server";
@@ -6,7 +7,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey)
+	if (!apiKey || !isHackatimeApiKey(apiKey, true))
 		return NextResponse.json(
 			{ error: "Unauthorized", success: false },
 			{ status: 401 },

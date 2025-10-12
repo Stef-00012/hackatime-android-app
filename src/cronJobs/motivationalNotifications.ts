@@ -47,6 +47,8 @@ export async function motivationalNotificationsCronJob() {
 	for (const user of userList) {
 		const token = user.expoPushToken;
 
+		if (!token) continue;
+
 		const motivationalMessage =
 			motivationalMessages[
 				Math.floor(Math.random() * motivationalMessages.length)

@@ -3,7 +3,7 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
 	apiKey: text("api_key").notNull().primaryKey(),
-	expoPushToken: text("expo_push_token").notNull(),
+	expoPushToken: text("expo_push_token"),
 	notificationCategories: text("notification_categories", {
 		mode: "json",
 	})

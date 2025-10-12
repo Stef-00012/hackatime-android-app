@@ -1,5 +1,5 @@
 import db, { schema } from "@/db/db";
-import { isValidDate } from "@/functions/util";
+import { isHackatimeApiKey, isValidDate } from "@/functions/util";
 import { and, eq, gte, lte } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -8,7 +8,7 @@ const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 export async function GET(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey)
+	if (!apiKey || !isHackatimeApiKey(apiKey))
 		return NextResponse.json(
 			{ error: "Unauthorized", success: false },
 			{ status: 401 },
@@ -82,10 +82,20 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
 
-	if (!apiKey)
+	if (!apiKey || !isHackatimeApiKey(apiKey))
 		return NextResponse.json(
 			{ error: "Unauthorized", success: false },
 			{ status: 401 },
+		);
+
+	const user = await db.query.users.findFirst({
+		where: eq(schema.users.apiKey, apiKey),
+	});
+
+	if (!user)
+		return NextResponse.json(
+			{ error: "User not found", success: false },
+			{ status: 404 },
 		);
 
 	const body = (await req.json()) as {

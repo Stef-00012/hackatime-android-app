@@ -7,6 +7,12 @@ export const goals = sqliteTable("goals", {
     }).notNull(),
     goal: integer("goal").notNull().default(0),
     achieved: integer("achieved").notNull().default(0),
+    notificationsSent: text("notifications_sent", {
+        mode: "json"
+    })
+        .notNull()
+        .default([])
+        .$type<number[]>()
 }, (table) => [
     primaryKey({
         columns: [
