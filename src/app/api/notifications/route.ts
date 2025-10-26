@@ -32,7 +32,14 @@ export async function GET(req: NextRequest) {
 		});
 
 	return NextResponse.json({
-		notificationCategories: user.notificationCategories,
+		notificationCategories: notificationCategories.reduce(
+			(acc, category) => {
+				acc[category] = user.notificationCategories[category] || false;
+
+				return acc;
+			},
+			{} as Record<NotificationCategory, boolean>,
+		),
 		success: true,
 	});
 }

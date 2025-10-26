@@ -1,20 +1,25 @@
+import { goalsTitles } from "@/constants/goalsNotifications";
 import db, { schema } from "@/db/db";
+import { sendPushNotifications } from "@/functions/expo";
 import { getCurrentUserTodayData } from "@/functions/hackatime";
 import { chunk, formatDate, sleep } from "@/functions/util";
 import { and, eq } from "drizzle-orm";
+import Expo from "expo-server-sdk";
 
 export async function goalsCronJob() {
 	const users = await db.query.users.findMany();
+
+	const expo = new Expo();
 
 	const today = new Date();
 	today.setUTCHours(0, 0, 0, 0);
 
 	const userChunks = chunk(users, 200);
 
-	for (const chunk of userChunks) {
-		const isLastChunk = chunk.length < 200;
+	for (const userChunk of userChunks) {
+		const isLastChunk = userChunk.length < 200;
 
-		for (const user of chunk) {
+		for (const user of userChunk) {
 			const apiKey = user.apiKey;
 
 			if (!apiKey) continue;
@@ -45,6 +50,36 @@ export async function goalsCronJob() {
 				});
 
 				continue;
+			}
+
+			const notificationsSent = goal.notificationsSent;
+
+			const goalCheckpoints = [25, 50, 75, 100];
+
+			for (const checkpoint of goalCheckpoints) {
+				if (
+					(userTodayData.grand_total.total_seconds / goal.goal) * 100 >
+						checkpoint &&
+					!notificationsSent.includes(checkpoint)
+				) {
+					notificationsSent.push(checkpoint);
+
+					if (!user.expoPushToken || !user.notificationCategories.goals) break;
+
+					const title =
+						goalsTitles[Math.floor(Math.random() * goalsTitles.length)];
+
+					sendPushNotifications(expo, [
+						{
+							to: user.expoPushToken,
+							channelId: "goals",
+							title: title,
+							body: `You just passed ${checkpoint}% of your goal, keep going!`,
+							priority: "high",
+							sound: "default",
+						},
+					]);
+				}
 			}
 
 			if (formatDate(goal.date) !== formatDate(today)) {
