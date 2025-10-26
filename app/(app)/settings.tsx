@@ -260,6 +260,28 @@ export default function Settings() {
 						}
 					/>
 
+					<Switch
+						title="Goals Notifications"
+						description={`Receive a notification when you make progress on your goal${
+							notificationsPermissionStatus ===
+							Notifications.PermissionStatus.GRANTED
+								? ""
+								: ".\nNotifications permission is not granted"
+						}`}
+						value={userNotificationCategories["goals"]}
+						onValueChange={async (toggled) => {
+							setUserNotificationCategories((prev) => ({
+								...prev,
+								goals: toggled,
+							}));
+						}}
+						disabled={
+							!isApiKeyOnServer ||
+							notificationsPermissionStatus !==
+								Notifications.PermissionStatus.GRANTED
+						}
+					/>
+
 					{notificationsPermissionStatus ===
 					Notifications.PermissionStatus.UNDETERMINED ? (
 						<Button

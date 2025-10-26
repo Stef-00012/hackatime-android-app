@@ -1,1 +1,1 @@
-export type NotificationCategory = "motivational-quotes";
+export type NotificationCategory = "motivational-quotes" | "goals";
