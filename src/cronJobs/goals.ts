@@ -1,14 +1,19 @@
 import db, { schema } from "@/db/db";
 import { getCurrentUserTodayData } from "@/functions/hackatime";
 import { chunk, formatDate, sleep } from "@/functions/util";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export async function goalsCronJob() {
 	const users = await db.query.users.findMany();
 
+	const today = new Date();
+	today.setUTCHours(0, 0, 0, 0);
+
 	const userChunks = chunk(users, 200);
 
 	for (const chunk of userChunks) {
+		const isLastChunk = chunk.length < 200;
+
 		for (const user of chunk) {
 			const apiKey = user.apiKey;
 
@@ -34,7 +39,7 @@ export async function goalsCronJob() {
 			if (!goal) {
 				await db.insert(schema.goals).values({
 					apiKey: apiKey,
-					date: new Date(),
+					date: today,
 					achieved: userTodayData.grand_total.total_seconds,
 					goal: 0,
 				});
@@ -42,12 +47,12 @@ export async function goalsCronJob() {
 				continue;
 			}
 
-			if (formatDate(goal.date) !== formatDate(new Date())) {
+			if (formatDate(goal.date) !== formatDate(today)) {
 				await db
 					.insert(schema.goals)
 					.values({
 						apiKey: apiKey,
-						date: new Date(),
+						date: today,
 						achieved: userTodayData.grand_total.total_seconds,
 						goal: goal.goal,
 					})
@@ -66,9 +71,11 @@ export async function goalsCronJob() {
 				.set({
 					achieved: userTodayData.grand_total.total_seconds,
 				})
-				.where(eq(schema.goals.apiKey, apiKey));
+				.where(
+					and(eq(schema.goals.apiKey, apiKey), eq(schema.goals.date, today)),
+				);
 		}
 
-		await sleep(10 * 1000); // wait 10 seconds between chunks to avoid spamming the API too much
+		if (!isLastChunk) await sleep(10 * 1000); // wait 10 seconds between chunks to avoid spamming the API too much
 	}
 }

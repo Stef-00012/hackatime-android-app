@@ -30,7 +30,10 @@ export async function GET(req: NextRequest) {
 			orderBy: (goals, { desc }) => [desc(goals.date)],
 		});
 
-		return NextResponse.json(goals);
+		return NextResponse.json({
+			success: true,
+			goals,
+		});
 	}
 
 	if (
@@ -51,7 +54,10 @@ export async function GET(req: NextRequest) {
 			orderBy: (goals, { desc }) => [desc(goals.date)],
 		});
 
-		return NextResponse.json(goals);
+		return NextResponse.json({
+			success: true,
+			goals,
+		});
 	}
 
 	if (date && dateRegex.test(date)) {
@@ -67,15 +73,21 @@ export async function GET(req: NextRequest) {
 		});
 
 		if (!goal)
-			return NextResponse.json([
-				{
-					date,
-					achieved: 0,
-					goal: 0,
-				},
-			]);
+			return NextResponse.json({
+				success: true,
+				goals: [
+					{
+						date,
+						achieved: 0,
+						goal: 0,
+					},
+				],
+			});
 
-		return NextResponse.json([goal]);
+		return NextResponse.json({
+			success: true,
+			goals: [goal],
+		});
 	}
 
 	const todayGoal = await db.query.goals.findFirst({
@@ -86,15 +98,21 @@ export async function GET(req: NextRequest) {
 	});
 
 	if (!todayGoal)
-		return NextResponse.json([
-			{
-				date: new Date(),
-				achieved: 0,
-				goal: 0,
-			},
-		]);
+		return NextResponse.json({
+			success: true,
+			goals: [
+				{
+					date: new Date(),
+					achieved: 0,
+					goal: 0,
+				},
+			],
+		});
 
-	return NextResponse.json([todayGoal]);
+	return NextResponse.json({
+		success: true,
+		goals: [todayGoal],
+	});
 }
 
 export async function PATCH(req: NextRequest) {

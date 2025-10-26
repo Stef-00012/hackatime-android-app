@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 			{ status: 400 },
 		);
 
-	console.log(`Admin "${admin.username}" started a cronJob: ${cronJob}`);
+	console.info(`Admin "${admin.username}" started a cronJob: ${cronJob}`);
 
 	switch (cronJob) {
 		case "goals":

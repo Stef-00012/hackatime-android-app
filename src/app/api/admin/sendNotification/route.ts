@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
 	const expo = new Expo();
 
-	console.log(
+	console.info(
 		`Admin "${admin.username}" sent a notification to "${expoPushToken}". Notification data:`,
 		notificationData,
 	);
