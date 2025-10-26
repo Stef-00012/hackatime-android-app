@@ -55,19 +55,19 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Setup Firebase Android google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > ./google-services.json
+      # - name: Setup Firebase Android google-services.json
+      #   run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > ./google-services.json
 
-      - name: Debug - Check file location
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Looking for google-services.json ==="
-          find . -name "google-services.json" -type f
-          echo "=== Looking for app.config.ts ==="
-          find . -name "app.config.ts" -type f
-          echo "=== Directory structure ==="
-          ls -la
+      # - name: Debug - Check file location
+      #   run: |
+      #     echo "=== Current directory ==="
+      #     pwd
+      #     echo "=== Looking for google-services.json ==="
+      #     find . -name "google-services.json" -type f
+      #     echo "=== Looking for app.config.ts ==="
+      #     find . -name "app.config.ts" -type f
+      #     echo "=== Directory structure ==="
+      #     ls -la
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
