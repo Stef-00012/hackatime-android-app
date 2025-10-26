@@ -43,7 +43,7 @@ app-example
 /android
 
 # Firebase Google Services
-/google-services.json
+# /google-services.json
 
 # My hackatime API key
 .api_key

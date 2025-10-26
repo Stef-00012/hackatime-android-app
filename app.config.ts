@@ -140,7 +140,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			monochromeImage: `${assetsPath}/monochromatic-adaptive-icon.png`,
 			backgroundColor: red,
 		},
-		googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+		googleServicesFile: IS_DEV ? "../google-services.json" : "./google-services.json",
 		playStoreUrl: "https://play.google.com/store/apps/details?id=com.stefdp.hackatime",
 		backgroundColor: red,
 		predictiveBackGestureEnabled: true,
