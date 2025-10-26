@@ -41,16 +41,7 @@ export async function goalsCronJob() {
 				orderBy: (goals, { desc }) => [desc(goals.date)],
 			});
 
-			if (!goal) {
-				await db.insert(schema.goals).values({
-					apiKey: apiKey,
-					date: today,
-					achieved: userTodayData.grand_total.total_seconds,
-					goal: 0,
-				});
-
-				continue;
-			}
+			if (!goal) continue;
 
 			const notificationsSent = goal.notificationsSent;
 
