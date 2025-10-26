@@ -5,23 +5,29 @@ export const styles = StyleSheet.create({
 	overlayContainer: {
 		...StyleSheet.absoluteFillObject,
 		flex: 1,
+		top: 50,
 		display: "flex",
 		backgroundColor: background,
 		alignItems: "center",
-		zIndex: 999998,
-		marginBottom: -20,
+		zIndex: 3,
+		// marginBottom: -40,
 		paddingTop: 30,
 	},
-	lockedTitle: {
+	noApiKeyTitle: {
 		fontSize: 28,
 		fontWeight: "bold",
 		alignItems: "center",
 	},
-	unlockButton: {
-		position: "absolute",
-		bottom: "45%",
+	noApiKeySubtitle: {
+		fontSize: 18,
+		textAlign: "center",
+		marginHorizontal: 20,
 	},
-	unlockButtonText: {
+	goHomeButton: {
+		position: "absolute",
+		bottom: "50%",
+	},
+	goHomeButtonText: {
 		fontSize: 18,
 	},
 });

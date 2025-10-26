@@ -85,3 +85,19 @@ export function colorHash(str: string) {
 
 	return color;
 }
+
+export function getDatesBetween(date1: Date, date2: Date): Date[] {
+	const dates: Date[] = [];
+	const start = new Date(date1);
+	const end = new Date(date2);
+
+	dates.push(start)
+	
+	for (let date = new Date(start.getTime() + 86400000); date < end; date.setDate(date.getDate() + 1)) {
+		dates.push(new Date(date.toISOString()));
+	}
+
+	dates.push(end)
+	
+	return dates;
+}

@@ -1,5 +1,4 @@
 import type { Props as ChartLegendProps } from "@/components/ChartLegend";
-import type { Units } from "@/types/ms";
 import ms from "enhanced-ms";
 import type { Dispatch, SetStateAction } from "react";
 import type { lineDataItem, stackDataItem } from "react-native-gifted-charts";
@@ -40,19 +39,11 @@ export function getLast7DaysChartData(
 
 export function formatLast7DaysChartYAxisLabel(value: string) {
 	const seconds = Number(value);
-	const hours = Math.floor(seconds / 3600);
-	const days = Math.floor(hours / 24);
-
-	let unit: Units = "minute";
-
-	if (hours > 0) unit = "hour";
-	if (days > 0) unit = "day";
 
 	return (
 		ms(seconds * 1000, {
 			useAbbreviations: true,
-			includedUnits: [unit],
-			unitLimit: 1,
+			unitLimit: 2,
 		}) || "0s"
 	);
 }
@@ -134,19 +125,12 @@ export function getProjectsTimelineChartLegend(
 
 export function formatProjectsTimelineChartYAxisLabel(value: string) {
 	const seconds = Number(value);
-	const hours = Math.floor(seconds / 3600);
-	const days = Math.floor(hours / 24);
-
-	let unit: Units = "minute";
-
-	if (hours > 0) unit = "hour";
-	if (days > 0) unit = "day";
 
 	return (
 		ms(seconds * 1000, {
 			useAbbreviations: true,
-			includedUnits: [unit],
-			unitLimit: 1,
+			// includedUnits: [unit],
+			unitLimit: 2,
 		}) || "0s"
 	);
 }

@@ -20,6 +20,10 @@ import { version, versionCode } from "@/package.json";
 import { styles } from "@/styles/settings";
 import type { NotificationCategory } from "@/types/notifications";
 import {
+	Widget as GoalWidget,
+	handleUpdate as goalWidgetHandleUpdate,
+} from "@/widgets/goal/Widget";
+import {
 	Widget as TodayTimeWidget,
 	handleUpdate as todayTimeWidgetHandleUpdate,
 } from "@/widgets/todayTime/Widget";
@@ -165,13 +169,13 @@ export default function Settings() {
 							const shareApiKeyCurrentStatus =
 								db.get("share_api_key") === "true";
 
+							db.set("share_api_key", shareAPIKey ? "true" : "false");
+
 							if (
 								shareAPIKey &&
 								!shareApiKeyCurrentStatus &&
 								!isApiKeyOnServer
 							) {
-								db.set("share_api_key", "true");
-
 								const apiKeySent = await sendApiKey();
 
 								if (!apiKeySent)
@@ -186,8 +190,6 @@ export default function Settings() {
 								shareApiKeyCurrentStatus &&
 								isApiKeyOnServer
 							) {
-								db.set("share_api_key", "false");
-
 								const userDeleted = await deleteUser();
 
 								if (!userDeleted)
@@ -504,6 +506,29 @@ export default function Settings() {
 								await requestWidgetUpdate({
 									widgetName: "TopStats",
 									renderWidget: () => <TopStatsWidget data={widgetData} />,
+									widgetNotFound: () => {
+										ToastAndroid.show(
+											"Today Time Widget not found",
+											ToastAndroid.SHORT,
+										);
+									},
+								});
+
+								ToastAndroid.show("Widget Updated", ToastAndroid.SHORT);
+							}}
+						/>
+
+						<Button
+							type="primary"
+							text="Update Goal Widget"
+							icon="refresh"
+							containerStyle={styles.button}
+							onPress={async () => {
+								const widgetData = await goalWidgetHandleUpdate();
+
+								await requestWidgetUpdate({
+									widgetName: "Goal",
+									renderWidget: () => <GoalWidget data={widgetData} />,
 									widgetNotFound: () => {
 										ToastAndroid.show(
 											"Today Time Widget not found",

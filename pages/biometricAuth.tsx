@@ -24,7 +24,9 @@ export default function BiometricAuthenticationPage() {
 				text="Unlock"
 				containerStyle={styles.unlockButton}
 				textStyle={styles.unlockButtonText}
-				onPress={requestBiometricsAuthentication}
+				onPress={() => {
+					requestBiometricsAuthentication();
+				}}
 			/>
 		</View>
 	);

@@ -1,11 +1,11 @@
 import { styles } from "@/styles/components/popup";
 import { type ReactNode, useEffect } from "react";
 import {
-    BackHandler,
-    Pressable,
-    type StyleProp,
-    View,
-    type ViewStyle,
+	BackHandler,
+	Pressable,
+	type StyleProp,
+	View,
+	type ViewStyle,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Portal } from "react-native-portalize";

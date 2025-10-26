@@ -10,10 +10,10 @@ export const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		zIndex: 999999,
-		marginBottom: -20,
+		// marginBottom: -20,
+		// paddingBottom: 30,
 	},
 	noInternetText: {
-		color: "#F6F7F7",
 		fontSize: 30,
 		fontWeight: "bold",
 		margin: "auto",

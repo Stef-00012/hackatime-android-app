@@ -1,13 +1,13 @@
 // import React from 'react';
 
+import { background, red, text, white } from "@/constants/hcColors";
+import * as db from "@/functions/database";
+import { getCurrentUserTodayData } from "@/functions/hackatime";
 import {
 	FlexWidget,
 	TextWidget,
 	type WidgetInfo,
 } from "react-native-android-widget";
-import { background, red, text, white } from "@/constants/hcColors";
-import * as db from "@/functions/database";
-import { getCurrentUserTodayData } from "@/functions/hackatime";
 
 export { ConfigurationScreen } from "./ConfigurationScreen";
 
@@ -76,7 +76,9 @@ export async function handleUpdate(): Promise<WidgetData> {
 				theme,
 			}
 		: {
-				hours: todayHours.grand_total.text,
+				hours: todayHours.grand_total.total_seconds < 60
+					? `${todayHours.grand_total.total_seconds}s`
+					: todayHours.grand_total.text,
 				transparency,
 				theme,
 		};

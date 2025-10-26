@@ -4,8 +4,11 @@ import Switch from "@/components/Switch";
 import Text from "@/components/Text";
 import { blue, cyan, green } from "@/constants/hcColors";
 import * as db from "@/functions/database";
-import { getCurrentUserTodayData } from "@/functions/hackatime";
-import { styles } from "@/styles/widgetConfiguration/todayTime";
+import { getUserGoals } from "@/functions/server";
+import { formatDate } from "@/functions/util";
+import { styles } from "@/styles/widgetConfiguration/goal";
+import type { Goal } from "@/types/server";
+import { add } from "date-fns/add";
 import * as DocumentPicker from "expo-document-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
@@ -17,7 +20,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Widget } from "./Widget";
 
-const widgetHeight = PixelRatio.getPixelSizeForLayoutSize(51);
+const widgetHeight = PixelRatio.getPixelSizeForLayoutSize(90);
 const widgetWidth = PixelRatio.getPixelSizeForLayoutSize(130);
 
 export function ConfigurationScreen({
@@ -30,26 +33,28 @@ export function ConfigurationScreen({
 	);
 
 	const [isDarkMode, setIsDarkMode] = useState<boolean>(
-		(db.get("TodayTime_theme") || "dark") === "dark",
+		(db.get("Goal_theme") || "dark") === "dark",
 	);
 
 	const [transparency, setTransparency] = useState<number>(
-		Number.parseInt(db.get("TodayTime_trasparency") || "60", 10),
+		Number.parseInt(db.get("Goal_trasparency") || "60", 10),
 	);
 
-	const [hours, setHours] = useState<string>("0s");
+	const [goals, setGoals] = useState<Goal[]>([]);
 
 	useEffect(() => {
 		(async () => {
-			const data = await getCurrentUserTodayData();
+			const endDate = new Date();
+			const startDate = add(new Date(), {
+				weeks: -1,
+			});
 
-			setHours(
-				typeof data === "string"
-					? "0s"
-					: data.grand_total.total_seconds < 60
-						? `${data.grand_total.total_seconds}s`
-						: data.grand_total.text,
-			);
+			const userGoals = await getUserGoals({
+				startDate: formatDate(startDate),
+				endDate: formatDate(endDate),
+			});
+
+			setGoals(userGoals);
 		})();
 	}, []);
 
@@ -93,11 +98,15 @@ export function ConfigurationScreen({
 							<WidgetPreview
 								height={widgetHeight}
 								width={widgetWidth}
-								renderWidget={() => (
+								renderWidget={(size) => (
 									<Widget
-										widgetInfo={widgetInfo}
+										widgetInfo={{
+											...widgetInfo,
+											height: size.height,
+											width: size.width,
+										}}
 										data={{
-											hours,
+											goals,
 											theme: isDarkMode ? "dark" : "light",
 											transparency,
 										}}
@@ -114,11 +123,15 @@ export function ConfigurationScreen({
 							<WidgetPreview
 								height={widgetHeight}
 								width={widgetWidth}
-								renderWidget={() => (
+								renderWidget={(size) => (
 									<Widget
-										widgetInfo={widgetInfo}
+										widgetInfo={{
+											...widgetInfo,
+											height: size.height,
+											width: size.width,
+										}}
 										data={{
-											hours,
+											goals,
 											theme: isDarkMode ? "dark" : "light",
 											transparency,
 										}}
@@ -162,14 +175,14 @@ export function ConfigurationScreen({
 						icon="save"
 						containerStyle={{ width: "49%" }}
 						onPress={() => {
-							db.set("TodayTime_theme", isDarkMode ? "dark" : "light");
-							db.set("TodayTime_trasparency", String(transparency));
+							db.set("Goal_theme", isDarkMode ? "dark" : "light");
+							db.set("Goal_trasparency", String(transparency));
 
 							renderWidget(
 								<Widget
 									widgetInfo={widgetInfo}
 									data={{
-										hours,
+										goals,
 										theme: isDarkMode ? "dark" : "light",
 										transparency,
 									}}

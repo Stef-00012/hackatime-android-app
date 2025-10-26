@@ -224,7 +224,7 @@ export default function Index() {
 					getCurrentUserStats({
 						features: ["projects", "languages"],
 						startDate: formattedStartDate,
-						endDate: formattedEndDate,
+						endDate: newFormattedEndDate,
 					}).then((userStats) => {
 						setStats(typeof userStats === "string" ? null : userStats);
 					});
@@ -470,19 +470,22 @@ export default function Index() {
 										backgroundColor={elevated}
 										xAxisColor={slate}
 										yAxisColor={slate}
-										yAxisTextStyle={styles.barChartAxisText}
+										yAxisTextStyle={[
+											styles.barChartAxisText,
+											styles.barChartYAxisText,
+										]}
 										xAxisLabelTextStyle={[
 											styles.barChartAxisText,
 											styles.barChartXAxisText,
 										]}
 										labelsDistanceFromXaxis={5}
 										rotateLabel
-										yAxisLabelWidth={40}
+										yAxisLabelWidth={60}
 										rulesColor={slate}
 										disableScroll
 										initialSpacing={3}
 										endSpacing={0}
-										spacing={20}
+										spacing={16}
 										noOfSections={6}
 									/>
 								) : null}
@@ -510,12 +513,15 @@ export default function Index() {
 											curveType={CurveType.QUADRATIC}
 											xAxisColor={slate}
 											yAxisColor={slate}
-											yAxisTextStyle={styles.lineChartAxisText}
+											yAxisTextStyle={[
+												styles.lineChartAxisText,
+												styles.lineChartYAxisText,
+											]}
 											xAxisLabelTextStyle={[
 												styles.lineChartAxisText,
 												styles.lineChartXAxisText,
 											]}
-											yAxisLabelWidth={40}
+											yAxisLabelWidth={60}
 											rulesColor={slate}
 											disableScroll
 											initialSpacing={3}

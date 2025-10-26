@@ -64,11 +64,14 @@ export const styles = StyleSheet.create({
 		overflow: "visible",
 	},
 	lineChartYAxisText: {
-		textAlign: "right",
+		textAlign: "center",
 	},
 	barChartAxisText: {
 		color: muted,
 		fontFamily: "PhantomSans",
+	},
+	barChartYAxisText: {
+		textAlign: "center",
 	},
 	barChartXAxisText: {
 		fontSize: 12,
@@ -109,4 +112,4 @@ export const lineChartWidth =
 	windowWidth -
 	styles.chartContainer.margin * 2 -
 	styles.chartContainer.padding * 2 -
-	40;
+	60;

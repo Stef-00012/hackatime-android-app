@@ -1,4 +1,5 @@
 import type { WidgetConfigurationScreenProps } from "react-native-android-widget";
+import { ConfigurationScreen as GoalConfigurationScreen } from "./goal/Widget";
 import type { WidgetNames } from "./taskHandler";
 import { ConfigurationScreen as TodayTimeConfigurationScreen } from "./todayTime/Widget";
 import { ConfigurationScreen as TopStatsConfigurationScreen } from "./topStats/Widget";
@@ -24,6 +25,16 @@ export function ConfigurationScreen({
 		case "TopStats": {
 			return (
 				<TopStatsConfigurationScreen
+					renderWidget={renderWidget}
+					setResult={setResult}
+					widgetInfo={widgetInfo}
+				/>
+			);
+		}
+
+		case "Goal": {
+			return (
+				<GoalConfigurationScreen
 					renderWidget={renderWidget}
 					setResult={setResult}
 					widgetInfo={widgetInfo}

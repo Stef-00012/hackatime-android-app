@@ -8,7 +8,6 @@ import {
 	TextInput as NativeTextInput,
 	type ReturnKeyTypeOptions,
 	type StyleProp,
-	Text,
 	type TextInputChangeEvent,
 	type TextInputSubmitEditingEvent,
 	type TextStyle,
@@ -16,6 +15,7 @@ import {
 	type ViewStyle,
 } from "react-native";
 import type MaterialSymbols from "./MaterialSymbols";
+import Text from "./Text";
 
 interface Props {
 	value?: string;

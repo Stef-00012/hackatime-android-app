@@ -165,7 +165,7 @@ export default function AuthProvider({ children }: Props) {
 	);
 
 	useEffect(() => {
-		updateAuth();
+		updateAuth(undefined, db.get("share_api_key") !== "true");
 
 		(async () => {
 			const hasHardware = await LocalAuthentication.hasHardwareAsync();

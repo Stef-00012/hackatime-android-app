@@ -32,7 +32,7 @@ const widgetConfig: WithAndroidWidgetsParams = {
 			"minHeight": (66 * cells - 15)dp
 
 			"maxResizeWidth": (73 * (cells + 1) - 16)dp
-			"maxResizeHeight": (66 * (cells + 1) - 15)dp
+			"maxResizeHeight": (66 * (cells) + 11)dp
 		*/
 
 		// 2x1
@@ -59,7 +59,7 @@ const widgetConfig: WithAndroidWidgetsParams = {
 			targetCellWidth: 5,
 			targetCellHeight: 2,
 			maxResizeWidth: "422dp", // 5 cells
-			maxResizeHeight: "183dp", // 2 cells
+			maxResizeHeight: "143dp", // 2 cells
 			resizeMode: "horizontal|vertical",
 			description:
 				"Display your top language, project, editor, machine and OS of the last 7 days. Updates every 30 minutes",
@@ -69,22 +69,22 @@ const widgetConfig: WithAndroidWidgetsParams = {
 		},
 
 		// 2x1 to 5x2
-		// {
-		// 	name: "Goal",
-		// 	label: "Hour Goal",
-		// 	minWidth: "130dp", // 2 cells
-		// 	minHeight: "51dp", // 1 cell
-		// 	targetCellWidth: 5,
-		// 	targetCellHeight: 2,
-		// 	maxResizeWidth: "422dp", // 5 cells
-		// 	maxResizeHeight: "183dp", // 2 cells
-		// 	resizeMode: "horizontal|vertical",
-		// 	description:
-		// 		"Display a goal of hours chosen by you. Updates every 30 minutes",
-		// 	previewImage: "./assets/widget-preview/topStats.png",
-		// 	updatePeriodMillis: 30 * 60 * 1000,
-		// 	widgetFeatures: "reconfigurable|configuration_optional",
-		// },
+		{
+			name: "Goal",
+			label: "Hour Goal",
+			minWidth: "130dp", // 2 cells
+			minHeight: "51dp", // 1 cell
+			targetCellWidth: 5,
+			targetCellHeight: 2,
+			maxResizeWidth: "422dp", // 5 cells
+			maxResizeHeight: "143dp", // 2 cells
+			resizeMode: "horizontal|vertical",
+			description:
+				"Display a goal of hours chosen by you. Updates every 30 minutes",
+			previewImage: "./assets/widget-preview/goal.png",
+			updatePeriodMillis: 30 * 60 * 1000,
+			widgetFeatures: "reconfigurable|configuration_optional",
+		},
 	],
 };
 
