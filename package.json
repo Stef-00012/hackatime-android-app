@@ -1,8 +1,8 @@
 {
   "name": "hackatime-stats",
   "main": "index.ts",
-  "version": "1.5.0",
-  "versionCode": 9,
+  "version": "1.5.1",
+  "versionCode": 10,
   "scripts": {
     "start": "expo start --host localhost",
     "start:dev": "APP_VARIANT=development EDGE_PATH=/etc/profiles/per-user/stef/bin/chromium expo start --dev-client --host localhost",

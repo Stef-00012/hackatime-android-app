@@ -12,7 +12,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { BackHandler, ToastAndroid } from "react-native";
+import { ToastAndroid } from "react-native";
 
 interface Props {
 	children: ReactNode;
@@ -195,13 +195,8 @@ export default function AuthProvider({ children }: Props) {
 				supportsBiometrics &&
 				hasEnrolledBiometrics &&
 				supportsAuthenticationTypes.length > 0
-			) {
-				const authenticated = await requestBiometricsAuthentication();
-
-				if (!authenticated) return BackHandler.exitApp();
-
-				return;
-			}
+			)
+				return await requestBiometricsAuthentication();
 		})();
 	}, [
 		// unlockWithBiometrics,
