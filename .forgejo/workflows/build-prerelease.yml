@@ -94,7 +94,7 @@ jobs:
           url: https://git.stefdp.com
           repo: Stef/Hackatime-Android-App
           token: ${{ secrets.FORGEJO_TOKEN }}
-          tag: "v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}"
+          tag: "v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}-pre"
           release-dir: ${{ forgejo.workspace }}/output
 
       - name: Announce Release
