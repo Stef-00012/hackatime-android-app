@@ -1,7 +1,9 @@
-name: Build Release
+name: Build Prerelease
 
 on:
   push:
+    branches:
+      - main
     paths:
       - components/**
       - constants/**
@@ -17,30 +19,38 @@ on:
       - app.config.ts
       - package.json
       - eas.json
-      - .github/workflows/build-release.yml
-      - .github/workflows/build-prerelease.yml
+      - .forgejo/workflows/build-release.yml
+      - .forgejo/workflows/build-prerelease.yml
 
   workflow_dispatch:
 
 jobs:
-  build-release:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (startsWith(github.event.head_commit.message, '[release]') || startsWith(github.event.head_commit.message, '[build]')))
+  build-prerelease:
+    if: forgejo.event_name == 'workflow_dispatch' || (forgejo.event_name == 'push' && (startsWith(forgejo.event.head_commit.message, '[pre]') || startsWith(forgejo.event.head_commit.message, '[prerelease]')))
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: docker
     steps:
       - name: Setup Repo
         uses: actions/checkout@v4
 
+      - name: Install jq
+        run: |
+          apt-get update && apt-get install -y jq
+
       - name: Get App Version
         id: version
         run: |
-          echo "app_version=$(jq .version package.json -r)" >> $GITHUB_OUTPUT
+          echo "app_version=$(jq .version package.json -r)" >> $FORGEJO_OUTPUT
 
       - name: Get Commit SHA
         id: sha
         run: |
-          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> $FORGEJO_OUTPUT
+
+      - name: Create output directory
+        run: |
+          mkdir -p ${{ forgejo.workspace }}/output
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -53,13 +63,13 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: https://github.com/android-actions/setup-android@v3
 
       - name: Setup Firebase Android google-services.json
         run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > ./google-services.json
 
       - name: Setup Expo
-        uses: expo/expo-github-action@v8
+        uses: https://github.com/expo/expo-github-action@v8
         with:
           expo-version: latest
           eas-version: latest
@@ -69,31 +79,23 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build Android App APK
-        run: eas build --clear-cache --platform android --profile preview --local --output ${{ github.workspace }}/app-release.apk
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-            name: app-apk-release
-            path: ${{ format('{0}/app-release.apk', github.workspace) }}
+        run: APP_VARIANT=prerelease eas build --clear-cache --platform android --profile preview --local --output ${{ forgejo.workspace }}/output/app-pre-release.apk
 
       - name: Build Android App AAB
-        run: APP_VARIANT=production eas build --clear-cache --platform android --profile production --local --output ${{ github.workspace }}/app-release.aab
-
-      - name: Upload AAB Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-aab-release
-          path: ${{ github.workspace }}/app-release.aab
+        run:  APP_VARIANT=production eas build --clear-cache --platform android --profile production --local --output ${{ forgejo.workspace }}/output/app-pre-release.aab
 
       - name: Publish Release
-        uses: ncipollo/release-action@v1
+        uses: actions/forgejo-release@v2.7.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
         with:
-          prerelease: false
-          artifacts: "app-release.apk,app-release.aab"
-          artifactContentType: application/vnd.android.package-archive
+          direction: upload
+          prerelease: true
+          url: https://git.stefdp.com
+          repo: Stef/Hackatime-Android-App
+          token: ${{ secrets.FORGEJO_TOKEN }}
           tag: "v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}"
-          generateReleaseNotes: true
+          release-dir: ${{ forgejo.workspace }}/output
 
       - name: Announce Release
         run: |
@@ -103,13 +105,13 @@ jobs:
             -d '{
               "topic": "hackatimeAndroid",
               "priority": 4,
-              "title": "A new release of Hackatime Android has been published",
+              "title": "A new pre-release of Hackatime Android has been published",
               "message": "v${{ steps.version.outputs.app_version }} is out",
               "actions": [
                 {
                   "action": "view",
                   "label": "View on GitHub",
-                  "url": "https://github.com/Stef-00012/Hackatime-Android-App/releases/tag/v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}"
+                  "url": "https://git.stefdp.com/Stef/Hackatime-Android-App/releases/tag/v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}-pre"
                 }
               ]
             }'
@@ -126,13 +128,13 @@ jobs:
             -d '{
               "topic": "hackatimeAndroid",
               "priority": 4,
-              "title": "Something went wrong while building a new release of Hackatime Android",
+              "title": "Something went wrong while building a new pre-release of Hackatime Android",
               "message": "v${{ steps.version.outputs.app_version }} failed to build",
               "actions": [
                 {
                   "action": "view",
                   "label": "View Logs",
-                  "url": "https://github.com/Stef-00012/Hackatime-Android-App/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
+                  "url": "https://git.stefdp.com/Stef/Hackatime-Android-App/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
                 }
               ]
             }'
