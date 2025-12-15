@@ -19,10 +19,10 @@
     "axios": "^1.12.2",
     "drizzle-orm": "^0.44.6",
     "expo-server-sdk": "^4.0.0",
-    "next": "15.5.4",
+    "next": "15.5.7",
     "node-schedule": "^2.1.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
     "react-slick": "^0.31.0",
     "react-tooltip": "^5.29.1",
     "slick-carousel": "^1.8.1"
