@@ -3,7 +3,6 @@ import ChartLegend from "@/components/ChartLegend";
 import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
 import Popup from "@/components/Popup";
-import Sidebar from "@/components/Sidebar";
 import Skeleton from "@/components/Skeleton";
 import Text from "@/components/Text";
 import { elevated, red, slate } from "@/constants/hcColors";
@@ -380,7 +379,6 @@ export default function Index() {
 
 			<View>
 				<Header />
-				<Sidebar />
 
 				<ScrollView style={styles.mainContent}>
 					<Button

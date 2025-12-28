@@ -1,6 +1,6 @@
+import Navbar from "@/components/Navbar";
 import { background } from "@/constants/hcColors";
 import AuthProvider from "@/contexts/AuthProvider";
-import SidebarProvider from "@/contexts/SidebarContext";
 import { sendPushNotificationToken } from "@/functions/server";
 import BiometricAuthenticationPage from "@/pages/biometricAuth";
 import NoInternetPage from "@/pages/noInternet";
@@ -89,15 +89,15 @@ export default function RootLayout() {
 		<SafeAreaView style={{ flex: 1, backgroundColor: background }}>
 			<KeyboardProvider>
 				<AuthProvider>
-					<SidebarProvider>
-						<Host>
-							<Slot />
+					<Host>
+						<Slot />
 
-							<BiometricAuthenticationPage />
+						<BiometricAuthenticationPage />
 
-							{!hasInternet && <NoInternetPage />}
-						</Host>
-					</SidebarProvider>
+						{!hasInternet && <NoInternetPage />}
+
+						<Navbar />
+					</Host>
 				</AuthProvider>
 			</KeyboardProvider>
 		</SafeAreaView>

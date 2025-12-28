@@ -1,7 +1,6 @@
 import Button from "@/components/Button";
 import Header from "@/components/Header";
 import MaterialSymbols from "@/components/MaterialSymbols";
-import Sidebar from "@/components/Sidebar";
 import Skeleton from "@/components/Skeleton";
 import Text from "@/components/Text";
 import { slate } from "@/constants/hcColors";
@@ -27,7 +26,6 @@ export default function Projects() {
 	return (
 		<View style={{ flex: 1 }}>
 			<Header />
-			<Sidebar />
 
 			<ScrollView>
 				{Array.isArray(projects) ? (

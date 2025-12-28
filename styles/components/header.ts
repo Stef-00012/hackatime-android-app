@@ -21,6 +21,7 @@ export const styles = StyleSheet.create({
 	username: {
 		fontSize: 18,
 		fontWeight: "bold",
+		marginLeft: 10,
 	},
 	button: {
 		borderRadius: 10,

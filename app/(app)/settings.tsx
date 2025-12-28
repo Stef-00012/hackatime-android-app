@@ -1,6 +1,5 @@
 import Button from "@/components/Button";
 import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
 import Switch from "@/components/Switch";
 import Text from "@/components/Text";
 import TextInput from "@/components/TextInput";
@@ -88,7 +87,6 @@ export default function Settings() {
 	return (
 		<View style={{ flex: 1 }}>
 			<Header />
-			<Sidebar />
 
 			<ScrollView>
 				<View style={styles.settingContainer}>

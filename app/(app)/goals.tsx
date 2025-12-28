@@ -3,7 +3,6 @@ import DatePicker from "@/components/DatePicker";
 import Header from "@/components/Header";
 import Popup from "@/components/Popup";
 import ProgressBar from "@/components/ProgressBar";
-import Sidebar from "@/components/Sidebar";
 import Text from "@/components/Text";
 import TextInput from "@/components/TextInput";
 import { getUser, getUserGoals, updateUserGoal } from "@/functions/server";
@@ -153,7 +152,6 @@ export default function Goals() {
 	return (
 		<View style={{ flex: 1 }}>
 			<Header />
-			<Sidebar />
 
 			<DatePicker
 				open={datePickerOpen}
