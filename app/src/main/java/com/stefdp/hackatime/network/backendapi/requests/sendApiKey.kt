@@ -1,15 +1,27 @@
 package com.stefdp.hackatime.network.backendapi.requests
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendApiKeyResponse
+import com.stefdp.hackatime.utils.SecureStorage
 
-private const val apiKey = "TEMP"
+private const val TAG = "BackendApi[getUser]"
 
-suspend fun sendApiKey(): Boolean {
+suspend fun sendApiKey(
+    context: Context
+): Boolean {
     try {
+        val secureStore = SecureStorage.getInstance(context)
+
+        val apiKey = secureStore.get("apiKey")
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            return false
+        }
+
         val response = ApiClient.backendApi.sendApiKey(
             apiKey = apiKey,
         )
@@ -19,7 +31,14 @@ suspend fun sendApiKey(): Boolean {
         if (!response.isSuccessful) {
             val statusCode = response.code()
 
-            Log.e("BackendApi[sendApiKey]", "Request failed with code: $statusCode and message: ${response.message()}")
+            Log.e(TAG, "Request failed with code: $statusCode and message: ${response.message()}")
+
+            val errorBody = response.errorBody()?.string()
+            val json = Gson().fromJson(errorBody, ErrorResponse::class.java)
+
+            if (json.error.isNotEmpty()) {
+                Log.e(TAG, "Error message: ${json.error}")
+            }
 
             return false
         }
@@ -30,7 +49,7 @@ suspend fun sendApiKey(): Boolean {
 
         return false
     } catch(e: Exception) {
-        Log.e("BackendApi[sendApiKey]", "Exception occurred: ${e.message}", e)
+        Log.e(TAG, "Exception occurred: ${e.message}", e)
 
         return false
     }

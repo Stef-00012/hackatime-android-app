@@ -1,19 +1,32 @@
 package com.stefdp.hackatime.network.hackatimeapi.requests
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserProjectsResponse
+import com.stefdp.hackatime.utils.SecureStorage
 
-private const val authorization = "TEMP"
+private const val TAG = "HackatimeApi[getUserProjects]"
 
 suspend fun getUserProjects(
+    context: Context,
     userId: String,
 ): Result<List<String>> {
     try {
+        val secureStore = SecureStorage.getInstance(context)
+
+        val apiKey = secureStore.get("apiKey")
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            return Result.failure(
+                Exception("Missing API Key")
+            )
+        }
+
         val response = ApiClient.hackatimeApi.getUserProjects(
-            authorization = authorization,
+            authorization = "Bearer $apiKey",
             userId = userId,
         )
 
@@ -22,7 +35,7 @@ suspend fun getUserProjects(
         if (!response.isSuccessful) {
             val statusCode = response.code()
 
-            Log.e("HackatimeApi[getUserProjects]", "Request failed with code: $statusCode and message: ${response.message()}")
+            Log.e(TAG, "Request failed with code: $statusCode and message: ${response.message()}")
 
             if (statusCode == 401) {
                 return Result.failure(
@@ -34,6 +47,8 @@ suspend fun getUserProjects(
             val json = Gson().fromJson(errorBody, ErrorResponse::class.java)
 
             if (json.error.isNotEmpty()) {
+                Log.e(TAG, "Error message: ${json.error}")
+
                 return Result.failure(
                     Exception(json.error)
                 )
@@ -52,7 +67,7 @@ suspend fun getUserProjects(
             Exception("Something went wrong...")
         )
     } catch(e: Exception) {
-        Log.e("HackatimeApi[getUserProjects]", "Exception occurred: ${e.message}", e)
+        Log.e(TAG, "Exception occurred: ${e.message}", e)
 
         return Result.failure(
             Exception("Something went wrong...")

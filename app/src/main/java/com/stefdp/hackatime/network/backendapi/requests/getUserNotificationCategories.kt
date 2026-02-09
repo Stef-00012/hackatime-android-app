@@ -1,16 +1,31 @@
 package com.stefdp.hackatime.network.backendapi.requests
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
+import com.stefdp.hackatime.utils.SecureStorage
 
-private const val apiKey = "TEMP"
+private const val TAG = "BackendApi[getUserNotificationCategories]"
 
-suspend fun getUserNotificationCategories(): Map<NotificationCategory, Boolean> {
+suspend fun getUserNotificationCategories(
+    context: Context
+): Map<NotificationCategory, Boolean> {
     try {
+        val secureStore = SecureStorage.getInstance(context)
+
+        val apiKey = secureStore.get("apiKey")
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            return mapOf(
+                NotificationCategory.MOTIVATIONAL_QUOTES to false,
+                NotificationCategory.GOALS to false,
+            )
+        }
+
         val response = ApiClient.backendApi.getUserNotificationCategories(
             apiKey = apiKey,
         )
@@ -20,7 +35,14 @@ suspend fun getUserNotificationCategories(): Map<NotificationCategory, Boolean> 
         if (!response.isSuccessful) {
             val statusCode = response.code()
 
-            Log.e("BackendApi[getUserNotificationCategories]", "Request failed with code: $statusCode and message: ${response.message()}")
+            Log.e(TAG, "Request failed with code: $statusCode and message: ${response.message()}")
+
+            val errorBody = response.errorBody()?.string()
+            val json = Gson().fromJson(errorBody, ErrorResponse::class.java)
+
+            if (json.error.isNotEmpty()) {
+                Log.e(TAG, "Error message: ${json.error}")
+            }
 
             return mapOf(
                 NotificationCategory.MOTIVATIONAL_QUOTES to false,
@@ -40,7 +62,7 @@ suspend fun getUserNotificationCategories(): Map<NotificationCategory, Boolean> 
             NotificationCategory.GOALS to false,
         )
     } catch(e: Exception) {
-        Log.e("BackendApi[getUserNotificationCategories]", "Exception occurred: ${e.message}", e)
+        Log.e(TAG, "Exception occurred: ${e.message}", e)
 
         return mapOf(
             NotificationCategory.MOTIVATIONAL_QUOTES to false,
