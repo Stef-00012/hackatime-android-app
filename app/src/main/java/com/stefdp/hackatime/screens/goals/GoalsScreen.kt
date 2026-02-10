@@ -12,13 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.screens.SettingsScreen
 
 @Composable
 fun GoalsScreen(
-    navController: NavController,
+    navController: NavHostController,
     context: Context
 ) {
     Column {

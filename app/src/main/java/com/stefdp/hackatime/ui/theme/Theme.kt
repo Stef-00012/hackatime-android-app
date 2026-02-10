@@ -34,6 +34,7 @@ private val DarkColorScheme = darkColorScheme(
 //    surface = Elevated,
     surface = Darkless,
     onSurface = Text,
+    onSecondaryContainer = Muted
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -47,6 +48,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Darker,
     surface = ElevatedLight,
     onSurface = Darker,
+    onSecondaryContainer = Darkless,
 )
 
 @Composable

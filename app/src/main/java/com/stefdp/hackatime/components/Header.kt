@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,7 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.screens.LoginScreen
+import com.stefdp.hackatime.screens.SettingsScreen
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 
 @Composable
@@ -50,12 +53,16 @@ fun Header(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp).statusBarsPadding()
         ) {
+            // NOTE: This is just a test for a sidebar, i'll probably use navbar instead of this cuz it looks better
 //            IconButton(onClick = onMenuClick) {
 //                Icon(painter = painterResource(R.drawable.menu_icon), contentDescription = "Open Sidebar")
 //            }
 //            Spacer(modifier = Modifier.width(16.dp))
+
+            val username = LocalLoggedUser.current?.username
+
             Text(
-                text = "<USERNAME> [TEMP]",
+                text = username ?: "Unknown Username",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -63,22 +70,25 @@ fun Header(
             Box(
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
+                val isInSettings = currentDestination?.route == SettingsScreen::class.qualifiedName
+
                 IconButton(
+                    enabled = !isInSettings,
                     modifier = Modifier.border(
                         width = 2.dp,
                         shape = RoundedCornerShape(CornerSize(10.dp)),
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (isInSettings) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary
                     ),
                     onClick = {
-//                    navController.navigate(SettingsScreen) {
-//                        popUpTo(SettingsScreen) { inclusive = true }
-//                    }
-                    }
+                        navController.navigate(SettingsScreen) {
+                            popUpTo(SettingsScreen) { inclusive = true }
+                        }
+                    },
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.settings),
                         contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onTertiary,
+                        tint = if (isInSettings) MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onTertiary,
                     )
                 }
             }

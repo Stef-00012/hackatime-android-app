@@ -16,33 +16,15 @@ val defaultTypography = Typography()
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = PhantomSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
+    bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = PhantomSans),
     bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = PhantomSans),
     bodySmall = defaultTypography.bodySmall.copy(fontFamily = PhantomSans),
-    titleLarge = TextStyle(
-        fontFamily = PhantomSans,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
+    titleLarge = defaultTypography.titleLarge.copy(fontFamily = PhantomSans),
     titleMedium = defaultTypography.titleMedium.copy(fontFamily = PhantomSans),
     titleSmall = defaultTypography.titleSmall.copy(fontFamily = PhantomSans),
     labelMedium = defaultTypography.labelMedium.copy(fontFamily = PhantomSans),
     labelLarge = defaultTypography.labelLarge.copy(fontFamily = PhantomSans), // Seems to be default for Text("")
-    labelSmall = TextStyle(
-        fontFamily = PhantomSans,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    ),
+    labelSmall = defaultTypography.labelSmall.copy(fontFamily = PhantomSans),
     displayLarge = defaultTypography.displayLarge.copy(fontFamily = PhantomSans),
     displayMedium = defaultTypography.displayMedium.copy(fontFamily = PhantomSans),
     displaySmall = defaultTypography.displaySmall.copy(fontFamily = PhantomSans),

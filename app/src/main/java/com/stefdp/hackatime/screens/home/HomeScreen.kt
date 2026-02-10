@@ -8,12 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.SettingsScreen
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
+    navController: NavHostController,
     context: Context
 ) {
     Column {

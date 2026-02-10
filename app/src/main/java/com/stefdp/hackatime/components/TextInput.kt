@@ -1,21 +1,12 @@
 package com.stefdp.hackatime.components
 
 import android.content.res.Configuration
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +23,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,6 +36,7 @@ import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 
 @Composable
 fun TextInput(
+    modifier: Modifier = Modifier,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     label: String? = null,
@@ -56,6 +47,9 @@ fun TextInput(
     onPasswordToggle: (
         visible: Boolean
     ) -> Unit = { visible ->  },
+    sideButtonIcon: Painter? = null,
+    onSideButtonPress: () -> Unit = {},
+    sideButtonContentDescription: String? = null,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
         selectionColors = TextSelectionColors(
             handleColor = MaterialTheme.colorScheme.primary,
@@ -81,7 +75,9 @@ fun TextInput(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.padding(all = 8.dp).fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
         singleLine = singleLine,
         label = if (label != null) {
             {
@@ -107,25 +103,41 @@ fun TextInput(
         visualTransformation = if (isPassword && !passwordVisible) {
             PasswordVisualTransformation()
         } else VisualTransformation.None,
-        trailingIcon = {
-            IconButton(
-                modifier = Modifier.padding(end = 4.dp),
-                onClick = {
-                    passwordVisible = !passwordVisible
-                    onPasswordToggle(passwordVisible)
+        trailingIcon = if (isPassword || sideButtonIcon != null) {
+            {
+                IconButton(
+                    modifier = Modifier.padding(end = 4.dp),
+                    onClick = if (isPassword) {
+                        {
+                            passwordVisible = !passwordVisible
+                            onPasswordToggle(passwordVisible)
+                        }
+                    } else onSideButtonPress
+                ) {
+                    Icon(
+                        painter = if (isPassword) {
+                            if (passwordVisible) {
+                                painterResource(R.drawable.visibility_off)
+                            } else {
+                                painterResource(R.drawable.visibility)
+                            }
+                        } else {
+                            /*
+                                This is safe because this button only appears if the
+                                (isPassword || sideButtonIcon != null) condition passes,
+                                and this "else" is only reached if "isPassword" is false,
+                                which means "sideButtonIcon" must be non-null
+                            */
+                            sideButtonIcon as Painter
+                        },
+                        contentDescription = if (isPassword) {
+                            if (passwordVisible) "Hide Password" else "Show Password"
+                        } else sideButtonContentDescription ?: "Side Button",
+                        modifier = Modifier.requiredSize(28.dp)
+                    )
                 }
-            ) {
-                Icon(
-                    painter = if (passwordVisible) {
-                        painterResource(R.drawable.visibility_off)
-                    } else {
-                        painterResource(R.drawable.visibility)
-                    },
-                    contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
-                    modifier = Modifier.requiredSize(28.dp)
-                )
             }
-        }
+        } else null
     )
 }
 
