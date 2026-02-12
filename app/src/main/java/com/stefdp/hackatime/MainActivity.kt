@@ -24,12 +24,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stefdp.hackatime.components.Header
 import com.stefdp.hackatime.components.NavBar
+import com.stefdp.hackatime.network.hackatimeapi.models.Feature
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
 import com.stefdp.hackatime.screens.*
@@ -61,7 +63,16 @@ class MainActivity : ComponentActivity() {
 
                     Log.d(tag, "Checking if user is already logged in...")
 
-                    val userStatsRes = getCurrentUserStats(context)
+                    val userStatsRes = getCurrentUserStats(
+                        context = context,
+                        features = listOf(
+                            Feature.PROJECTS,
+                            Feature.LANGUAGES,
+                            Feature.OPERATING_SYSTEMS,
+                            Feature.MACHINES,
+                            Feature.EDITORS
+                        )
+                    )
 
                     userStatsRes
                         .onSuccess { userStatsData ->

@@ -69,4 +69,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.messaging)
+
+    // Charts
+//    implementation(libs.vico.compose)
+//    implementation(libs.vico.compose.m3)
+    implementation(libs.compose.charts)
 }

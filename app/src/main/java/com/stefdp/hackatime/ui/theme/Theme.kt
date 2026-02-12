@@ -32,9 +32,12 @@ private val DarkColorScheme = darkColorScheme(
     background = Background,
     onBackground = Text,
 //    surface = Elevated,
-    surface = Darkless,
+    surface = Dark,
     onSurface = Text,
-    onSecondaryContainer = Muted
+    onSecondaryContainer = Muted,
+    outline = Primary,
+    outlineVariant = Steel,
+    onSurfaceVariant = Muted
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -46,9 +49,12 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = Darker,
     background = White,
     onBackground = Darker,
-    surface = ElevatedLight,
+    surface = Smoke,
     onSurface = Darker,
     onSecondaryContainer = Darkless,
+    outline = Primary,
+    outlineVariant = Darkless,
+    onSurfaceVariant = Slate
 )
 
 @Composable

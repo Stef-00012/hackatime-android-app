@@ -75,9 +75,9 @@ fun TextInput(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(modifier),
+        modifier = modifier
+            .fillMaxWidth(),
+//            .then(modifier),
         singleLine = singleLine,
         label = if (label != null) {
             {

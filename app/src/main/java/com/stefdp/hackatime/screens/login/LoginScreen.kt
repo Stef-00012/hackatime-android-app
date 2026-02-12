@@ -34,44 +34,53 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.stefdp.hackatime.LocalLoggedUser
+import com.stefdp.hackatime.LocalUpdateUserStats
 import com.stefdp.hackatime.components.Switch
 import com.stefdp.hackatime.components.TextInput
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
 import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.SecureStorage
 import kotlinx.coroutines.launch
 
-private suspend fun checkuserLoginStatus(
-    context: Context,
-    navController: NavHostController
-) {
-    Log.d("LoginScreen", "Checking if user is already logged in...")
-
-    val userStatsRes = getCurrentUserStats(context)
-
-    if (userStatsRes.isSuccess) {
-        navController.navigate(HomeScreen) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-        }
-
-        Log.d("LoginScreen", "User is logged in as ${userStatsRes.getOrNull()?.username}")
-
-        return
-    }
-
-    Log.d("LoginScreen", "User is not logged in")
-
-    return
-}
+//private suspend fun checkuserLoginStatus(
+//    context: Context,
+//    navController: NavHostController
+//) {
+//    Log.d("LoginScreen", "Checking if user is already logged in...")
+//
+//    val userStatsRes = getCurrentUserStats(context)
+//
+//    if (userStatsRes.isSuccess) {
+//        navController.navigate(HomeScreen) {
+//            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+//        }
+//
+//        Log.d("LoginScreen", "User is logged in as ${userStatsRes.getOrNull()?.username}")
+//
+//        return
+//    }
+//
+//    Log.d("LoginScreen", "User is not logged in")
+//
+//    return
+//}
 
 @Composable
 fun LoginScreen(
     navController: NavHostController,
     context: Context
 ) {
-    LaunchedEffect(Unit) {
-        checkuserLoginStatus(context, navController)
+//    LaunchedEffect(Unit) {
+//        checkuserLoginStatus(context, navController)
+//    }
+
+    if (LocalLoggedUser.current is UserStats) {
+        navController.navigate(HomeScreen) {
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        }
     }
 
     Box(
@@ -115,6 +124,7 @@ fun LoginScreen(
                 )
 
                 val coroutineScope = rememberCoroutineScope()
+                val updateUserStats = LocalUpdateUserStats.current
 
                 Button(
                     onClick = {
@@ -124,7 +134,8 @@ fun LoginScreen(
                             secureStore.set("apiKey", apiKey.text)
                             secureStore.set("shareApiKey", if (shareApiKeyChecked) "true" else "false")
 
-                            checkuserLoginStatus(context, navController)
+//                            checkuserLoginStatus(context, navController)
+                            updateUserStats()
                         }
                     }
                 ) {
