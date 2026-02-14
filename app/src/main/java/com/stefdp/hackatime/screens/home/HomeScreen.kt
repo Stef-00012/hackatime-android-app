@@ -7,16 +7,21 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDefaults
@@ -34,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -46,7 +52,11 @@ import androidx.navigation.NavHostController
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.components.Popup
+import com.stefdp.hackatime.network.hackatimeapi.models.EditorLast7Days
 import com.stefdp.hackatime.network.hackatimeapi.models.Feature
+import com.stefdp.hackatime.network.hackatimeapi.models.Language
+import com.stefdp.hackatime.network.hackatimeapi.models.MachineLast7Days
+import com.stefdp.hackatime.network.hackatimeapi.models.OperatingSystemLast7Days
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
 import com.stefdp.hackatime.screens.LoginScreen
@@ -54,9 +64,11 @@ import com.stefdp.hackatime.screens.home.components.Container
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.DayData
 import com.stefdp.hackatime.utils.GeneralStat
+import com.stefdp.hackatime.utils.colorHash
 import com.stefdp.hackatime.utils.formatMs
 import com.stefdp.hackatime.utils.getLast7DaysData
 import com.stefdp.hackatime.utils.getTop
+import com.stefdp.hackatime.utils.languageColors
 import com.stefdp.hackatime.utils.shimmerable
 import ir.ehsannarmani.compose_charts.ColumnChart
 import ir.ehsannarmani.compose_charts.LineChart
@@ -96,7 +108,7 @@ fun HomeScreen(
         }
     }
 
-    var last7DaysData by remember { mutableStateOf<List<DayData>>(emptyList()) }
+    var last7DaysData by rememberSaveable { mutableStateOf<List<DayData>>(emptyList()) }
 
     var statsRange by rememberSaveable { mutableStateOf(Range.LAST_SEVEN_DAYS) }
     var rangeStart by rememberSaveable { mutableStateOf("") }
@@ -109,7 +121,12 @@ fun HomeScreen(
     var topEditor by remember { mutableStateOf<GeneralStat?>(null) }
     var topMachine by remember { mutableStateOf<GeneralStat?>(null) }
 
-    LaunchedEffect(statsRange) {
+    var languages by remember { mutableStateOf<List<GeneralStat>>(emptyList()) }
+    var editors by remember { mutableStateOf<List<EditorLast7Days>>(emptyList()) }
+    var operatingSystems by remember { mutableStateOf<List<OperatingSystemLast7Days>>(emptyList()) }
+    var machines by remember { mutableStateOf<List<MachineLast7Days>>(emptyList()) }
+
+    LaunchedEffect(statsRange, rangeStart, rangeEnd) {
          when (statsRange) {
             Range.LAST_SEVEN_DAYS -> {
                 val currentUserStats = getCurrentUserStatsLast7Days(
@@ -132,6 +149,10 @@ fun HomeScreen(
                     topOperatingSystem = getTop(stats.operatingSystems)
                     topEditor = getTop(stats.editors)
                     topMachine = getTop(stats.machines)
+                    languages = stats.languages ?: emptyList()
+                    editors = stats.editors ?: emptyList()
+                    operatingSystems = stats.operatingSystems ?: emptyList()
+                    machines = stats.machines ?: emptyList()
                 }
             }
             Range.ALL_TIME -> {
@@ -149,6 +170,7 @@ fun HomeScreen(
                     totalSeconds = stats.totalSeconds
                     topProject = getTop(stats.projects)
                     topLanguage = getTop(stats.languages)
+                    languages = stats.languages ?: emptyList()
                 }
             }
             Range.CUSTOM, Range.ONE_DAY -> {
@@ -168,6 +190,7 @@ fun HomeScreen(
                     totalSeconds = stats.totalSeconds
                     topProject = getTop(stats.projects)
                     topLanguage = getTop(stats.languages)
+                    languages = stats.languages ?: emptyList()
                 }
             }
         }
@@ -240,8 +263,6 @@ fun HomeScreen(
 
                     dateRangePickerState.selectedEndDateMillis?.plus(oneDayMillis)
                 } else dateRangePickerState.selectedEndDateMillis
-
-                Log.d("HomeScreen", "Selected Start Date: $startDate, Selected End Date: $endDate")
 
                 if (startDate == null || endDate == null) return@LaunchedEffect
 
@@ -420,12 +441,14 @@ fun HomeScreen(
                 val chartHeight = 250.dp
 
                 if (last7DaysData.isNotEmpty()) {
-                    val lines = listOf(
-                        Line(
-                            values = last7DaysData.map { it.data?.totalSeconds ?: 0.0 },
-                            color = SolidColor(primaryColor),
+                    val lines by rememberSaveable(last7DaysData) { mutableStateOf(
+                        listOf(
+                            Line(
+                                values = last7DaysData.map { it.data?.totalSeconds ?: 0.0 },
+                                color = SolidColor(primaryColor),
+                            )
                         )
-                    )
+                    ) }
 
                     val labels = last7DaysData.map { userData ->
                         userData.date.let { date ->
@@ -517,14 +540,294 @@ fun HomeScreen(
             }
         }
 
-        // languages pie chart
+        Container(
+            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+        ) {
+            Text(
+                text = "Languages",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 10.dp),
+            )
+
+            var selectedLanguage by remember { mutableStateOf<Pie?>(null) }
+            var pieChartLanguages by remember(languages, selectedLanguage) { mutableStateOf(
+                languages.map { language ->
+                    Pie(
+                        label = language.name,
+                        data = language.totalSeconds,
+                        color = languageColors[language.name.lowercase()] ?: colorHash(language.name),
+                        selected = language.name == selectedLanguage?.label
+                    )
+                }
+            ) }
+
+            val chartSize = 250.dp
+
+            if (pieChartLanguages.isNotEmpty()) {
+                PieChart(
+                    data = pieChartLanguages,
+                    modifier = Modifier
+                        .size(chartSize)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 20.dp),
+                    style = Pie.Style.Fill,
+                    selectedScale = 1.2f,
+                    onPieClick = { clickedPie ->
+                        selectedLanguage = clickedPie
+                    },
+                )
+
+                if (selectedLanguage != null && pieChartLanguages.find { it.label == selectedLanguage?.label } != null) {
+                    Row {
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .background(selectedLanguage?.color ?: Color(0xFFFFFFFF))
+                                .align(Alignment.CenterVertically)
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(6.dp)
+                        )
+
+                        Text(
+                            text = "${selectedLanguage?.label}: ${formatMs(
+                                ms = (selectedLanguage?.data ?: 0.0) * 1000L,
+                                limit = 2
+                            )}"
+                        )
+                    }
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(chartSize)
+                        .shimmerable(
+                            enabled = true,
+                            shape = CircleShape,
+                        )
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        }
 
         if (statsRange == Range.LAST_SEVEN_DAYS) {
-            // editors pie graph
+            Container(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+            ) {
+                Text(
+                    text = "Editors",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 10.dp),
+                )
 
-            // OS pie graph
+                var selectedEditor by remember { mutableStateOf<Pie?>(null) }
+                var pieChartEditors by remember(editors, selectedEditor) { mutableStateOf(
+                    editors.map { editor ->
+                        Pie(
+                            label = editor.name,
+                            data = editor.totalSeconds,
+                            color = colorHash(editor.name),
+                            selected = editor.name == selectedEditor?.label
+                        )
+                    }
+                ) }
 
-            // machines pie graph
+                val chartSize = 250.dp
+
+                if (pieChartEditors.isNotEmpty()) {
+                    PieChart(
+                        data = pieChartEditors,
+                        modifier = Modifier
+                            .size(chartSize)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(vertical = 20.dp),
+                        style = Pie.Style.Fill,
+                        selectedScale = 1.2f,
+                        onPieClick = { clickedPie ->
+                            selectedEditor = clickedPie
+                        },
+                    )
+
+                    if (selectedEditor != null && pieChartEditors.find { it.label == selectedEditor?.label } != null) {
+                        Row {
+                            Box(
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .background(selectedEditor?.color ?: Color(0xFFFFFFFF))
+                                    .align(Alignment.CenterVertically)
+                            )
+
+                            Spacer(
+                                modifier = Modifier.width(6.dp)
+                            )
+
+                            Text(
+                                text = "${selectedEditor?.label}: ${formatMs(
+                                    ms = (selectedEditor?.data ?: 0.0) * 1000L,
+                                    limit = 2
+                                )}"
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(chartSize)
+                            .shimmerable(
+                                enabled = true,
+                                shape = CircleShape,
+                            )
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+
+            Container(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+            ) {
+                Text(
+                    text = "Operating Systems",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 10.dp),
+                )
+
+                var selectedOperatingSystem by remember { mutableStateOf<Pie?>(null) }
+                var pieChartOperatingSystems by remember(operatingSystems, selectedOperatingSystem) { mutableStateOf(
+                    operatingSystems.map { operatingSystem ->
+                        Pie(
+                            label = operatingSystem.name,
+                            data = operatingSystem.totalSeconds,
+                            color = colorHash(operatingSystem.name),
+                            selected = operatingSystem.name == selectedOperatingSystem?.label
+                        )
+                    }
+                ) }
+
+                val chartSize = 250.dp
+
+                if (pieChartOperatingSystems.isNotEmpty()) {
+                    PieChart(
+                        data = pieChartOperatingSystems,
+                        modifier = Modifier
+                            .size(chartSize)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(vertical = 20.dp),
+                        style = Pie.Style.Fill,
+                        selectedScale = 1.2f,
+                        onPieClick = { clickedPie ->
+                            selectedOperatingSystem = clickedPie
+                        },
+                    )
+
+                    if (selectedOperatingSystem != null && pieChartOperatingSystems.find { it.label == selectedOperatingSystem?.label } != null) {
+                        Row {
+                            Box(
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .background(selectedOperatingSystem?.color ?: Color(0xFFFFFFFF))
+                                    .align(Alignment.CenterVertically)
+                            )
+
+                            Spacer(
+                                modifier = Modifier.width(6.dp)
+                            )
+
+                            Text(
+                                text = "${selectedOperatingSystem?.label}: ${formatMs(
+                                    ms = (selectedOperatingSystem?.data ?: 0.0) * 1000L,
+                                    limit = 2
+                                )}"
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(chartSize)
+                            .shimmerable(
+                                enabled = true,
+                                shape = CircleShape,
+                            )
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+
+            Container(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+            ) {
+                Text(
+                    text = "Machines",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 10.dp),
+                )
+
+                var selectedMachine by remember { mutableStateOf<Pie?>(null) }
+                var pieChartMachines by remember(machines, selectedMachine) { mutableStateOf(
+                    machines.map { machine ->
+                        Pie(
+                            label = machine.name,
+                            data = machine.totalSeconds,
+                            color = colorHash(machine.name),
+                            selected = machine.name == selectedMachine?.label
+                        )
+                    }
+                ) }
+
+                val chartSize = 250.dp
+
+                if (pieChartMachines.isNotEmpty()) {
+                    PieChart(
+                        data = pieChartMachines,
+                        modifier = Modifier
+                            .size(chartSize)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(vertical = 20.dp),
+                        style = Pie.Style.Fill,
+                        selectedScale = 1.2f,
+                        onPieClick = { clickedPie ->
+                            selectedMachine = clickedPie
+                        },
+                    )
+
+                    if (selectedMachine != null && pieChartMachines.find { it.label == selectedMachine?.label } != null) {
+                        Row {
+                            Box(
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .background(selectedMachine?.color ?: Color(0xFFFFFFFF))
+                                    .align(Alignment.CenterVertically)
+                            )
+
+                            Spacer(
+                                modifier = Modifier.width(6.dp)
+                            )
+
+                            Text(
+                                text = "${selectedMachine?.label}: ${formatMs(
+                                    ms = (selectedMachine?.data ?: 0.0) * 1000L,
+                                    limit = 2
+                                )}"
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(chartSize)
+                            .shimmerable(
+                                enabled = true,
+                                shape = CircleShape,
+                            )
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
         }
     }
 }
@@ -551,24 +854,9 @@ fun TestPieChart() {
     var data by remember {
         mutableStateOf(
             listOf(
-                Pie(
-                    label = "Android",
-                    data = 90.0,
-                    color = Color.Red,
-                    selectedColor = Color.Green
-                ),
-                Pie(
-                    label = "Windows",
-                    data = 90.0,
-                    color = Color.Cyan,
-                    selectedColor = Color.Blue
-                ),
-                Pie(
-                    label = "Linux",
-                    data = 90.0,
-                    color = Color.Gray,
-                    selectedColor = Color.Yellow
-                ),
+                Pie(label = "Android", data = 20.0, color = Color.Red, selectedColor = Color.Green),
+                Pie(label = "Windows", data = 45.0, color = Color.Cyan, selectedColor = Color.Blue),
+                Pie(label = "Linux", data = 35.0, color = Color.Gray, selectedColor = Color.Yellow),
             )
         )
     }
@@ -578,10 +866,10 @@ fun TestPieChart() {
         onPieClick = {
             println("${it.label} Clicked")
             val pieIndex = data.indexOf(it)
-            data.mapIndexed { mapIndex, pie -> pie.copy(selected = pieIndex == mapIndex) }
+            data = data.mapIndexed { mapIndex, pie -> pie.copy(selected = pieIndex == mapIndex) }
         },
-//        selectedScale = 1.2f,
-//        scaleAnimEnterSpec = spring(
+        selectedScale = 1.2f,
+//        scaleAnimEnterSpec = spring<Float>(
 //            dampingRatio = Spring.DampingRatioMediumBouncy,
 //            stiffness = Spring.StiffnessLow
 //        ),
@@ -589,29 +877,7 @@ fun TestPieChart() {
         colorAnimExitSpec = tween(300),
         scaleAnimExitSpec = tween(300),
         spaceDegreeAnimExitSpec = tween(300),
-        style = Pie.Style.Fill,
-    )
-
-    LineChart(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp),
-        data = remember {
-            listOf(
-                Line(
-                    label = "Windows",
-                    values = listOf(28.0, 41.0, 5.0, 10.0, 35.0),
-                    color = SolidColor(Color(0xFF23af92)),
-                    firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
-                    secondGradientFillColor = Color.Transparent,
-                    strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
-                    gradientAnimationDelay = 1000,
-                    drawStyle = DrawStyle.Stroke(width = 2.dp),
-                )
-            )
-        },
-//        animationMode = AnimationMode.Together(delayBuilder = {
-//            it * 500L
-//        }),
-        animationMode = AnimationMode.OneByOne
+        style = Pie.Style.Fill
     )
 }
 

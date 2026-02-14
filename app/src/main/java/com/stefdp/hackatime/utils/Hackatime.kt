@@ -1,9 +1,11 @@
 package com.stefdp.hackatime.utils
 
 import android.content.Context
+import android.os.Parcelable
 import com.stefdp.hackatime.network.hackatimeapi.models.Feature
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
+import kotlinx.parcelize.Parcelize
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -11,7 +13,7 @@ import kotlin.time.Clock
 
 interface GeneralStat {
     val name: String
-    val totalSeconds: Int
+    val totalSeconds: Double
     val text: String
     val hours: Int
     val minutes: Int
@@ -31,10 +33,11 @@ fun <T : GeneralStat> getTop(
     return list.maxByOrNull { it.totalSeconds }
 }
 
+@Parcelize
 data class DayData(
     var date: String,
     var data: UserStats? = null
-)
+) : Parcelable
 
 suspend fun getLast7DaysData(
     context: Context

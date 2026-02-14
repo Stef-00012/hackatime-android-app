@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Language(
     override val name: String,
-    @SerializedName("total_seconds") override val totalSeconds: Int,
+    @SerializedName("total_seconds") override val totalSeconds: Double,
     override val text: String,
     override val hours: Int,
     override val minutes: Int,
