@@ -2,7 +2,8 @@ package com.stefdp.hackatime.utils
 
 fun formatMs(
     ms: Double,
-    abbreviated: Boolean = true
+    abbreviated: Boolean = true,
+    limit: Int = 7
 ): String {
     val duration = ms.toLong()
 
@@ -27,12 +28,23 @@ fun formatMs(
     val monthsLongSuffix = if (months > 1) "months" else "month"
     val yearsLongSuffix = if (years > 1) "years" else "year"
 
-    return buildString {
-        if (years > 0) append("${years}${if (abbreviated) "y" else yearsLongSuffix} ")
-        if (months > 0) append("${months}${if (abbreviated) "mo" else monthsLongSuffix} ")
-        if (days > 0) append("${days}${if (abbreviated) "d" else daysLongSuffix} ")
-        if (hours > 0) append("${hours}${if (abbreviated) "h" else hoursLongSuffix} ")
-        if (minutes > 0) append("${minutes}${if (abbreviated) "m" else minutesLongSuffix} ")
-        if (seconds > 0) append("${seconds}${if (abbreviated) "s" else secondsLongSuffix}")
-    }.trim()
+    val dateSegments = listOfNotNull(
+        if (years > 0) "${years}${if (abbreviated) "y" else yearsLongSuffix}" else null,
+        if (months > 0) "${months}${if (abbreviated) "mo" else monthsLongSuffix}" else null,
+        if (days > 0) "${days}${if (abbreviated) "d" else daysLongSuffix}" else null,
+        if (hours > 0) "${hours}${if (abbreviated) "h" else hoursLongSuffix}" else null,
+        if (minutes > 0) "${minutes}${if (abbreviated) "m" else minutesLongSuffix}" else null,
+        if (seconds > 0) "${seconds}${if (abbreviated) "s" else secondsLongSuffix}" else null
+    )
+
+    return dateSegments.take(limit).joinToString(" ")
+
+//    return buildString {
+//        if (years > 0) append("${years}${if (abbreviated) "y" else yearsLongSuffix} ")
+//        if (months > 0) append("${months}${if (abbreviated) "mo" else monthsLongSuffix} ")
+//        if (days > 0) append("${days}${if (abbreviated) "d" else daysLongSuffix} ")
+//        if (hours > 0) append("${hours}${if (abbreviated) "h" else hoursLongSuffix} ")
+//        if (minutes > 0) append("${minutes}${if (abbreviated) "m" else minutesLongSuffix} ")
+//        if (seconds > 0) append("${seconds}${if (abbreviated) "s" else secondsLongSuffix}")
+//    }.trim()
 }

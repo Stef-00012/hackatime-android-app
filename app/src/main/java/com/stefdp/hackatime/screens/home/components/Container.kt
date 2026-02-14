@@ -26,7 +26,6 @@ fun Container(
 ) {
     Column(
         modifier = modifier
-            .then(modifier)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface)

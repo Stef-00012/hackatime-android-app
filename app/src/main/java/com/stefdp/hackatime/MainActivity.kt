@@ -21,6 +21,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +42,7 @@ import com.stefdp.hackatime.screens.login.LoginScreen
 import com.stefdp.hackatime.screens.projects.ProjectsScreen
 import com.stefdp.hackatime.screens.settings.SettingsScreen
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
+import com.stefdp.hackatime.utils.getLast7DaysData
 
 val LocalLoggedUser = compositionLocalOf<UserStats?> { null }
 val LocalUpdateUserStats = compositionLocalOf<suspend () -> Unit> { {} }
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = LocalContext.current
 
-                var userStats by remember {
+                var userStats by rememberSaveable {
                     mutableStateOf<UserStats?>(null)
                 }
 

@@ -1,14 +1,15 @@
 package com.stefdp.hackatime.network.hackatimeapi.models
 
 import com.google.gson.annotations.SerializedName
+import com.stefdp.hackatime.utils.GeneralStat
 
 data class EditorLast7Days(
-    val name: String,
-    @SerializedName("total_seconds") val totalSeconds: Int,
-    val text: String,
-    val hours: Int,
-    val minutes: Int,
-    val percent: Double,
-    val digital: String,
+    override val name: String,
+    @SerializedName("total_seconds") override val totalSeconds: Int,
+    override val text: String,
+    override val hours: Int,
+    override val minutes: Int,
+    override val percent: Double,
+    override val digital: String,
     val seconds: Int,
-)
+) : GeneralStat

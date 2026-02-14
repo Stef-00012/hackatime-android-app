@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -13,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.stefdp.hackatime"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -74,4 +75,7 @@ dependencies {
 //    implementation(libs.vico.compose)
 //    implementation(libs.vico.compose.m3)
     implementation(libs.compose.charts)
+
+    // Skeleton Loading
+    implementation(libs.compose.shimmer)
 }

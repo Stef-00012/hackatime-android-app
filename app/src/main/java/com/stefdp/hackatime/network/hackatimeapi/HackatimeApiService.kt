@@ -16,8 +16,10 @@ import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+private const val API_VERSION = "v1"
+
 interface HackatimeApiService {
-    @GET("users/my/stats")
+    @GET("${API_VERSION}/users/my/stats")
     suspend fun getCurrentUserStats(
         @Header("Authorization") authorization: String,
         @Query("start_date") startDate: String? = null,
@@ -27,18 +29,18 @@ interface HackatimeApiService {
         @Query("features") features: String? = null,
     ): Response<UserStatsResponse>
 
-    @GET("users/current/stats/last_7_days")
+    @GET("hackatime/${API_VERSION}/users/current/stats/last_7_days")
     suspend fun getCurrentUserStatsLast7Days(
         @Header("Authorization") authorization: String,
         @Query("features") features: String? = null,
     ): Response<UserStatsLast7DaysResponse>
 
-    @GET("users/my/stats?total_seconds=true")
+    @GET("${API_VERSION}/users/my/stats?total_seconds=true")
     suspend fun getCurrentUserStatsTotalSeconds(
         @Header("Authorization") authorization: String,
     ): Response<UserStatsTotalSecondsResponse>
 
-    @GET("users/{userId}/stats")
+    @GET("${API_VERSION}/users/{userId}/stats")
     suspend fun getUserStats(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
@@ -49,24 +51,24 @@ interface HackatimeApiService {
         @Query("features") features: String? = null,
     ): Response<UserStatsResponse>
 
-    @GET("users/current/statusbar/today")
+    @GET("hackatime/${API_VERSION}/users/current/statusbar/today")
     suspend fun getCurrentUserTodayData(
         @Header("Authorization") authorization: String,
     ): Response<UserTodayDataResponse>
 
-    @GET("users/{userId}/statusbar/today")
+    @GET("hackatime/${API_VERSION}/users/{userId}/statusbar/today")
     suspend fun getUserTodayData(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String
     ): Response<UserTodayDataResponse>
 
-    @GET("users/{userId}/trust_factor")
+    @GET("${API_VERSION}/users/{userId}/trust_factor")
     suspend fun getUserTrustFactor(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String
     ): Response<UserTrustFactor>
 
-    @GET("my/heartbeats")
+    @GET("${API_VERSION}/my/heartbeats")
     suspend fun getCurrentUserRawHeartbeats(
         @Header("Authorization") authorization: String,
         @Query("start_date") startDate: String? = null,
@@ -74,7 +76,7 @@ interface HackatimeApiService {
         @Query("limit") limit: Int? = null,
     ): Response<CurrentUserRawHeartbeatsResponse>
 
-    @GET("my/heartbeats/most_recent")
+    @GET("${API_VERSION}/my/heartbeats/most_recent")
     suspend fun getCurrentUserMostRecentRawHeartbeats(
         @Header("Authorization") authorization: String,
         @Query("start_date") startDate: String? = null,
@@ -82,7 +84,7 @@ interface HackatimeApiService {
         @Query("limit") limit: Int? = null,
     ): Response<CurrentUserRawHeartbeatsResponse>
 
-    @GET("users/{userId}/heartbeats/spans")
+    @GET("${API_VERSION}/users/{userId}/heartbeats/spans")
     suspend fun getUserHeartbeatsSpans(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
@@ -92,41 +94,41 @@ interface HackatimeApiService {
         @Query("filter_by_project") filterByProject: String? = null,
     ): Response<UserHeartbeatSpansResponse>
 
-    @GET("users/{userId}/projects")
+    @GET("${API_VERSION}/users/{userId}/projects")
     suspend fun getUserProjects(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
     ): Response<UserProjectsResponse>
 
-    @GET("users/{userId}/projects/details")
+    @GET("${API_VERSION}/users/{userId}/projects/details")
     suspend fun getUserDetailedProjects(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
     ): Response<UserProjectDetailsResponse>
 
-    @GET("users/my/projects")
+    @GET("${API_VERSION}/users/my/projects")
     suspend fun getCurrentUserProjects(
         @Header("Authorization") authorization: String,
     ): Response<UserProjectsResponse>
 
-    @GET("users/my/projects/details")
+    @GET("${API_VERSION}/users/my/projects/details")
     suspend fun getCurrentUserDetailedProjects(
         @Header("Authorization") authorization: String,
     ): Response<UserProjectDetailsResponse>
 
-    @GET("users/my/project/{projectName}")
+    @GET("${API_VERSION}/users/my/project/{projectName}")
     suspend fun getCurrentUserProject(
         @Header("Authorization") authorization: String,
         @Path("projectName") projectName: String,
     ): Response<ProjectDetail>
 
-    @GET("users/{userId}/project/{projectName}")
+    @GET("${API_VERSION}/users/{userId}/project/{projectName}")
     suspend fun getUserProject(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
         @Path("projectName") projectName: String,
     ): Response<ProjectDetail>
 
-    @GET("ysws_programs")
+    @GET("${API_VERSION}/ysws_programs")
     suspend fun getYSWSPrograms(): Response<List<String>>
 }

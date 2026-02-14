@@ -1,14 +1,17 @@
 package com.stefdp.hackatime.network.hackatimeapi.models.responses
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.network.hackatimeapi.models.Language
 import com.stefdp.hackatime.network.hackatimeapi.models.Project
 import com.stefdp.hackatime.network.hackatimeapi.models.UserTrustFactor
+import kotlinx.parcelize.Parcelize
 
 data class UserStatsResponse(
     val data: UserStats
 )
 
+@Parcelize
 data class UserStats(
     val username: String?,
     @SerializedName("user_id") val userId: String,
@@ -26,4 +29,4 @@ data class UserStats(
     val languages: List<Language>? = null,
     val projects: List<Project>? = null,
     @SerializedName("trust_factor") val trustFactor: UserTrustFactor
-)
+) : Parcelable
