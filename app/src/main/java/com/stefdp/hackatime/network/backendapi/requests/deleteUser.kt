@@ -18,7 +18,7 @@ suspend fun deleteUser(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return false
         }
         

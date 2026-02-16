@@ -46,7 +46,7 @@ fun TextInput(
     singleLine: Boolean = true,
     onPasswordToggle: (
         visible: Boolean
-    ) -> Unit = { visible ->  },
+    ) -> Unit = { },
     sideButtonIcon: Painter? = null,
     onSideButtonPress: () -> Unit = {},
     sideButtonContentDescription: String? = null,

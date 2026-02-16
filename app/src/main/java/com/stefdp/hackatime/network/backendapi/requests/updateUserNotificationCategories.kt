@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserNotificationCategoriesBody
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
 import com.stefdp.hackatime.utils.SecureStorage
@@ -20,7 +21,7 @@ suspend fun updateUserNotificationCategories(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return mapOf(
                 NotificationCategory.MOTIVATIONAL_QUOTES to false,
                 NotificationCategory.GOALS to false,
@@ -29,7 +30,7 @@ suspend fun updateUserNotificationCategories(
 
         val response = ApiClient.backendApi.updateUserNotificationCategories(
             apiKey = apiKey,
-            categories = categories
+            categories = UpdateUserNotificationCategoriesBody(categories = categories)
         )
 
         val body = response.body()

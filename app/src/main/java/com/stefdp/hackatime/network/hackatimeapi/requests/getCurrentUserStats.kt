@@ -25,7 +25,7 @@ suspend fun getCurrentUserStats(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return Result.failure(
                 Exception("Missing API Key")
             )

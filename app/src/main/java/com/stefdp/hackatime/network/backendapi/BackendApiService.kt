@@ -1,14 +1,17 @@
 package com.stefdp.hackatime.network.backendapi
 
+import com.stefdp.hackatime.network.backendapi.models.Goal
 import com.stefdp.hackatime.network.backendapi.models.GoalDate
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
+import com.stefdp.hackatime.network.backendapi.models.requests.SendPushNotificationTokenBody
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserGoalBody
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserNotificationCategoriesBody
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.DeleteUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.GetUserGoalsResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.GetUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendApiKeyResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendPushNotificationTokenResponse
-import com.stefdp.hackatime.network.backendapi.models.responses.UpdateUserGoalResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -28,7 +31,7 @@ interface BackendApiService {
     @POST("token")
     suspend fun sendPushNotificationToken(
         @Header("Authorization") apiKey: String,
-        @Body token: String,
+        @Body token: SendPushNotificationTokenBody,
     ): Response<SendPushNotificationTokenResponse>
 
     @GET("notifications")
@@ -39,8 +42,7 @@ interface BackendApiService {
     @PATCH("notifications")
     suspend fun updateUserNotificationCategories(
         @Header("Authorization") apiKey: String,
-//        @Body categories: Map<String, Boolean>
-        @Body categories: Map<NotificationCategory, Boolean>,
+        @Body categories: UpdateUserNotificationCategoriesBody,
     ): Response<NotificationCategoriesResponse>
 
     @GET("user")
@@ -65,7 +67,6 @@ interface BackendApiService {
     @PATCH("goals")
     suspend fun updateUserGoal(
         @Header("Authorization") apiKey: String,
-        @Body goal: Int,
-        @Body date: GoalDate
-    ): Response<UpdateUserGoalResponse>
+        @Body goalData: UpdateUserGoalBody
+    ): Response<Goal> //Response<UpdateUserGoalResponse>
 }

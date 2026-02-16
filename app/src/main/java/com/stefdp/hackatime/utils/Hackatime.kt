@@ -10,13 +10,14 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
 interface GeneralStat {
     val name: String
     val totalSeconds: Double
     val text: String
-    val hours: Int
-    val minutes: Int
+    val hours: Double
+    val minutes: Double
     val percent: Double
     val digital: String
 }
@@ -45,24 +46,34 @@ suspend fun getLast7DaysData(
     val last7DaysData = mutableListOf<DayData>()
 
     val today = Clock.System.now().toEpochMilliseconds()
-    val oneDayMillis = 24 * 60 * 60 * 1000L
+    val oneDayMillis = 1.days.inWholeMilliseconds //24 * 60 * 60 * 1000L
 
     for (i in 0..6) {
         val startDate = if (i == 0) today else (today - i * oneDayMillis)
-        val startDateString = startDate.let { millis ->
-            val instant = Instant.ofEpochMilli(millis)
-            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+        val startDateString = Instant
+            .ofEpochMilli(startDate)
+            .atZone(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-            instant.atZone(ZoneOffset.UTC).format(formatter)
-        }
+//            startDate.let { millis ->
+//                val instant = Instant.ofEpochMilli(millis)
+//                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+//
+//                instant.atZone(ZoneOffset.UTC).format(formatter)
+//            }
 
         val endDate = startDate + oneDayMillis
-        val endDateString = endDate.let { millis ->
-            val instant = Instant.ofEpochMilli(millis)
-            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+        val endDateString = Instant
+            .ofEpochMilli(endDate)
+            .atZone(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-            instant.atZone(ZoneOffset.UTC).format(formatter)
-        }
+//            endDate.let { millis ->
+//                val instant = Instant.ofEpochMilli(millis)
+//                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+//
+//                instant.atZone(ZoneOffset.UTC).format(formatter)
+//            }
 
         val userStats = getCurrentUserStats(
             context = context,

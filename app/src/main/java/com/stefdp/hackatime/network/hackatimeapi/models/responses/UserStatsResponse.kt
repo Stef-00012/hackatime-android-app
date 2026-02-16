@@ -24,9 +24,9 @@ data class UserStats(
     @SerializedName("human_readable_range") val humanReadableRange: String,
     @SerializedName("total_seconds") val totalSeconds: Double,
     @SerializedName("daily_average") val dailyAverage: Double,
-    @SerializedName("human_readable_total") val humanReadablTotal: String,
+    @SerializedName("human_readable_total") val humanReadableTotal: String,
     @SerializedName("human_readable_daily_average") val humanReadableDailyAverage: String,
     val languages: List<Language>? = null,
     val projects: List<Project>? = null,
-    @SerializedName("trust_factor") val trustFactor: UserTrustFactor
+    @SerializedName("trust_factor") val trustFactor: UserTrustFactor?
 ) : Parcelable

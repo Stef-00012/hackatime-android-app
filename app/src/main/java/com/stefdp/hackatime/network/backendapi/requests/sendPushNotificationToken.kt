@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
+import com.stefdp.hackatime.network.backendapi.models.requests.SendPushNotificationTokenBody
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendPushNotificationTokenResponse
 import com.stefdp.hackatime.utils.SecureStorage
@@ -19,13 +20,13 @@ suspend fun sendPushNotificationToken(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return false
         }
 
         val response = ApiClient.backendApi.sendPushNotificationToken(
             apiKey = apiKey,
-            token = token
+            token = SendPushNotificationTokenBody(token = token)
         )
 
         val body = response.body()

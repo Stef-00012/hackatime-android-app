@@ -10,9 +10,9 @@ data class OperatingSystemLast7Days(
     override val name: String,
     @SerializedName("total_seconds") override val totalSeconds: Double,
     override val text: String,
-    override val hours: Int,
-    override val minutes: Int,
+    override val hours: Double,
+    override val minutes: Double,
     override val percent: Double,
     override val digital: String,
-    val seconds: Int,
+    val seconds: Double,
 ) : GeneralStat, Parcelable

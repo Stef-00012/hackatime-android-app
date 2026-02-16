@@ -1,8 +1,11 @@
 package com.stefdp.hackatime.network.hackatimeapi.models
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
-enum class TrustLevel(val value: String) {
+@Parcelize
+enum class TrustLevel(val value: String) : Parcelable {
     @SerializedName("green")
     GREEN("green"),
 

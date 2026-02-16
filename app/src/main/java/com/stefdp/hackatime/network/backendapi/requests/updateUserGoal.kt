@@ -4,16 +4,17 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
+import com.stefdp.hackatime.network.backendapi.models.Goal
 import com.stefdp.hackatime.network.backendapi.models.GoalDate
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserGoalBody
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.backendapi.models.responses.UpdateUserGoalResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
 private const val TAG = "BackendApi[updateUserGoal]"
 
 suspend fun updateUserGoal(
     context: Context,
-    goal: Int,
+    goal: Long,
     date: GoalDate
 ): Boolean {
     try {
@@ -21,14 +22,16 @@ suspend fun updateUserGoal(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return false
         }
 
         val response = ApiClient.backendApi.updateUserGoal(
             apiKey = apiKey,
-            goal = goal,
-            date = date,
+            goalData = UpdateUserGoalBody(
+                goal = goal,
+                date = date
+            )
         )
 
         val body = response.body()
@@ -48,8 +51,8 @@ suspend fun updateUserGoal(
             return false
         }
 
-        if (body is UpdateUserGoalResponse) {
-            return body.success
+        if (body is Goal) {
+            return true
         }
 
         return false

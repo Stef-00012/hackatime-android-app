@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.0"
+agp = "9.0.1"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -8,8 +8,6 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.3"
 kotlin = "2.3.10"
 composeBom = "2026.01.01"
-#kotlin = "2.0.21"
-#composeBom = "2024.09.00"
 workRuntimeKtx = "2.11.1"
 datastore-preferences = "1.2.0"
 kotlinxSerialization = "1.10.0"
@@ -30,6 +28,9 @@ compose-charts = "0.2.0"
 
 # Skeleton Loading
 compose-shimmer = "1.3.3"
+
+# Date to Human Readable
+human-readbale = "1.12.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -68,6 +69,9 @@ compose-charts = { group = "io.github.ehsannarmani", name = "compose-charts", ve
 
 # Skeleton Loading
 compose-shimmer = { group = "com.valentinilk.shimmer", name = "compose-shimmer", version.ref = "compose-shimmer" }
+
+# Date to Human Readable
+human-readable = { group = "nl.jacobras", name = "Human-Readable", version.ref = "human-readbale" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

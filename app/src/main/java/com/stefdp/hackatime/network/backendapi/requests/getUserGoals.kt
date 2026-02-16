@@ -14,17 +14,17 @@ private const val TAG = "BackendApi[getUserGoals]"
 
 suspend fun getUserGoals(
     context: Context,
-    all: Boolean?,
-    date: GoalDate,
-    startDate: GoalDate,
-    endDate: GoalDate,
+    all: Boolean? = false,
+    date: GoalDate? = null,
+    startDate: GoalDate? = null,
+    endDate: GoalDate? = null,
 ): List<Goal> {
     try {
         val secureStore = SecureStorage.getInstance(context)
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return emptyList()
         }
 

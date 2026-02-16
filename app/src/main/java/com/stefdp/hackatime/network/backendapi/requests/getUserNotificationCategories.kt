@@ -19,7 +19,7 @@ suspend fun getUserNotificationCategories(
 
         val apiKey = secureStore.get("apiKey")
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (apiKey.isNullOrEmpty()) {
             return mapOf(
                 NotificationCategory.MOTIVATIONAL_QUOTES to false,
                 NotificationCategory.GOALS to false,

@@ -78,4 +78,7 @@ dependencies {
 
     // Skeleton Loading
     implementation(libs.compose.shimmer)
+
+    // Date to Human Readable
+    implementation(libs.human.readable)
 }

@@ -9,8 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
     private const val HACKATIME_BASE_URL = "https://hackatime.hackclub.com/api/"
-    private const val BACKEND_BASE_URL = "https://hackatime.stefdp.com/api/"
-    // private const val BACKEND_BASE_URL = "http://10.0.2.2:3000/api/" // for API local testing
+//    private const val BACKEND_BASE_URL = "https://hackatime.stefdp.com/api/"
+    // TODO: remember to switch to the above URL for production
+     private const val BACKEND_BASE_URL = "http://10.0.2.2:3000/api/" // for API local testing
 
 //    private val loggingInterceptor = HttpLoggingInterceptor().apply {
 //        level = HttpLoggingInterceptor.Level.BODY

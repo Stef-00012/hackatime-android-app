@@ -20,12 +20,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,10 +40,11 @@ import com.stefdp.hackatime.screens.login.LoginScreen
 import com.stefdp.hackatime.screens.projects.ProjectsScreen
 import com.stefdp.hackatime.screens.settings.SettingsScreen
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
-import com.stefdp.hackatime.utils.getLast7DaysData
 
 val LocalLoggedUser = compositionLocalOf<UserStats?> { null }
-val LocalUpdateUserStats = compositionLocalOf<suspend () -> Unit> { {} }
+val LocalUpdateUserStats = compositionLocalOf<suspend () -> UserStats?> { {null} }
+
+// TODO: switch to hackatime OAuth if i find a way for play store staff to test it
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf<UserStats?>(null)
                 }
 
-                suspend fun updateUserStats() {
+                suspend fun updateUserStats(): UserStats? {
                     val tag = "MainActivity[updateUserStats]"
 
                     Log.d(tag, "Checking if user is already logged in...")
@@ -82,20 +81,20 @@ class MainActivity : ComponentActivity() {
 
                            userStats = userStatsData
 
-                            return@updateUserStats
+                            return@updateUserStats userStatsData
                         }
                         .onFailure {
                             Log.d(tag, "User is not logged in")
 
                             userStats = null
 
-                            return@updateUserStats
+                            return@updateUserStats null
                         }
 
-                    return
+                    return null
                 }
 
-                // NOTE: This is just a test for a sidebar, i'll probably use navbar instead of this cuz it looks better
+                // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
 //                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 //                val scope = rememberCoroutineScope()
 
@@ -112,7 +111,7 @@ class MainActivity : ComponentActivity() {
                         topBar = {
                             Header(
                                 navController = navController
-                                // NOTE: This is just a test for a sidebar, i'll probably use navbar instead of this cuz it looks better
+                                // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
 //                            onMenuClick = {
 //                                scope.launch {
 //                                    if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -134,7 +133,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // NOTE: This is just a test for a sidebar, i'll probably use navbar instead of this cuz it looks better
+                        // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
 //                    ModalNavigationDrawer(
 //                        modifier = Modifier.padding(innerPadding),
 //                        drawerState = drawerState,
@@ -265,7 +264,7 @@ fun AppNavigation(
 //                            res.onSuccess {
 //                                val programsString = it.joinToString("\n- ")
 //
-////                                Log.d("Todo", "Programs:\n- $programsString")
+////                                Log.d("To do", "Programs:\n- $programsString")
 //                                programs = programsString
 //
 //                                programsCount = it.size
@@ -310,7 +309,7 @@ fun AppNavigation(
 //                                     res.onSuccess {
 //                                        val programsString = it.joinToString("\n- ")
 //
-////                                Log.d("Todo", "Programs:\n- $programsString")
+////                                Log.d("To do", "Programs:\n- $programsString")
 //                                        programs1 = programsString
 //
 //                                        programsCount1 = it.size
