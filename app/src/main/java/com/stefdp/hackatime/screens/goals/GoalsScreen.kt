@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -84,20 +86,20 @@ fun GoalsScreen(
         ) {
             Icon(
                 painter = painterResource(R.drawable.key_off),
-                contentDescription = "API key not in the server",
+                contentDescription = stringResource(R.string.api_key_not_on_server_title),
                 modifier = Modifier.size(50.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = "API key not on the server",
+                text = stringResource(R.string.api_key_not_on_server_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
             )
 
             Text(
-                text = "You must share your API key with the server in order to  use the goals feature",
+                text = stringResource(R.string.api_key_not_on_server_message),
                 textAlign = TextAlign.Center
             )
 
@@ -111,7 +113,7 @@ fun GoalsScreen(
                 }
             ) {
                 Text(
-                    text = "Go to Home",
+                    text = stringResource(R.string.api_key_not_on_server_home_button),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                     )
@@ -145,7 +147,7 @@ fun GoalsScreen(
     var showUpdateGoalPopup by rememberSaveable { mutableStateOf(false) }
 
     val rangeText = when (statsRange) {
-        Range.ALL_TIME -> "All Time"
+        Range.ALL_TIME -> stringResource(R.string.date_range_all_time)
         Range.CUSTOM -> "$rangeStart - $rangeEnd"
         Range.ONE_DAY -> rangeStart
     }
@@ -187,14 +189,16 @@ fun GoalsScreen(
             enabled = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showRangePopup = true },
+            colors = ButtonDefaults.outlinedButtonColors().copy(
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
             border = BorderStroke(
                 color = MaterialTheme.colorScheme.primary,
                 width = 2.dp
-            )
+            ),
         ) {
             Text(
-                text = "Range: $rangeText",
-                color = MaterialTheme.colorScheme.primary
+                text = stringResource(R.string.date_range, rangeText)
             )
         }
 
@@ -235,23 +239,11 @@ fun GoalsScreen(
                     .ofEpochMilli(startDate)
                     .atZone(ZoneOffset.UTC)
                     .format(DateTimeFormatter.ISO_LOCAL_DATE)
-//                    startDate.let { millis ->
-//                        val instant = Instant.ofEpochMilli(millis)
-//                        val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-//
-//                        instant.atZone(ZoneOffset.UTC).format(formatter)
-//                    }
 
                 val endDateString = Instant
                     .ofEpochMilli(endDate)
                     .atZone(ZoneOffset.UTC)
                     .format(DateTimeFormatter.ISO_LOCAL_DATE)
-//                    endDate.let { millis ->
-//                        val instant = Instant.ofEpochMilli(millis)
-//                        val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-//
-//                        instant.atZone(ZoneOffset.UTC).format(formatter)
-//                    }
 
                 if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
 
@@ -269,7 +261,9 @@ fun GoalsScreen(
                     dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
                 ),
                 headline = {
-                    Text("Select Date Range")
+                    Text(
+                        text = stringResource(R.string.select_date_range)
+                    )
                 },
                 title = {},
             )
@@ -281,7 +275,9 @@ fun GoalsScreen(
                     showRangePopup = false
                 }
             ) {
-                Text("Show All Time")
+                Text(
+                    text = stringResource(R.string.date_range_all_time)
+                )
             }
 
             Button(
@@ -290,7 +286,9 @@ fun GoalsScreen(
                     showRangePopup = false
                 }
             ) {
-                Text("Close")
+                Text(
+                    text = stringResource(R.string.close_button)
+                )
             }
         }
 
@@ -298,14 +296,16 @@ fun GoalsScreen(
             enabled = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showUpdateGoalPopup = true },
+            colors = ButtonDefaults.outlinedButtonColors().copy(
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
             border = BorderStroke(
                 color = MaterialTheme.colorScheme.primary,
                 width = 2.dp
             )
         ) {
             Text(
-                text = "Update Goal",
-                color = MaterialTheme.colorScheme.primary
+                text = stringResource(R.string.update_goal_button),
             )
         }
 
@@ -317,7 +317,7 @@ fun GoalsScreen(
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
-                    text = "Update Goal",
+                    text = stringResource(R.string.update_goal_popup_title),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -329,7 +329,7 @@ fun GoalsScreen(
                     value = newGoal,
                     onValueChange = { newGoal = it },
                     placeholder = "5h",
-                    label = "New Goal",
+                    label = stringResource(R.string.update_goal_input_label),
                 )
 
                 val coroutineScope = rememberCoroutineScope()
@@ -343,7 +343,7 @@ fun GoalsScreen(
                             if (newGoalDuration == null || newGoalDuration < 1.minutes.inWholeMilliseconds || newGoalDuration > 23.hours.inWholeMilliseconds) {
                                 Toast.makeText(
                                     context,
-                                    "Goal must be between 1 minute and 23 hours",
+                                    context.getString(R.string.invalid_goal_error),
                                     Toast.LENGTH_LONG
                                 ).show()
                             } else {
@@ -353,18 +353,16 @@ fun GoalsScreen(
                                     goal = newGoalDuration / 1000
                                 )
 
-                                Log.d("GoalsScreen", "Update goal response: $success")
-
                                 if (!success) {
                                     Toast.makeText(
                                         context,
-                                        "Failed to update goal",
+                                        context.getString(R.string.goal_update_fail_message),
                                         Toast.LENGTH_LONG
                                     ).show()
                                 } else {
                                     Toast.makeText(
                                         context,
-                                        "Goal updated successfully",
+                                        context.getString(R.string.goal_update_success_message),
                                         Toast.LENGTH_LONG
                                     ).show()
 
@@ -377,7 +375,7 @@ fun GoalsScreen(
                     }
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save_button),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -401,7 +399,7 @@ fun GoalsScreen(
             }
         } else if (goals!!.isEmpty()) {
             Text(
-                text = "You don't have any goal yet",
+                text = stringResource(R.string.no_goals_message),
                 modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,

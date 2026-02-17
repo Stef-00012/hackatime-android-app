@@ -1,3 +1,117 @@
 <resources>
+    <!--  Generic (used in multiple places)  -->
     <string name="app_name">Hackatime Stats</string>
+    <string name="date_range_all_time">All Time</string>
+    <string name="date_range_all_time_button">Show All Time</string>
+    <string name="date_range_last_7_days">Last 7 Days</string>
+    <string name="date_range_last_7_days_button">Show Last 7 Days</string>
+    <string name="date_range">Range: %1$s</string>
+    <string name="select_date_range">Select Date Range</string>
+    <string name="close_button">Close</string>
+    <string name="save_button">Save</string>
+    <string name="login_button">Login</string>
+    <string name="hackatime_api_key_input_label">Hackatime API Key</string>
+    <string name="share_api_key_with_server_switch_label">Share API key with the app\'s server</string>
+    <string name="send_api_key_fail_message">Failed to send the API key to the server. Please try again later</string>
+
+    <!--  components.Header  -->
+    <string name="unknown_username">Unknown Username</string>
+    <string name="settings_button_content_description">Settings</string>
+
+    <!--  components.NavBar  -->
+    <string name="home_button_text">Home</string>
+    <string name="projects_button_text">Projects</string>
+    <string name="goals_button_text">Goals</string>
+
+    <!--  components.TextInput  -->
+    <string name="side_button_content_description_password_hide">Hide Password</string>
+    <string name="side_button_content_description_password_show">Show Password</string>
+    <string name="side_button_content_description_generic">Side Button</string>
+
+    <!--  screens.goals.GoalsScreen  -->
+    <string name="api_key_not_on_server_title">API key not on the server</string>
+    <string name="api_key_not_on_server_message">You must share your API key with the server in order to  use the goals feature</string>
+    <string name="api_key_not_on_server_home_button">Go to Home</string>
+    <string name="update_goal_button">Update Goal</string>
+    <string name="update_goal_popup_title">Update Goal</string>
+    <string name="update_goal_input_label">New Goal</string>
+    <string name="invalid_goal_error">Goal must be between 1 minute and 23 hours</string>
+    <string name="goal_update_fail_message">Failed to update goal</string>
+    <string name="goal_update_success_message">Goal updated successfully</string>
+    <string name="no_goals_message">You don\'t have any goal yet</string>
+
+    <!--  screens.home.HomeScreen  -->
+    <string name="total_time">Total Time</string>
+    <string name="top_project">Top Project</string>
+    <string name="unknown_project">Unknown Project</string>
+    <string name="top_language">Top Language</string>
+    <string name="unknown_language">Unknown Language</string>
+    <string name="top_operating_system">Top OS</string>
+    <string name="unknown_operating_system">Unknown OS</string>
+    <string name="top_editor">Top Editor</string>
+    <string name="unknown_editor">Unknown Editor</string>
+    <string name="top_machine">Top Machine</string>
+    <string name="unknown_machine">Unknown Machine</string>
+    <string name="last_7_days_overview">Last 7 Days Overview</string>
+    <string name="last_7_days_chart_monday">Mon</string>
+    <string name="last_7_days_chart_tuesday">Tue</string>
+    <string name="last_7_days_chart_wednesday">Wed</string>
+    <string name="last_7_days_chart_thursday">Thu</string>
+    <string name="last_7_days_chart_friday">Fri</string>
+    <string name="last_7_days_chart_saturday">Sat</string>
+    <string name="last_7_days_chart_sunday">Sun</string>
+    <string name="last_7_days_chart_unknown">N/A</string>
+    <string name="pie_chart_tooltip_content_description">Pie chart tooltip</string>
+    <string name="pie_chart_tooltip">Press for details</string>
+    <string name="languages_pie_chart">Languages</string>
+    <string name="editors_pie_chart">Editors</string>
+    <string name="operating_systems_pie_chart">Operating Systems</string>
+    <string name="machines_pie_chart">Machines</string>
+
+    <!--  screens.login.LoginScreen  -->
+    <string name="login_title">Login</string>
+    <string name="share_api_key_with_server_switch_description_login">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature</string>
+    <string name="no_api_key_tooltip">Don\'t have an API key? Get it [link]here[/link]</string>
+    <string name="privacy_policy_tooltip">Privacy Policy</string>
+
+    <!--  screens.projects.ProjectsScreen  -->
+    <string name="no_projects_available">No Projects Available</string>
+
+    <!--  screens.projects.components.ProjectContainer  -->
+    <string name="open_repository_content_description">Open Project Repository</string>
+    <string name="project_languages_content_description">Project Languages</string>
+    <string name="project_last_heartbeat_content_description">Project Last Heartbeat</string>
+
+    <!--  screens.settings.SettingsScreen  -->
+    <string name="app_settings_title">App Settings</string>
+    <string name="share_api_key_with_server_switch_description_settings">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server</string>
+    <string name="unlock_with_biometrics_switch_label">Unlock with Biometrics</string>
+    <string name="unlock_with_biometrics_switch_description">Require biometric authentication to unlock the app</string>
+    <string name="delete_api_key_fail_message">Failed to delete the API key from the server. Please try again later</string>
+    <string name="settings_saved_message">Settings Saved</string>
+    <string name="save_settings_content_description">Save App Settings</string>
+    <string name="logout_content_description">Logout</string>
+    <string name="logout_button">Logout</string>
+    <string name="notifications_permission_granted">Notifications Permission Granted</string>
+    <string name="notifications_permission_denied">Notifications Permission Denied</string>
+    <string name="notifications_settings_title">Notifications</string>
+    <string name="motivational_notifications_switch_label">Motivational Notifications</string>
+    <string name="motivational_notifications_switch_description">Receive motivational notifications to encourage you to code more often%1$s</string>
+    <string name="switch_description_notifications_permission_not_granted">.\nNotifications permission is not granted</string>
+    <string name="goals_notifications_switch_label">Goals Notifications</string>
+    <string name="goals_notifications_switch_description">Receive a notification when you make progress on your goal%1$s</string>
+    <string name="notifications_permission_always_granted">Notifications Permission is automatically granted on this version of Android</string>
+    <string name="update_notifications_permission_content_description">Update Notifications Permission</string>
+    <string name="update_notifications_permission_button">Update Notifications Permission</string>
+    <string name="notifications_preferences_saved">Notifications Preferences Saved</string>
+    <string name="save_notifications_preferences_content_description">Save Notifications Preferences</string>
+    <!--  status = "Notification Permission: Granted" OR "Notification Permission: Denied"  -->
+    <string name="notifications_permission_status">&lt;b&gt;Notifications Permission:&lt;/b&gt; %1$s</string> <!--  &lt; and &gt; stand respectively for start and end of bold text  -->
+    <string name="notifications_permission_status_granted">Granted</string>
+    <string name="notifications_permission_status_denied">Denied</string>
+
+    <!--  network.hackatimeapi.requests.*  -->
+    <string name="missing_api_key">Missing API Key</string>
+    <string name="invalid_api_key">Invalid API Key</string>
+    <string name="generic_error">Something went wrong...</string>
 </resources>

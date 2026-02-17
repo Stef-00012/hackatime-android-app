@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,12 +41,12 @@ fun NavBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.home),
-                    contentDescription = "Home"
+                    contentDescription = stringResource(R.string.home_button_text)
                 )
             },
             label = {
                 Text(
-                    text = "Home",
+                    text = stringResource(R.string.home_button_text),
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -59,12 +60,12 @@ fun NavBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.dashboard),
-                    contentDescription = "Projects"
+                    contentDescription = stringResource(R.string.projects_button_text)
                 )
             },
             label = {
                 Text(
-                    text = "Projects",
+                    text = stringResource(R.string.projects_button_text),
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -78,12 +79,12 @@ fun NavBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(R.drawable.flag),
-                    contentDescription = "Projects"
+                    contentDescription = stringResource(R.string.goals_button_text)
                 )
             },
             label = {
                 Text(
-                    text = "Goals",
+                    text = stringResource(R.string.goals_button_text),
                     fontWeight = FontWeight.Bold
                 )
             },

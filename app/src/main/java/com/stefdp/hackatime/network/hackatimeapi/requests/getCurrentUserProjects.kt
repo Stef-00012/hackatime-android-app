@@ -3,6 +3,7 @@ package com.stefdp.hackatime.network.hackatimeapi.requests
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserProjectsResponse
@@ -20,7 +21,7 @@ suspend fun getCurrentUserProjects(
 
         if (apiKey.isNullOrEmpty()) {
             return Result.failure(
-                Exception("Missing API Key")
+                Exception(context.getString(R.string.missing_api_key))
             )
         }
 
@@ -37,7 +38,7 @@ suspend fun getCurrentUserProjects(
 
             if (statusCode == 401) {
                 return Result.failure(
-                    Exception("Invalid API Key")
+                    Exception(context.getString(R.string.missing_api_key))
                 )
             }
 
@@ -53,7 +54,7 @@ suspend fun getCurrentUserProjects(
             }
 
             return Result.failure(
-                Exception("Something went wrong...")
+                Exception(context.getString(R.string.generic_error))
             )
         }
 
@@ -62,13 +63,13 @@ suspend fun getCurrentUserProjects(
         }
 
         return Result.failure(
-            Exception("Something went wrong...")
+            Exception(context.getString(R.string.generic_error))
         )
     } catch(e: Exception) {
         Log.e(TAG, "Exception occurred: ${e.message}", e)
 
         return Result.failure(
-            Exception("Something went wrong...")
+            Exception(context.getString(R.string.generic_error))
         )
     }
 }

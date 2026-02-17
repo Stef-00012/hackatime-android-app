@@ -46,6 +46,10 @@ val LocalUpdateUserStats = compositionLocalOf<suspend () -> UserStats?> { {null}
 
 // TODO: switch to hackatime OAuth if i find a way for play store staff to test it
 
+// TODO: add a loading screen instead of showing login screen
+// TODO: add biometric authentication
+// TODO: add a check for internet and a "no internet" page
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -297,12 +301,12 @@ fun AppNavigation(
 //                        Button(
 //                            onClick = {
 //                                lifecycleScope.launch {
-//                                    val secureStorage = SecureStorage.getInstance(context)
+//                                    val secureStore = SecureStorage.getInstance(context)
 //
-//                                    val apiKey = secureStorage.get("apiKey")
+//                                    val apiKey = secureStore.get("apiKey")
 //
-//                                    if (apiKey != null) secureStorage.del("apiKey")
-//                                    else secureStorage.set("apiKey", "TEST123")
+//                                    if (apiKey != null) secureStore.del("apiKey")
+//                                    else secureStore.set("apiKey", "TEST123")
 //
 //                                    val res = getYSWSPrograms()
 //

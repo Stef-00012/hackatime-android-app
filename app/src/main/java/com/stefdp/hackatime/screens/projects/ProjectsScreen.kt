@@ -20,11 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.stefdp.hackatime.LocalLoggedUser
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ProjectDetail
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserDetailedProjects
 import com.stefdp.hackatime.screens.LoginScreen
@@ -73,7 +75,7 @@ fun ProjectsScreen(
         }
     } else if (projects!!.isEmpty()) {
         Text(
-            text = "No Projects Available",
+            text = stringResource(R.string.no_projects_available),
             modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
             style = MaterialTheme.typography.headlineLarge.copy(
                 textAlign = TextAlign.Center,

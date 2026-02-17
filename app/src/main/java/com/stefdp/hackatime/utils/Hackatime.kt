@@ -27,10 +27,6 @@ fun <T : GeneralStat> getTop(
 ): T? {
     if (list.isNullOrEmpty()) return null
 
-//    return list.reduce { prev, curr ->
-//        if (prev.totalSeconds > curr.totalSeconds) prev else curr
-//    }
-
     return list.maxByOrNull { it.totalSeconds }
 }
 
@@ -55,25 +51,11 @@ suspend fun getLast7DaysData(
             .atZone(ZoneOffset.UTC)
             .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-//            startDate.let { millis ->
-//                val instant = Instant.ofEpochMilli(millis)
-//                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-//
-//                instant.atZone(ZoneOffset.UTC).format(formatter)
-//            }
-
         val endDate = startDate + oneDayMillis
         val endDateString = Instant
             .ofEpochMilli(endDate)
             .atZone(ZoneOffset.UTC)
             .format(DateTimeFormatter.ISO_LOCAL_DATE)
-
-//            endDate.let { millis ->
-//                val instant = Instant.ofEpochMilli(millis)
-//                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-//
-//                instant.atZone(ZoneOffset.UTC).format(formatter)
-//            }
 
         val userStats = getCurrentUserStats(
             context = context,

@@ -1,13 +1,17 @@
 package com.stefdp.hackatime.network.hackatimeapi.requests
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
 
 private const val TAG = "HackatimeApi[getYSWSPrograms]"
 
-suspend fun getYSWSPrograms(): Result<List<String>> {
+suspend fun getYSWSPrograms(
+    context: Context
+): Result<List<String>> {
     try {
         val response = ApiClient.hackatimeApi.getYSWSPrograms()
 
@@ -20,7 +24,7 @@ suspend fun getYSWSPrograms(): Result<List<String>> {
 
             if (statusCode == 401) {
                 return Result.failure(
-                    Exception("Invalid API Key")
+                    Exception(context.getString(R.string.invalid_api_key))
                 )
             }
 
@@ -36,7 +40,7 @@ suspend fun getYSWSPrograms(): Result<List<String>> {
             }
 
             return Result.failure(
-                Exception("Something went wrong...")
+                Exception(context.getString(R.string.generic_error))
             )
         }
 
@@ -45,13 +49,13 @@ suspend fun getYSWSPrograms(): Result<List<String>> {
         }
 
         return Result.failure(
-            Exception("Something went wrong...")
+            Exception(context.getString(R.string.generic_error))
         )
     } catch(e: Exception) {
         Log.e(TAG, "Exception occurred: ${e.message}", e)
 
         return Result.failure(
-            Exception("Something went wrong...")
+            Exception(context.getString(R.string.generic_error))
         )
     }
 }

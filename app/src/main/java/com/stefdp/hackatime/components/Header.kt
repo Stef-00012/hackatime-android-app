@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -47,7 +48,7 @@ fun Header(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp).statusBarsPadding()
         ) {
-            // NOTE: This is just a test for a sidebar, i'll probably use navbar instead of this cuz it looks better
+            // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
 //            IconButton(onClick = onMenuClick) {
 //                Icon(painter = painterResource(R.drawable.menu_icon), contentDescription = "Open Sidebar")
 //            }
@@ -56,7 +57,7 @@ fun Header(
             val username = LocalLoggedUser.current?.username
 
             Text(
-                text = username ?: "Unknown Username",
+                text = username ?: stringResource(R.string.unknown_username),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -81,7 +82,7 @@ fun Header(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.settings),
-                        contentDescription = "Settings",
+                        contentDescription = stringResource(R.string.settings_button_content_description),
                         tint = if (isInSettings) MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onTertiary,
                     )
                 }

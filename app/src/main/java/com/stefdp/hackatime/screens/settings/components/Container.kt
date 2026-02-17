@@ -1,4 +1,4 @@
-package com.stefdp.hackatime.screens.home.components
+package com.stefdp.hackatime.screens.settings.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -28,11 +28,11 @@ fun Container(
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(
-                width = 2.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(10.dp)
             )
-            .padding(10.dp)
+            .padding(15.dp)
     ) {
         content()
     }
@@ -45,7 +45,7 @@ fun Container(
 fun ContainerPreview() {
     HackatimeStatsTheme() {
         Container(
-            modifier = Modifier.padding(top = 15.dp)
+            modifier = Modifier.padding(top = 80.dp)
         ) {
             Text("Hello", color = MaterialTheme.colorScheme.onSurface)
 

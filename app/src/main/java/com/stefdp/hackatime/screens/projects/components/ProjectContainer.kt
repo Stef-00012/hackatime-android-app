@@ -2,7 +2,6 @@ package com.stefdp.hackatime.screens.projects.components
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -80,7 +80,7 @@ fun ProjectContainer(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.folder_code),
-                        contentDescription = "Open Project Repository",
+                        contentDescription = stringResource(R.string.open_repository_content_description),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -98,7 +98,7 @@ fun ProjectContainer(
         Row {
             Icon(
                 painter = painterResource(R.drawable.code),
-                contentDescription = "Project Languages",
+                contentDescription = stringResource(R.string.project_languages_content_description),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -115,7 +115,7 @@ fun ProjectContainer(
         Row {
             Icon(
                 painter = painterResource(R.drawable.timeline),
-                contentDescription = "Project Last Heartbeat",
+                contentDescription = stringResource(R.string.project_last_heartbeat_content_description),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
 

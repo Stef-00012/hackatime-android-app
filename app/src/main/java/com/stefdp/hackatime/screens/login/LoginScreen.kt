@@ -1,6 +1,8 @@
 package com.stefdp.hackatime.screens.login
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -31,8 +34,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.LocalUpdateUserStats
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Switch
 import com.stefdp.hackatime.components.TextInput
+import com.stefdp.hackatime.network.backendapi.requests.sendApiKey
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
 import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.screens.LoginScreen
@@ -72,7 +77,7 @@ fun LoginScreen(
                 var shareApiKeyChecked by rememberSaveable { mutableStateOf(false) }
 
                 Text(
-                    text = "Login",
+                    text = stringResource(R.string.login_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -82,15 +87,15 @@ fun LoginScreen(
                     onValueChange = { apiKey = it },
                     isPassword = true,
                     placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-                    label = "Hackatime API Key"
+                    label = stringResource(R.string.hackatime_api_key_input_label)
                 )
 
                 Switch(
                     modifier = Modifier.padding(top = 10.dp),
                     checked = shareApiKeyChecked,
-                    onCheckedChange = { shareApiKeyChecked = !shareApiKeyChecked },
-                    label = "Share API key with the app's server",
-                    description = "If you don't share the API key, you won't be able to receive push notifications or use the goals feature"
+                    onCheckedChange = { shareApiKeyChecked = it },
+                    label = stringResource(R.string.share_api_key_with_server_switch_label),
+                    description = stringResource(R.string.share_api_key_with_server_switch_description_login)
                 )
 
                 val coroutineScope = rememberCoroutineScope()
@@ -102,7 +107,23 @@ fun LoginScreen(
                             val secureStore = SecureStorage.getInstance(context)
 
                             secureStore.set("apiKey", apiKey.text)
-                            secureStore.set("shareApiKey", if (shareApiKeyChecked) "true" else "false")
+                            secureStore.set("shareApiKey", shareApiKeyChecked.toString())
+
+                            if (shareApiKeyChecked) {
+                                val res = sendApiKey(
+                                    context = context
+                                )
+
+                                if (!res) {
+                                    secureStore.set("shareApiKey", "false")
+
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.send_api_key_fail_message),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
 
                             val userStats = updateUserStats()
 
@@ -115,7 +136,7 @@ fun LoginScreen(
                     }
                 ) {
                     Text(
-                        text = "Login",
+                        text = stringResource(R.string.login_button),
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
@@ -123,18 +144,31 @@ fun LoginScreen(
                 }
 
                 val noApiKeyText = buildAnnotatedString {
-                    append("Don't have an API key? Get it ")
+                    val rawString = stringResource(R.string.no_api_key_tooltip)
+                    val linkTag = "[link]"
+                    val linkEndTag = "[/link]"
 
-                    pushLink(
-                        LinkAnnotation.Url(
-                            url = "https://hackatime.hackclub.com/my/settings",
-                           styles = TextLinkStyles(
-                               style = SpanStyle(color = MaterialTheme.colorScheme.primary)
-                           )
+                    val startIndex = rawString.indexOf(linkTag)
+                    val endIndex = rawString.indexOf(linkEndTag)
+
+                    if (startIndex != -1 && endIndex != -1) {
+                        val cleanString = rawString.replace(linkTag, "").replace(linkEndTag, "")
+
+                        append(cleanString)
+
+                        addLink(
+                            url = LinkAnnotation.Url(
+                                url = "https://hackatime.hackclub.com/my/settings",
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(color = MaterialTheme.colorScheme.primary)
+                                )
+                            ),
+                            start = startIndex,
+                            end = endIndex - linkTag.length
                         )
-                    )
-                    append("here")
-                    pop()
+                    } else {
+                        append(rawString)
+                    }
                 }
 
                 Text(
@@ -150,7 +184,7 @@ fun LoginScreen(
                             )
                         )
                     )
-                    append("Privacy Policy")
+                    append(stringResource(R.string.privacy_policy_tooltip))
                     pop()
                 }
 

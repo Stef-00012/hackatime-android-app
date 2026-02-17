@@ -19,3 +19,20 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.stefdp.hackatime.network.hackatimeapi.models.** { *; }
+-keep interface com.stefdp.hackatime.network.hackatimeapi.** { *; }
+
+-keep class com.stefdp.hackatime.network.backendapi.models.** { *; }
+-keep interface com.stefdp.hackatime.network.backendapi.** { *; }
+
+-keep class com.stefdp.hackatime.screens.** { *; }
+-keep interface com.stefdp.hackatime.screens.** { *; }
+
+-keep class com.stefdp.hackatime.utils.DayData { *; }
+
+#-keepclassmembers class * {
+#    static ** serializer(...);
+#}
+#
+#-keepclassmembers enum com.stefdp.hackatime.** { *; }

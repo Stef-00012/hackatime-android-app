@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -198,8 +200,8 @@ fun HomeScreen(
     ) {
         var showRangePopup by rememberSaveable { mutableStateOf(false) }
         val rangeText = when (statsRange) {
-            Range.LAST_SEVEN_DAYS -> "Last 7 Days"
-            Range.ALL_TIME -> "All Time"
+            Range.LAST_SEVEN_DAYS -> stringResource(R.string.date_range_last_7_days)
+            Range.ALL_TIME -> stringResource(R.string.date_range_all_time)
             Range.CUSTOM -> "$rangeStart - $rangeEnd"
             Range.ONE_DAY -> rangeStart
         }
@@ -208,14 +210,16 @@ fun HomeScreen(
             enabled = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showRangePopup = true },
+            colors = ButtonDefaults.outlinedButtonColors().copy(
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
             border = BorderStroke(
                 color = MaterialTheme.colorScheme.primary,
                 width = 2.dp
             )
         ) {
             Text(
-                text = "Range: $rangeText",
-                color = MaterialTheme.colorScheme.primary
+                text = stringResource(R.string.date_range, rangeText)
             )
         }
 
@@ -252,19 +256,15 @@ fun HomeScreen(
 
                 if (startDate == null || endDate == null) return@LaunchedEffect
 
-                val startDateString = startDate.let { millis ->
-                    val instant = Instant.ofEpochMilli(millis)
-                    val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+                val startDateString = Instant
+                    .ofEpochMilli(startDate)
+                    .atZone(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-                    instant.atZone(ZoneOffset.UTC).format(formatter)
-                }
-
-                val endDateString = endDate.let { millis ->
-                    val instant = Instant.ofEpochMilli(millis)
-                    val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-
-                    instant.atZone(ZoneOffset.UTC).format(formatter)
-                }
+                val endDateString = Instant
+                    .ofEpochMilli(endDate)
+                    .atZone(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
                 if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
 
@@ -282,7 +282,9 @@ fun HomeScreen(
                     dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
                 ),
                 headline = {
-                    Text("Select Date Range")
+                    Text(
+                        text = stringResource(R.string.select_date_range)
+                    )
                 },
                 title = {},
             )
@@ -294,7 +296,9 @@ fun HomeScreen(
                     showRangePopup = false
                 }
             ) {
-                Text("Show Last 7 Days")
+                Text(
+                    text = stringResource(R.string.date_range_last_7_days_button)
+                )
             }
 
             Button(
@@ -304,7 +308,9 @@ fun HomeScreen(
                     showRangePopup = false
                 }
             ) {
-                Text("Show All Time")
+                Text(
+                    text = stringResource(R.string.date_range_all_time_button)
+                )
             }
 
             Button(
@@ -313,7 +319,9 @@ fun HomeScreen(
                     showRangePopup = false
                 }
             ) {
-                Text("Close")
+                Text(
+                    text = stringResource(R.string.close_button)
+                )
             }
         }
 
@@ -326,7 +334,7 @@ fun HomeScreen(
             )
         ) {
             Text(
-                text = "Total Time",
+                text = stringResource(R.string.total_time),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
@@ -341,12 +349,12 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
         ) {
             Text(
-                text = "Top Project",
+                text = stringResource(R.string.top_project),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = topProject?.name ?: "Unknown Project",
+                text = topProject?.name ?: stringResource(R.string.unknown_project),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -356,12 +364,12 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
         ) {
             Text(
-                text = "Top Language",
+                text = stringResource(R.string.top_language),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = topLanguage?.name ?: "Unknown Language",
+                text = topLanguage?.name ?: stringResource(R.string.unknown_language),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -372,12 +380,12 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Top OS",
+                    text = stringResource(R.string.top_operating_system),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topOperatingSystem?.name ?: "Unknown OS",
+                    text = topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -387,12 +395,12 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Top Editor",
+                    text = stringResource(R.string.top_editor),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topEditor?.name ?: "Unknown Editor",
+                    text = topEditor?.name ?: stringResource(R.string.unknown_editor),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -402,12 +410,12 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Top Machine",
+                    text = stringResource(R.string.top_machine),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topMachine?.name ?: "Unknown Machine",
+                    text = topMachine?.name ?: stringResource(R.string.unknown_machine),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -417,7 +425,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Last 7 Days Overview",
+                    text = stringResource(R.string.last_7_days_overview),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 10.dp)
@@ -442,14 +450,14 @@ fun HomeScreen(
                                 .dayOfWeek.value
 
                             when (weekDayNumber) {
-                                1 -> "Mon"
-                                2 -> "Tue"
-                                3 -> "Wed"
-                                4 -> "Thu"
-                                5 -> "Fri"
-                                6 -> "Sat"
-                                7 -> "Sun"
-                                else -> "N/A"
+                                1 -> stringResource(R.string.last_7_days_chart_monday)
+                                2 -> stringResource(R.string.last_7_days_chart_tuesday)
+                                3 -> stringResource(R.string.last_7_days_chart_wednesday)
+                                4 -> stringResource(R.string.last_7_days_chart_thursday)
+                                5 -> stringResource(R.string.last_7_days_chart_friday)
+                                6 -> stringResource(R.string.last_7_days_chart_saturday)
+                                7 -> stringResource(R.string.last_7_days_chart_sunday)
+                                else -> stringResource(R.string.last_7_days_chart_unknown)
                             }
                         }
                     }
@@ -544,7 +552,7 @@ fun HomeScreen(
             Row {
                 Icon(
                     painter = painterResource(R.drawable.info),
-                    contentDescription = "Pie chart tooltip",
+                    contentDescription = stringResource(R.string.pie_chart_tooltip_content_description),
                     modifier = Modifier.size(15.dp).align(Alignment.CenterVertically),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -554,7 +562,7 @@ fun HomeScreen(
                 )
 
                 Text(
-                    text = "Press for details",
+                    text = stringResource(R.string.pie_chart_tooltip),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -564,7 +572,7 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
         ) {
             Text(
-                text = "Languages",
+                text = stringResource(R.string.languages_pie_chart),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 10.dp),
@@ -635,7 +643,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Editors",
+                    text = stringResource(R.string.editors_pie_chart),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 10.dp),
@@ -707,7 +715,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Operating Systems",
+                    text = stringResource(R.string.operating_systems_pie_chart),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 10.dp),
@@ -779,7 +787,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = "Machines",
+                    text = stringResource(R.string.machines_pie_chart),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 10.dp),

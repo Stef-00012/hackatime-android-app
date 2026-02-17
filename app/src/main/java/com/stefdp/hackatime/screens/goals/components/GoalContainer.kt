@@ -113,9 +113,9 @@ fun GoalContainer(
 @Composable
 fun GoalContainerPreview() {
     val goal = Goal(
-        date = "2026-02-15",
+        date = "2026-02-15T00:00:00.000Z",
         goal = 3600.0,
-        achieved = 1200.0
+        achieved = 2200.0
     )
 
     HackatimeStatsTheme {

@@ -17,10 +17,10 @@ fun formatMs(
 
     if (duration == 0L) return "0s"
 
-    val second = 1.seconds.inWholeMilliseconds //1000L
-    val minute = 1.minutes.inWholeMilliseconds //second * 60
-    val hour = 1.hours.inWholeMilliseconds //minute * 60
-    val day = 1.days.inWholeMilliseconds //hour * 24
+    val second = 1.seconds.inWholeMilliseconds // 1000L
+    val minute = 1.minutes.inWholeMilliseconds // second * 60
+    val hour = 1.hours.inWholeMilliseconds // minute * 60
+    val day = 1.days.inWholeMilliseconds // hour * 24
     val month = day * 30
     val year = day * 365
 
@@ -76,10 +76,10 @@ fun parseTimeToMillis(input: String): Long? {
         totalMillis += when {
             unit in yearUnit -> value * 31_536_000_000L // 365 * 24 * 60 * 60 * 1000
             unit in monthUnit -> value * 2_592_000_000L // 30 * 24 * 60 * 60 * 1000
-            unit in dayUnit -> value * 1.days.inWholeMilliseconds //86_400_000L // 24 * 60 * 60 * 1000
-            unit in hourUnit -> value * 1.hours.inWholeMilliseconds //3_600_000L // 60 * 60 * 1000
-            unit in minuteUnit -> value * 1.minutes.inWholeMilliseconds //60_000L // 60 * 1000
-            unit in secondUnit -> value * 1.seconds.inWholeMilliseconds //1_000L
+            unit in dayUnit -> value * 1.days.inWholeMilliseconds // 86_400_000L // 24 * 60 * 60 * 1000
+            unit in hourUnit -> value * 1.hours.inWholeMilliseconds // 3_600_000L // 60 * 60 * 1000
+            unit in minuteUnit -> value * 1.minutes.inWholeMilliseconds // 60_000L // 60 * 1000
+            unit in secondUnit -> value * 1.seconds.inWholeMilliseconds // 1_000L
             else -> 0L
         }
     }

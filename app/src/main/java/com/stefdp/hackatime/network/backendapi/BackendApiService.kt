@@ -68,5 +68,5 @@ interface BackendApiService {
     suspend fun updateUserGoal(
         @Header("Authorization") apiKey: String,
         @Body goalData: UpdateUserGoalBody
-    ): Response<Goal> //Response<UpdateUserGoalResponse>
+    ): Response<Goal>
 }

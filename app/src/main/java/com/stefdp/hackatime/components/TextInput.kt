@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -77,7 +78,6 @@ fun TextInput(
         onValueChange = onValueChange,
         modifier = modifier
             .fillMaxWidth(),
-//            .then(modifier),
         singleLine = singleLine,
         label = if (label != null) {
             {
@@ -131,8 +131,10 @@ fun TextInput(
                             sideButtonIcon as Painter
                         },
                         contentDescription = if (isPassword) {
-                            if (passwordVisible) "Hide Password" else "Show Password"
-                        } else sideButtonContentDescription ?: "Side Button",
+                            if (passwordVisible)
+                                stringResource(R.string.side_button_content_description_password_hide)
+                            else stringResource(R.string.side_button_content_description_password_show)
+                        } else sideButtonContentDescription ?: stringResource(R.string.side_button_content_description_generic),
                         modifier = Modifier.requiredSize(28.dp)
                     )
                 }
