@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.R
@@ -36,13 +37,14 @@ import com.stefdp.hackatime.utils.shimmerable
 @Composable
 fun ProjectsScreen(
     navController: NavHostController,
-    context: Context
+    context: Context,
+    activity: FragmentActivity
 ) {
     val localUserStats = LocalLoggedUser.current
 
     if (localUserStats == null) {
         navController.navigate(LoginScreen) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            popUpTo(navController.graph.id) { inclusive = true }
         }
     }
 

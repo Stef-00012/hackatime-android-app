@@ -1,7 +1,6 @@
 package com.stefdp.hackatime.screens.login
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stefdp.hackatime.LocalLoggedUser
@@ -47,14 +47,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    context: Context
+    context: Context,
+    activity: FragmentActivity
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     if (LocalLoggedUser.current is UserStats && currentDestination?.route == LoginScreen::class.qualifiedName) {
         navController.navigate(HomeScreen) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            popUpTo(navController.graph.id) { inclusive = true }
         }
     }
 
@@ -129,7 +130,7 @@ fun LoginScreen(
 
                             if (userStats != null && currentDestination?.route == LoginScreen::class.qualifiedName) {
                                 navController.navigate(HomeScreen) {
-                                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                    popUpTo(navController.graph.id) { inclusive = true }
                                 }
                             }
                         }

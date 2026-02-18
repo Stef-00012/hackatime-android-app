@@ -5,13 +5,13 @@ import com.stefdp.hackatime.network.backendapi.models.GoalDate
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
 import com.stefdp.hackatime.network.backendapi.models.requests.SendPushNotificationTokenBody
 import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserGoalBody
-import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserNotificationCategoriesBody
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.DeleteUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.GetUserGoalsResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.GetUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendApiKeyResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendPushNotificationTokenResponse
+import com.stefdp.hackatime.network.backendapi.models.responses.UpdateNotificationCategoriesResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -27,8 +27,7 @@ interface BackendApiService {
         @Header("Authorization") apiKey: String,
     ): Response<SendApiKeyResponse>
 
-    // expo/token // expo push notification token, unused here since not react native anymore
-    @POST("token")
+    @POST("android/pushToken")
     suspend fun sendPushNotificationToken(
         @Header("Authorization") apiKey: String,
         @Body token: SendPushNotificationTokenBody,
@@ -42,8 +41,8 @@ interface BackendApiService {
     @PATCH("notifications")
     suspend fun updateUserNotificationCategories(
         @Header("Authorization") apiKey: String,
-        @Body categories: UpdateUserNotificationCategoriesBody,
-    ): Response<NotificationCategoriesResponse>
+        @Body categories: Map<NotificationCategory, Boolean>,
+    ): Response<UpdateNotificationCategoriesResponse>
 
     @GET("user")
     suspend fun getUser(

@@ -16,15 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
+import com.stefdp.hackatime.utils.toAnnotatedString
 
 @Composable
+
 fun Switch(
     modifier: Modifier = Modifier,
     checked: Boolean = false,
     onCheckedChange: (Boolean) -> Unit = {},
     enabled: Boolean = true,
-    label: String,
-    description: String? = null,
+    label: CharSequence,
+    description: CharSequence? = null,
 ) {
     Row(
         modifier = modifier
@@ -39,14 +41,14 @@ fun Switch(
             modifier = Modifier.padding(start = 10.dp)
         ) {
             Text(
-                text = label,
+                text = label.toAnnotatedString(),
                 fontWeight = FontWeight.Bold,
                 color = if (enabled) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
             )
 
             if (description != null) {
                 Text(
-                    text = description,
+                    text = description.toAnnotatedString(),
                     style = MaterialTheme.typography.labelMedium,
                     color = if (enabled) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
                 )

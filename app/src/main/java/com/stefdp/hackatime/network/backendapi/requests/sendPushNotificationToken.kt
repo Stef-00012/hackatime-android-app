@@ -26,7 +26,7 @@ suspend fun sendPushNotificationToken(
 
         val response = ApiClient.backendApi.sendPushNotificationToken(
             apiKey = apiKey,
-            token = SendPushNotificationTokenBody(token = token)
+            token = SendPushNotificationTokenBody(androidPushToken = token)
         )
 
         val body = response.body()

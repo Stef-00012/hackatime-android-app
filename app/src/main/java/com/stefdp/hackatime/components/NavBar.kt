@@ -14,8 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stefdp.hackatime.R
+import com.stefdp.hackatime.screens.BiometricAuthScreen
 import com.stefdp.hackatime.screens.GoalsScreen
 import com.stefdp.hackatime.screens.HomeScreen
+import com.stefdp.hackatime.screens.LoadingScreen
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.ProjectsScreen
 
@@ -24,7 +26,13 @@ fun NavBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (currentDestination?.route == LoginScreen::class.qualifiedName) return
+    val invalidRoutes = listOf(
+        LoginScreen::class.qualifiedName,
+        LoadingScreen::class.qualifiedName,
+        BiometricAuthScreen::class.qualifiedName
+    )
+
+    if (currentDestination?.route in invalidRoutes) return
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,

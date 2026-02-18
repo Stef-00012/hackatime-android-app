@@ -1,6 +1,5 @@
 <resources>
     <!--  Generic (used in multiple places)  -->
-    <string name="app_name">Hackatime Stats</string>
     <string name="date_range_all_time">All Time</string>
     <string name="date_range_all_time_button">Show All Time</string>
     <string name="date_range_last_7_days">Last 7 Days</string>
@@ -13,6 +12,11 @@
     <string name="hackatime_api_key_input_label">Hackatime API Key</string>
     <string name="share_api_key_with_server_switch_label">Share API key with the app\'s server</string>
     <string name="send_api_key_fail_message">Failed to send the API key to the server. Please try again later</string>
+    <string name="biometric_authentication_failed">Biometric authentication failed</string>
+
+    <!--  AndroidManifest  -->
+    <string name="app_name">Hackatime Stats</string>
+    <string name="app_description">An android app made to view your Hackatime stats &amp; projects.</string>
 
     <!--  components.Header  -->
     <string name="unknown_username">Unknown Username</string>
@@ -84,9 +88,10 @@
 
     <!--  screens.settings.SettingsScreen  -->
     <string name="app_settings_title">App Settings</string>
-    <string name="share_api_key_with_server_switch_description_settings">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server</string>
+    <string name="share_api_key_with_server_switch_description_settings">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server</string> <!--  \n stands for new line  -->
     <string name="unlock_with_biometrics_switch_label">Unlock with Biometrics</string>
-    <string name="unlock_with_biometrics_switch_description">Require biometric authentication to unlock the app</string>
+    <string name="unlock_with_biometrics_switch_description">Require biometric authentication to unlock the app%1$s</string>
+    <string name="unlock_with_biometrics_switch_description_enroll_warning">.&lt;br&gt; &lt;b&gt;NOTE:&lt;/b&gt; You will be prompted to enroll an authentication method</string>  <!--  &lt;b&gt; and &lt;/b&gt; stand respectively for start and end of bold text | &lt;br&gt; stands for new line  -->
     <string name="delete_api_key_fail_message">Failed to delete the API key from the server. Please try again later</string>
     <string name="settings_saved_message">Settings Saved</string>
     <string name="save_settings_content_description">Save App Settings</string>
@@ -97,7 +102,7 @@
     <string name="notifications_settings_title">Notifications</string>
     <string name="motivational_notifications_switch_label">Motivational Notifications</string>
     <string name="motivational_notifications_switch_description">Receive motivational notifications to encourage you to code more often%1$s</string>
-    <string name="switch_description_notifications_permission_not_granted">.\nNotifications permission is not granted</string>
+    <string name="switch_description_notifications_permission_not_granted">.\nNotifications permission is not granted</string> <!--  \n stands for new line  -->
     <string name="goals_notifications_switch_label">Goals Notifications</string>
     <string name="goals_notifications_switch_description">Receive a notification when you make progress on your goal%1$s</string>
     <string name="notifications_permission_always_granted">Notifications Permission is automatically granted on this version of Android</string>
@@ -106,12 +111,32 @@
     <string name="notifications_preferences_saved">Notifications Preferences Saved</string>
     <string name="save_notifications_preferences_content_description">Save Notifications Preferences</string>
     <!--  status = "Notification Permission: Granted" OR "Notification Permission: Denied"  -->
-    <string name="notifications_permission_status">&lt;b&gt;Notifications Permission:&lt;/b&gt; %1$s</string> <!--  &lt; and &gt; stand respectively for start and end of bold text  -->
+    <string name="notifications_permission_status">&lt;b&gt;Notifications Permission:&lt;/b&gt; %1$s</string> <!--  &lt;b&gt; and &lt;/b&gt; stand respectively for start and end of bold text  -->
     <string name="notifications_permission_status_granted">Granted</string>
     <string name="notifications_permission_status_denied">Denied</string>
+
+    <!--  screens.biometricauth.BiometricAuthScreen  -->
+    <string name="hackatime_locked_content_description">Hackatime Locked</string>
+    <string name="hackatime_locked_title">Hackatime Locked</string>
+    <string name="unlock_button">Unlock</string>
+
+    <!--  screens.loading.LoadingScreen  -->
+    <string name="loading_title">Loading…</string>
 
     <!--  network.hackatimeapi.requests.*  -->
     <string name="missing_api_key">Missing API Key</string>
     <string name="invalid_api_key">Invalid API Key</string>
-    <string name="generic_error">Something went wrong...</string>
+    <string name="generic_error">Something went wrong…</string>
+
+    <!--  MainActivity  -->
+    <string name="no_internet_connection_content_description">No Internet Connection</string>
+    <string name="no_internet_connection_title">No Internet Connection</string>
+    <string name="notification_channel_goals_name">Goals</string>
+    <string name="notification_channel_goals_description">Alert when you completed a goal or your progress it</string>
+    <string name="notification_channel_motivational_notifications_name">Motivational Notifications</string>
+    <string name="notification_channel_motivational_notifications_description">Receive motivational notification to encourage you to code more often</string>
+
+    <!--  utils.Biometric  -->
+    <string name="biometric_prompt_default_title">Authenticate with biometrics</string>
+    <string name="biometric_prompt_default_negative_button">Cancel</string>
 </resources>

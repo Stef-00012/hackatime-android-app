@@ -2,10 +2,14 @@ package com.stefdp.hackatime.screens.settings
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +26,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,7 +43,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import com.google.firebase.messaging.FirebaseMessaging
 import com.stefdp.hackatime.DebugWrapper
 import com.stefdp.hackatime.LocalUpdateUserStats
 import com.stefdp.hackatime.R
@@ -48,23 +59,76 @@ import com.stefdp.hackatime.network.backendapi.requests.deleteUser
 import com.stefdp.hackatime.network.backendapi.requests.getUser
 import com.stefdp.hackatime.network.backendapi.requests.getUserNotificationCategories
 import com.stefdp.hackatime.network.backendapi.requests.sendApiKey
+import com.stefdp.hackatime.network.backendapi.requests.sendPushNotificationToken
 import com.stefdp.hackatime.network.backendapi.requests.updateUserNotificationCategories
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.settings.components.Container
 import com.stefdp.hackatime.utils.SecureStorage
+import com.stefdp.hackatime.utils.createBiometricPrompt
+import com.stefdp.hackatime.utils.createPromptInfo
+import com.stefdp.hackatime.utils.getBiometricStatus
 import com.stefdp.hackatime.utils.hasNotificationsPermission
+import com.stefdp.hackatime.utils.promptBiometricAuthentication
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
-    context: Context
+    context: Context,
+    activity: FragmentActivity
 ) {
     val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier.verticalScroll(scrollState)
     ) {
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+        var biometricAuthenticationStatus by remember { mutableIntStateOf(getBiometricStatus(context)) }
+        var hasNotificationsPermissions by rememberSaveable { mutableStateOf(hasNotificationsPermission(context)) }
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    biometricAuthenticationStatus = getBiometricStatus(context)
+                    hasNotificationsPermissions = hasNotificationsPermission(context)
+                }
+            }
+
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
+
+        val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(hasNotificationsPermissions) {
+            if (!hasNotificationsPermissions) return@LaunchedEffect
+
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+
+                    coroutineScope.launch {
+                        val success = sendPushNotificationToken(
+                            context = context,
+                            token = token
+                        )
+
+                        Log.d("FCM", "Token sent to server: $success")
+                    }
+                } else {
+                    Log.e("FCM", "Failed to send token", task.exception)
+                }
+            }
+        }
+
+        val enrolBiometricAuthenticationLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) {}
+
         Container(
             modifier = Modifier.padding(
                 start = 5.dp,
@@ -77,7 +141,7 @@ fun SettingsScreen(
             var shareApikey by rememberSaveable { mutableStateOf(false) }
             var unlockWithBiometrics by rememberSaveable { mutableStateOf(false) }
 
-            var isAPiOnServer by remember { mutableStateOf(false) }
+             var isAPiOnServer by remember { mutableStateOf(false) }
 
             val updateUserStats = LocalUpdateUserStats.current
 
@@ -116,22 +180,69 @@ fun SettingsScreen(
                 onCheckedChange = { shareApikey = it },
                 label = stringResource(R.string.share_api_key_with_server_switch_label),
                 description = stringResource(R.string.share_api_key_with_server_switch_description_settings)
-//                description = "If you don't share the API key, you won't be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server"
             )
 
             Spacer(
                 modifier = Modifier.height(10.dp)
             )
 
-            // TODO: implement actual biometric authentication
             Switch(
                 checked = unlockWithBiometrics,
-                onCheckedChange = { unlockWithBiometrics = it },
-                label = stringResource(R.string.unlock_with_biometrics_switch_label),
-                description = stringResource(R.string.unlock_with_biometrics_switch_description)
-            )
+                enabled = biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS || (
+                        biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                        ),
+                onCheckedChange = { checked ->
+                    val biometricPrompt = createBiometricPrompt(
+                        activity = activity,
+                        onSuccess = {
+                            coroutineScope.launch {
+                                val secureStore = SecureStorage.getInstance(context)
 
-            val coroutineScope = rememberCoroutineScope()
+                                unlockWithBiometrics = checked
+
+                                secureStore.set("unlockWithBiometrics", unlockWithBiometrics.toString())
+                            }
+                        },
+                        onError = { _, _ ->
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.biometric_authentication_failed),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                    )
+
+                    val biometricPromptInfo = createPromptInfo(context)
+
+                    promptBiometricAuthentication(
+                        activity = activity,
+                        prompt = biometricPrompt,
+                        promptInfo = biometricPromptInfo,
+                        onBiometricNotEnrolledError = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                                    putExtra(
+                                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                        BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                                    )
+                                }
+
+                                enrolBiometricAuthenticationLauncher.launch(enrollIntent)
+                            }
+                        }
+                    )
+                },
+                label = stringResource(R.string.unlock_with_biometrics_switch_label),
+                description = AnnotatedString.fromHtml(
+                    stringResource(
+                        R.string.unlock_with_biometrics_switch_description,
+                        if (biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                            stringResource(R.string.unlock_with_biometrics_switch_description_enroll_warning)
+                        else ""
+                    )
+                )
+            )
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -141,13 +252,12 @@ fun SettingsScreen(
 
                         secureStore.set("apiKey", apiKey.text)
                         secureStore.set("shareApiKey", shareApikey.toString())
-                        secureStore.set("unlockWithBiometrics", unlockWithBiometrics.toString())
 
                         val newUser = updateUserStats()
 
                         if (newUser == null) {
                             navController.navigate(LoginScreen) {
-                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                popUpTo(navController.graph.id) { inclusive = true }
                             }
                         }
 
@@ -220,7 +330,7 @@ fun SettingsScreen(
                         updateUserStats()
 
                         navController.navigate(LoginScreen) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            popUpTo(navController.graph.id) { inclusive = true }
                         }
                     }
                 }
@@ -240,8 +350,6 @@ fun SettingsScreen(
                 )
             }
         }
-
-        var hasNotificationsPermissions by rememberSaveable { mutableStateOf(false) }
 
         val notificationPermissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
@@ -266,8 +374,6 @@ fun SettingsScreen(
             var goalsNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
 
             LaunchedEffect(Unit) {
-                hasNotificationsPermissions = hasNotificationsPermission(context)
-
                 val notificationCategories = getUserNotificationCategories(context)
 
                 motivationalNotificationsEnabled = notificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
@@ -377,6 +483,8 @@ fun SettingsScreen(
                             )
                         )
 
+                        println(newNotificationCategories)
+
                         motivationalNotificationsEnabled = newNotificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
                         goalsNotificationsEnabled = newNotificationCategories[NotificationCategory.GOALS] == true
 
@@ -467,6 +575,72 @@ fun SettingsScreen(
 
                     Text(
                         text = "Update Notifications Permission",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val biometricPrompt = createBiometricPrompt(
+                            activity = activity,
+                            onSuccess = {
+                                coroutineScope.launch {
+                                    Toast.makeText(
+                                        context,
+                                        "Biometric Authentication Succeeded",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            },
+                            onError = { _, _ ->
+                                Toast.makeText(
+                                    context,
+                                    "Biometric Authentication Failed (onError)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onFailed = {
+                                Toast.makeText(
+                                    context,
+                                    "Biometric Authentication Failed (onFailed)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+
+                        val biometricPromptInfo = createPromptInfo(context)
+
+                        promptBiometricAuthentication(
+                            activity = activity,
+                            prompt = biometricPrompt,
+                            promptInfo = biometricPromptInfo,
+                            onBiometricNotEnrolledError = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                                        putExtra(
+                                            Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                                        )
+                                    }
+
+                                    enrolBiometricAuthenticationLauncher.launch(enrollIntent)
+                                }
+                            }
+                        )
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.fingerprint),
+                        contentDescription = "Request Biometric Authentication"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(5.dp)
+                    )
+
+                    Text(
+                        text = "Request Biometric Authentication",
                         fontWeight = FontWeight.Bold
                     )
                 }

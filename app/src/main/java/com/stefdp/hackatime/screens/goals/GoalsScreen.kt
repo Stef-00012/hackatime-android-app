@@ -1,7 +1,6 @@
 package com.stefdp.hackatime.screens.goals
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -42,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.R
@@ -53,7 +53,6 @@ import com.stefdp.hackatime.network.backendapi.requests.getUserGoals
 import com.stefdp.hackatime.network.backendapi.requests.updateUserGoal
 import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.screens.goals.components.GoalContainer
-import com.stefdp.hackatime.utils.formatGoalDate
 import com.stefdp.hackatime.utils.parseTimeToMillis
 import com.stefdp.hackatime.utils.shimmerable
 import kotlinx.coroutines.launch
@@ -69,7 +68,8 @@ import kotlin.time.Duration.Companion.minutes
 @Composable
 fun GoalsScreen(
     navController: NavHostController,
-    context: Context
+    context: Context,
+    activity: FragmentActivity
 ) {
     var isAPiOnServer by remember { mutableStateOf(false) }
 

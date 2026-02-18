@@ -34,14 +34,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
+import com.stefdp.hackatime.utils.toAnnotatedString
 
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    label: String? = null,
-    placeholder: String?= null,
+    label: CharSequence? = null,
+    placeholder: CharSequence?= null,
     enabled: Boolean = true,
     isPassword: Boolean = false,
     singleLine: Boolean = true,
@@ -82,7 +83,7 @@ fun TextInput(
         label = if (label != null) {
             {
                 Text(
-                    text = label,
+                    text = label.toAnnotatedString(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
@@ -91,7 +92,7 @@ fun TextInput(
         placeholder = if (placeholder != null) {
             {
                 Text(
-                    text = placeholder,
+                    text = placeholder.toAnnotatedString(),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )

@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stefdp.hackatime.LocalLoggedUser
+import com.stefdp.hackatime.screens.BiometricAuthScreen
+import com.stefdp.hackatime.screens.LoadingScreen
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.SettingsScreen
 
@@ -37,7 +39,13 @@ fun Header(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (currentDestination?.route == LoginScreen::class.qualifiedName) return
+    val invalidRoutes = listOf(
+        LoginScreen::class.qualifiedName,
+        LoadingScreen::class.qualifiedName,
+        BiometricAuthScreen::class.qualifiedName
+    )
+
+    if (currentDestination?.route in invalidRoutes) return
 
     Surface(
         shadowElevation = 4.dp,

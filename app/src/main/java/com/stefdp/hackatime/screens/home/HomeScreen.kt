@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.LocalLoggedUser
@@ -69,6 +70,7 @@ import ir.ehsannarmani.compose_charts.models.DotProperties
 import ir.ehsannarmani.compose_charts.models.GridProperties
 import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
 import ir.ehsannarmani.compose_charts.models.IndicatorCount
+import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
 import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Line
 import ir.ehsannarmani.compose_charts.models.Pie
@@ -86,14 +88,15 @@ val pieChartSize = 250.dp
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    context: Context
+    context: Context,
+    activity: FragmentActivity
 ) {
     val localUserStats = LocalLoggedUser.current
     val scrollState = rememberScrollState()
 
     if (localUserStats == null) {
         navController.navigate(LoginScreen) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            popUpTo(navController.graph.id) { inclusive = true }
         }
     }
 
@@ -580,14 +583,16 @@ fun HomeScreen(
 
             var selectedLanguage by remember { mutableStateOf<Pie?>(null) }
             var pieChartLanguages by remember(languages, selectedLanguage) { mutableStateOf(
-                languages.map { language ->
-                    Pie(
-                        label = language.name,
-                        data = language.totalSeconds,
-                        color = languageColors[language.name.lowercase()] ?: colorHash(language.name),
-                        selected = language.name == selectedLanguage?.label
-                    )
-                }
+                languages
+                    .groupBy { it.name }
+                    .map { (name, language) ->
+                        Pie(
+                            label = name,
+                            data = language.sumOf { it.totalSeconds },
+                            color = languageColors[name.lowercase()] ?: colorHash(name),
+                            selected = name == selectedLanguage?.label
+                        )
+                    }
             ) }
 
             LaunchedEffect(statsRange, rangeStart, rangeEnd) {
@@ -606,6 +611,9 @@ fun HomeScreen(
                     onPieClick = { clickedPie ->
                         selectedLanguage = clickedPie
                     },
+                    labelHelperProperties = LabelHelperProperties(
+                        enabled = false
+                    )
                 )
 
                 if (selectedLanguage != null && pieChartLanguages.find { it.label == selectedLanguage?.label } != null) {
@@ -651,14 +659,16 @@ fun HomeScreen(
 
                 var selectedEditor by remember { mutableStateOf<Pie?>(null) }
                 var pieChartEditors by remember(editors, selectedEditor) { mutableStateOf(
-                    editors.map { editor ->
-                        Pie(
-                            label = editor.name,
-                            data = editor.totalSeconds,
-                            color = colorHash(editor.name),
-                            selected = editor.name == selectedEditor?.label
-                        )
-                    }
+                    editors
+                        .groupBy { it.name }
+                        .map { (name, editor) ->
+                            Pie(
+                                label = name,
+                                data = editor.sumOf { it.totalSeconds },
+                                color = colorHash(name),
+                                selected = name == selectedEditor?.label
+                            )
+                        }
                 ) }
 
                 LaunchedEffect(statsRange, rangeStart, rangeEnd) {
@@ -679,6 +689,9 @@ fun HomeScreen(
                         onPieClick = { clickedPie ->
                             selectedEditor = clickedPie
                         },
+                        labelHelperProperties = LabelHelperProperties(
+                            enabled = false
+                        )
                     )
 
                     if (selectedEditor != null && pieChartEditors.find { it.label == selectedEditor?.label } != null) {
@@ -723,14 +736,16 @@ fun HomeScreen(
 
                 var selectedOperatingSystem by remember { mutableStateOf<Pie?>(null) }
                 var pieChartOperatingSystems by remember(operatingSystems, selectedOperatingSystem) { mutableStateOf(
-                    operatingSystems.map { operatingSystem ->
-                        Pie(
-                            label = operatingSystem.name,
-                            data = operatingSystem.totalSeconds,
-                            color = colorHash(operatingSystem.name),
-                            selected = operatingSystem.name == selectedOperatingSystem?.label
-                        )
-                    }
+                    operatingSystems
+                        .groupBy { it.name }
+                        .map { (name, operatingSystem) ->
+                            Pie(
+                                label = name,
+                                data = operatingSystem.sumOf { it.totalSeconds },
+                                color = colorHash(name),
+                                selected = name == selectedOperatingSystem?.label
+                            )
+                        }
                 ) }
 
                 LaunchedEffect(statsRange, rangeStart, rangeEnd) {
@@ -751,6 +766,9 @@ fun HomeScreen(
                         onPieClick = { clickedPie ->
                             selectedOperatingSystem = clickedPie
                         },
+                        labelHelperProperties = LabelHelperProperties(
+                            enabled = false
+                        )
                     )
 
                     if (selectedOperatingSystem != null && pieChartOperatingSystems.find { it.label == selectedOperatingSystem?.label } != null) {
@@ -795,15 +813,27 @@ fun HomeScreen(
 
                 var selectedMachine by remember { mutableStateOf<Pie?>(null) }
                 var pieChartMachines by remember(machines, selectedMachine) { mutableStateOf(
-                    machines.map { machine ->
-                        Pie(
-                            label = machine.name,
-                            data = machine.totalSeconds,
-                            color = colorHash(machine.name),
-                            selected = machine.name == selectedMachine?.label
-                        )
-                    }
+                    machines
+                        .groupBy { it.name }
+                        .map { (name, machine) ->
+                            Pie(
+                                label = name,
+                                data = machine.sumOf { it.totalSeconds },
+                                color = colorHash(name),
+                                selected = name == selectedMachine?.label
+                            )
+                        }
                 ) }
+
+//                    .groupBy { it.name }
+//                    .map { (name, language) ->
+//                        Pie(
+//                            label = name,
+//                            data = language.sumOf { it.totalSeconds },
+//                            color = languageColors[name.lowercase()] ?: colorHash(name),
+//                            selected = name == selectedLanguage?.label
+//                        )
+//                    }
 
                 LaunchedEffect(statsRange, rangeStart, rangeEnd) {
                     selectedMachine = null
@@ -823,6 +853,9 @@ fun HomeScreen(
                         onPieClick = { clickedPie ->
                             selectedMachine = clickedPie
                         },
+                        labelHelperProperties = LabelHelperProperties(
+                            enabled = false
+                        )
                     )
 
                     if (selectedMachine != null && pieChartMachines.find { it.label == selectedMachine?.label } != null) {

@@ -28,3 +28,9 @@ object GoalsScreen : AppScreen
 
 @Serializable
 object SettingsScreen : AppScreen
+
+@Serializable
+object LoadingScreen : AppScreen
+
+@Serializable
+object BiometricAuthScreen : AppScreen

@@ -5,9 +5,9 @@ import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
-import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserNotificationCategoriesBody
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
+import com.stefdp.hackatime.network.backendapi.models.responses.UpdateNotificationCategoriesResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
 private const val TAG = "BackendApi[updateUserNotificationCategories]"
@@ -30,7 +30,7 @@ suspend fun updateUserNotificationCategories(
 
         val response = ApiClient.backendApi.updateUserNotificationCategories(
             apiKey = apiKey,
-            categories = UpdateUserNotificationCategoriesBody(categories = categories)
+            categories = categories
         )
 
         val body = response.body()
@@ -53,10 +53,10 @@ suspend fun updateUserNotificationCategories(
             )
         }
 
-        if (body is NotificationCategoriesResponse) {
+        if (body is UpdateNotificationCategoriesResponse) {
             return mapOf(
-                NotificationCategory.MOTIVATIONAL_QUOTES to body.motivationalQuotes,
-                NotificationCategory.GOALS to body.goals,
+                NotificationCategory.MOTIVATIONAL_QUOTES to body.notificationCategories.motivationalQuotes,
+                NotificationCategory.GOALS to body.notificationCategories.goals,
             )
         }
 
