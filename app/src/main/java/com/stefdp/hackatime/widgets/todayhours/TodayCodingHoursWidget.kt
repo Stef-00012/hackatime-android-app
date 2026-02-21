@@ -35,14 +35,17 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.preview.Preview as GlancePreview
 import androidx.glance.text.FontWeight as GlanceFontWeight
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayData
+import com.stefdp.hackatime.ui.theme.DarkWidgetBackground
 import com.stefdp.hackatime.ui.theme.HackatimeStatsWidgetTheme
+import com.stefdp.hackatime.ui.theme.LightWidgetBackground
 import com.stefdp.hackatime.utils.SecureStorage
 import com.stefdp.hackatime.utils.formatMs
 import com.stefdp.hackatime.widgets.CELL_HEIGHT
 import com.stefdp.hackatime.widgets.CELL_WIDTH
 import com.stefdp.hackatime.widgets.components.Text as GlanceText
 
-val OpacityKey = floatPreferencesKey("todayCodingHours_backgroundOpacity")
+val StringOpacityKey = "todayCodingHours_backgroundOpacity"
+val OpacityKey = floatPreferencesKey(StringOpacityKey)
 
 open class TodayCodingHoursWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -83,16 +86,15 @@ private fun WidgetContent(
     backgroundOpacity: Float = 1f
 ) {
     HackatimeStatsWidgetTheme {
-        val context = LocalContext.current
+        val dynamicBackground = ColorProvider(
+            day = LightWidgetBackground.copy(alpha = backgroundOpacity),
+            night = DarkWidgetBackground.copy(alpha = backgroundOpacity)
+        )
 
         GlanceColumn(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(
-                    GlanceTheme.colors.background
-                        .getColor(context)
-                        .copy(alpha = backgroundOpacity)
-                ),
+                .background(dynamicBackground),
             horizontalAlignment = GlanceAlignment.CenterHorizontally,
             verticalAlignment = GlanceAlignment.CenterVertically
         ) {
@@ -112,7 +114,7 @@ private fun WidgetContent(
 }
 
 @Composable
-fun WidgetContentCompose(
+fun WidgetPreview(
     modifier: Modifier = Modifier,
     todayTime: String = "Unknown",
     backgroundOpacity: Float = 1f

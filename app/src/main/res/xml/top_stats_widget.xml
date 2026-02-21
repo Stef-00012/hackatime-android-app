@@ -11,4 +11,6 @@
     android:initialLayout="@layout/glance_default_loading_layout"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
+    android:configure="com.stefdp.hackatime.widgets.topstats.TopStatsWidgetConfigurationActivity"
+    android:widgetFeatures="reconfigurable|configuration_optional"
 />

@@ -1,4 +1,4 @@
-package com.stefdp.hackatime.widgets.todayhours
+package com.stefdp.hackatime.widgets.topstats
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -27,14 +27,17 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
 import com.stefdp.hackatime.components.Slider
+import com.stefdp.hackatime.network.hackatimeapi.models.Feature
+import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayData
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.SecureStorage
 import com.stefdp.hackatime.utils.formatMs
+import com.stefdp.hackatime.utils.getTop
 import com.stefdp.hackatime.widgets.cornerRadius
 import kotlinx.coroutines.launch
 
-class TodayHoursWidgetConfigurationActivity : ComponentActivity() {
+class TopStatsWidgetConfigurationActivity : ComponentActivity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +102,7 @@ class TodayHoursWidgetConfigurationActivity : ComponentActivity() {
                 prefs[OpacityKey] = backgroundOpacity
             }
 
-            TodayCodingHoursWidget().update(applicationContext, glanceId)
+            TopStatsWidget().update(applicationContext, glanceId)
 
             val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             setResult(RESULT_OK, resultValue)
@@ -116,7 +119,10 @@ fun WidgetConfigScreen(
     finish: () -> Unit
 ) {
     var backgroundOpacity by remember { mutableFloatStateOf(1f) }
-    var todayTime by remember { mutableStateOf("1h 10m") }
+    var topProject by remember { mutableStateOf("Hackatime Stats") }
+    var topLanguage by remember { mutableStateOf("Kotlin") }
+    var topEditor by remember { mutableStateOf("Android Studio") }
+    var topOperatingSystem by remember { mutableStateOf("Linux") }
 
     val context = LocalContext.current
 
@@ -125,13 +131,21 @@ fun WidgetConfigScreen(
 
         backgroundOpacity = secureStore.get(StringOpacityKey)?.toFloatOrNull() ?: 1f
 
-        var todayData = getCurrentUserTodayData(context)
-
-        todayData.onSuccess {
-            todayTime = formatMs(
-                ms = it.grandTotal.totalSeconds * 1000,
-                limit = 2
+        val last7DaysStatsRes = getCurrentUserStatsLast7Days(
+            context = context,
+            features = listOf(
+                Feature.PROJECTS,
+                Feature.LANGUAGES,
+                Feature.EDITORS,
+                Feature.OPERATING_SYSTEMS
             )
+        )
+
+        last7DaysStatsRes.onSuccess {
+            topProject = getTop(it.projects)?.name ?: "Unknown"
+            topLanguage = getTop(it.languages)?.name ?: "Unknown"
+            topEditor = getTop(it.editors)?.name ?: "Unknown"
+            topOperatingSystem = getTop(it.operatingSystems)?.name ?: "Unknown"
         }
     }
 
@@ -143,7 +157,10 @@ fun WidgetConfigScreen(
             contentAlignment = Alignment.Center
         ) {
             WidgetPreview(
-                todayTime = todayTime,
+                topProject = topProject,
+                topLanguage = topLanguage,
+                topEditor = topEditor,
+                topOperatingSystem = topOperatingSystem,
                 backgroundOpacity = backgroundOpacity,
                 modifier = Modifier.clip(
                     RoundedCornerShape(cornerRadius)

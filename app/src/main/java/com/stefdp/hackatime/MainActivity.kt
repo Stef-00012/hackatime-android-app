@@ -70,6 +70,7 @@ val LocalUpdateUserStats = compositionLocalOf<suspend () -> UserStats?> { {null}
 // TODO: maybe switch to hackatime OAuth if i find a way for play store staff to test it
 
 // TODO: widgets
+// TODO: better splash screen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -24,6 +24,7 @@ fun Text(
     textAlign: TextAlign? = null,
     textDecoration: TextDecoration? = null,
     fontFamily: FontFamily? = null,
+    maxLines: Int = 1
 ) {
     Text(
         text = text,
@@ -36,6 +37,7 @@ fun Text(
             fontStyle = fontStyle,
             textAlign = textAlign,
             textDecoration = textDecoration
-        )
+        ),
+        maxLines = maxLines,
     )
 }
