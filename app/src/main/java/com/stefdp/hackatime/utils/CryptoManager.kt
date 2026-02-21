@@ -15,8 +15,10 @@ object CryptoManager {
     private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
     private const val IV_SIZE = 12
 
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
-        load(null)
+    private val keyStore: KeyStore by lazy {
+        KeyStore.getInstance("AndroidKeyStore").apply {
+            load(null)
+        }
     }
 
     private fun getKey(): SecretKey {

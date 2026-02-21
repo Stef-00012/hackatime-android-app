@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="130dp"
+    android:minHeight="51dp"
+    android:targetCellWidth="5"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="422dp"
+    android:maxResizeHeight="143dp"
+    android:updatePeriodMillis="1800000"
+    android:description="@string/goal_widget_description"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+/>

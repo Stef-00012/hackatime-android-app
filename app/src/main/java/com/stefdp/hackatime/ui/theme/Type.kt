@@ -1,5 +1,7 @@
 package com.stefdp.hackatime.ui.theme
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -11,24 +13,70 @@ import com.stefdp.hackatime.R
 val PhantomSans = FontFamily(
     Font(R.font.phantom_sans)
 )
-val defaultTypography = Typography()
 
+fun createTypography(colorScheme: ColorScheme): Typography {
+    val defaultTypography = Typography()
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = PhantomSans),
-    bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = PhantomSans),
-    bodySmall = defaultTypography.bodySmall.copy(fontFamily = PhantomSans),
-    titleLarge = defaultTypography.titleLarge.copy(fontFamily = PhantomSans),
-    titleMedium = defaultTypography.titleMedium.copy(fontFamily = PhantomSans),
-    titleSmall = defaultTypography.titleSmall.copy(fontFamily = PhantomSans),
-    labelMedium = defaultTypography.labelMedium.copy(fontFamily = PhantomSans),
-    labelLarge = defaultTypography.labelLarge.copy(fontFamily = PhantomSans), // Seems to be default for Text("")
-    labelSmall = defaultTypography.labelSmall.copy(fontFamily = PhantomSans),
-    displayLarge = defaultTypography.displayLarge.copy(fontFamily = PhantomSans),
-    displayMedium = defaultTypography.displayMedium.copy(fontFamily = PhantomSans),
-    displaySmall = defaultTypography.displaySmall.copy(fontFamily = PhantomSans),
-    headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = PhantomSans),
-    headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = PhantomSans),
-    headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = PhantomSans)
-)
+    return Typography(
+        bodyLarge = defaultTypography.bodyLarge.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        bodyMedium = defaultTypography.bodyMedium.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        bodySmall = defaultTypography.bodySmall.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        titleLarge = defaultTypography.titleLarge.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        titleMedium = defaultTypography.titleMedium.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        titleSmall = defaultTypography.titleSmall.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        labelMedium = defaultTypography.labelMedium.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        labelLarge = defaultTypography.labelLarge.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ), // Seems to be default for Text("")
+        labelSmall = defaultTypography.labelSmall.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        displayLarge = defaultTypography.displayLarge.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        displayMedium = defaultTypography.displayMedium.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        displaySmall = defaultTypography.displaySmall.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        headlineLarge = defaultTypography.headlineLarge.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        headlineMedium = defaultTypography.headlineMedium.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        ),
+        headlineSmall = defaultTypography.headlineSmall.copy(
+            fontFamily = PhantomSans,
+            color = colorScheme.onBackground
+        )
+    )
+}

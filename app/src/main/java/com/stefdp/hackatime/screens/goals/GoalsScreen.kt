@@ -189,16 +189,14 @@ fun GoalsScreen(
             enabled = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showRangePopup = true },
-            colors = ButtonDefaults.outlinedButtonColors().copy(
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
             border = BorderStroke(
                 color = MaterialTheme.colorScheme.primary,
                 width = 2.dp
             ),
         ) {
             Text(
-                text = stringResource(R.string.date_range, rangeText)
+                text = stringResource(R.string.date_range, rangeText),
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -296,9 +294,6 @@ fun GoalsScreen(
             enabled = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showUpdateGoalPopup = true },
-            colors = ButtonDefaults.outlinedButtonColors().copy(
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
             border = BorderStroke(
                 color = MaterialTheme.colorScheme.primary,
                 width = 2.dp
@@ -306,6 +301,7 @@ fun GoalsScreen(
         ) {
             Text(
                 text = stringResource(R.string.update_goal_button),
+                color = MaterialTheme.colorScheme.primary
             )
         }
 

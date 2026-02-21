@@ -85,4 +85,10 @@ dependencies {
 
     // Date to Human Readable
     implementation(libs.human.readable)
+
+    // Widgets
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+    debugImplementation(libs.glance.preview)
+    debugImplementation(libs.glance.appwidget.preview)
 }

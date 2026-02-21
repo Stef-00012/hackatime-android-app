@@ -31,6 +31,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widgets.todayhours.TodayHoursWidgetConfigurationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.WallpaperBackground"
+        >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".HackatimeFirebaseMessagingService"
             android:exported="false"
@@ -52,6 +62,51 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/primary"
         />
+
+        <receiver
+            android:name=".widgets.todayhours.Receiver"
+            android:exported="true"
+            android:label="@string/today_coding_hours_widget_name"
+        >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_coding_time_widget"
+            />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.topstats.Receiver"
+            android:exported="true"
+            android:label="@string/top_stats_widget_name"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/top_stats_widget"
+                />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.goal.Receiver"
+            android:exported="true"
+            android:label="@string/goal_widget_name"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/goal_widget"
+                />
+        </receiver>
     </application>
 
 </manifest>

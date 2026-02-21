@@ -9,6 +9,8 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.glance.GlanceTheme
+import androidx.glance.material3.ColorProviders
 
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,
@@ -65,7 +67,22 @@ fun HackatimeStatsTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = createTypography(colorScheme),
+        content = content
+    )
+}
+
+@Composable
+fun HackatimeStatsWidgetTheme(
+    content: @Composable () -> Unit
+) {
+    val colorProviders = ColorProviders(
+        light = LightColorScheme,
+        dark = DarkColorScheme
+    )
+
+    GlanceTheme(
+        colors = colorProviders,
         content = content
     )
 }

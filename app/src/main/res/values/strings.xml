@@ -139,4 +139,12 @@
     <!--  utils.Biometric  -->
     <string name="biometric_prompt_default_title">Authenticate with biometrics</string>
     <string name="biometric_prompt_default_negative_button">Cancel</string>
+
+    <!--  Widgets  -->
+    <string name="today_coding_hours_widget_name">Today\'s Coding Hours</string>
+    <string name="today_coding_hours_widget_description">Displays the hours you coded today. Updates every 30 minutes</string>
+    <string name="top_stats_widget_name">Last 7 Days Top Stats</string>
+    <string name="top_stats_widget_description">Display your top language, project, editor, machine and OS of the last 7 days. Updates every 30 minutes</string>
+    <string name="goal_widget_name">Hour Goal</string>
+    <string name="goal_widget_description">Display a goal of hours chosen by you. Updates every 30 minutes</string>
 </resources>

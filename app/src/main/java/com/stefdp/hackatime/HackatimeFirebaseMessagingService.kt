@@ -29,7 +29,6 @@ import androidx.core.graphics.createBitmap
 class HackatimeFirebaseMessagingService : FirebaseMessagingService() {
     // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 //        Log.d(TAG, "From: ${remoteMessage.from}")
 //        super.onMessageReceived(remoteMessage)
@@ -176,7 +175,7 @@ class HackatimeFirebaseMessagingService : FirebaseMessagingService() {
 
 //    internal class MyWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
 //        override fun doWork(): Result {
-//            // TODO(developer): add long running task here.
+//            // TO-DO(developer): add long running task here.
 //            return Result.success()
 //        }
 //    }

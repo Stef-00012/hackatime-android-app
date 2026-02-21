@@ -314,9 +314,6 @@ fun SettingsScreen(
 
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors().copy(
-                    contentColor = MaterialTheme.colorScheme.primary
-                ),
                 border = BorderStroke(
                     color = MaterialTheme.colorScheme.primary,
                     width = 2.dp
@@ -337,7 +334,8 @@ fun SettingsScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.logout),
-                    contentDescription = stringResource(R.string.logout_content_description)
+                    contentDescription = stringResource(R.string.logout_content_description),
+                    tint = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(
@@ -346,7 +344,8 @@ fun SettingsScreen(
 
                 Text(
                     text = stringResource(R.string.logout_button),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -429,9 +428,6 @@ fun SettingsScreen(
             if (!hasNotificationsPermissions) {
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors().copy(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
                     border = BorderStroke(
                         color = MaterialTheme.colorScheme.primary,
                         width = 2.dp
@@ -450,7 +446,8 @@ fun SettingsScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.notifications),
-                        contentDescription = stringResource(R.string.update_notifications_permission_content_description)
+                        contentDescription = stringResource(R.string.update_notifications_permission_content_description),
+                        tint = MaterialTheme.colorScheme.primary
                     )
 
                     Spacer(
@@ -459,7 +456,8 @@ fun SettingsScreen(
 
                     Text(
                         text = stringResource(R.string.update_notifications_permission_button),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
