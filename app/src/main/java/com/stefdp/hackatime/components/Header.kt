@@ -50,11 +50,13 @@ fun Header(
     Surface(
         shadowElevation = 4.dp,
         color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth().height(90.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 16.dp).statusBarsPadding()
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp)
         ) {
             // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
 //            IconButton(onClick = onMenuClick) {

@@ -1,5 +1,6 @@
 package com.stefdp.hackatime.widgets.topstats
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -67,7 +66,7 @@ import com.stefdp.hackatime.widgets.CELL_WIDTH
 import com.stefdp.hackatime.widgets.cornerRadius
 import com.stefdp.hackatime.widgets.components.Text as GlanceText
 
-val StringOpacityKey = "topStats_backgroundOpacity"
+const val StringOpacityKey = "topStats_backgroundOpacity"
 val OpacityKey = floatPreferencesKey(StringOpacityKey)
 
 open class TopStatsWidget : GlanceAppWidget() {
@@ -113,11 +112,12 @@ open class TopStatsWidget : GlanceAppWidget() {
     }
 }
 
-//@OptIn(ExperimentalGlancePreviewApi::class)
-//@GlancePreview(
-//    widthDp = CELL_WIDTH * 5,
-//    heightDp = CELL_HEIGHT * 2,
-//)
+@SuppressLint("ConfigurationScreenWidthHeight")
+@OptIn(ExperimentalGlancePreviewApi::class)
+@GlancePreview(
+    widthDp = CELL_WIDTH * 5,
+    heightDp = CELL_HEIGHT * 2,
+)
 @Composable
 private fun WidgetContent(
     topProject: String = "Unknown",
@@ -130,7 +130,7 @@ private fun WidgetContent(
         val context = GlanceLocalContext.current
         val size = GlanceLocalSize.current
         val screenWidthDp = context.resources.configuration.screenWidthDp.dp
-//
+
         val isWideWidget = size.width > (screenWidthDp / 2)
         val isTallWidget = size.height > 115.dp
 
@@ -303,7 +303,8 @@ private fun WidgetContent(
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview
+@SuppressLint("ConfigurationScreenWidthHeight")
+@Preview
 @Composable
 fun WidgetPreview(
     modifier: Modifier = Modifier,
@@ -315,12 +316,11 @@ fun WidgetPreview(
     width: Dp = (CELL_WIDTH * 5).dp,
     height: Dp = (CELL_HEIGHT * 2).dp
 ) {
-    val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
-//
+
     val isWideWidget = width > (screenWidthDp / 2)
-    val isTallWidget = height > 115.dp
+    val isTallWidget = height > 126.dp
 
     val dynamicBackground = MaterialTheme.colorScheme.background.copy(alpha = backgroundOpacity)
 
@@ -330,8 +330,8 @@ fun WidgetPreview(
 
     Column(
         modifier = modifier
-            .width((CELL_WIDTH * 5).dp)
-            .height((CELL_HEIGHT * 2).dp)
+            .width(width)
+            .height(height)
             .background(dynamicBackground)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

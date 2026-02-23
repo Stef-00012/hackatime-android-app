@@ -10,9 +10,5 @@
     android:widgetCategory="home_screen"
     android:configure="com.stefdp.hackatime.widgets.todayhours.TodayHoursWidgetConfigurationActivity"
     android:widgetFeatures="reconfigurable|configuration_optional"
+    android:previewImage="@drawable/today_coding_hours_widget_preview"
 />
-
-
-<!--  android:maxResizeWidth="250dp"  -->
-<!--  android:maxResizeHeight="120dp"  -->
-<!--  android:resizeMode="horizontal|vertical"  -->

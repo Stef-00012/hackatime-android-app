@@ -4,8 +4,10 @@
     android:minHeight="51dp"
     android:targetCellWidth="5"
     android:targetCellHeight="2"
-    android:maxResizeWidth="422dp"
+    android:maxResizeWidth="525dp"
     android:maxResizeHeight="143dp"
+    android:minResizeWidth="130dp"
+    android:minResizeHeight="51dp"
     android:updatePeriodMillis="1800000"
     android:description="@string/top_stats_widget_description"
     android:initialLayout="@layout/glance_default_loading_layout"
@@ -13,4 +15,5 @@
     android:widgetCategory="home_screen"
     android:configure="com.stefdp.hackatime.widgets.topstats.TopStatsWidgetConfigurationActivity"
     android:widgetFeatures="reconfigurable|configuration_optional"
+    android:previewImage="@drawable/top_stats_widget_preview"
 />

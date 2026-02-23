@@ -159,7 +159,7 @@ fun LoginScreen(
 
                         addLink(
                             url = LinkAnnotation.Url(
-                                url = "https://hackatime.hackclub.com/my/settings",
+                                url = "https://hackatime.hackclub.com/my/settings/access",
                                 styles = TextLinkStyles(
                                     style = SpanStyle(color = MaterialTheme.colorScheme.primary)
                                 )

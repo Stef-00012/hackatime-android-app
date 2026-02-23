@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
-import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
+import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
@@ -69,6 +69,7 @@ class TodayHoursWidgetConfigurationActivity : ComponentActivity() {
                     ) {
                         WidgetConfigScreen(
                             context = applicationContext,
+                            appWidgetId = appWidgetId,
                             onSaveConfig = { backgroundOpacity ->
                                 saveWidgetConfiguration(
                                     context = applicationContext,
@@ -90,7 +91,7 @@ class TodayHoursWidgetConfigurationActivity : ComponentActivity() {
         lifecycleScope.launch {
             val secureStore = SecureStorage.getInstance(context)
 
-            secureStore.set(StringOpacityKey, backgroundOpacity.toString())
+            secureStore.set("${StringOpacityKey}_$appWidgetId", backgroundOpacity.toString())
 
             val glanceAppWidgetManager = GlanceAppWidgetManager(applicationContext)
             val glanceId = glanceAppWidgetManager.getGlanceIdBy(appWidgetId)
@@ -112,6 +113,7 @@ class TodayHoursWidgetConfigurationActivity : ComponentActivity() {
 @Composable
 fun WidgetConfigScreen(
     context: Context,
+    appWidgetId: Int,
     onSaveConfig: (Float) -> Unit,
     finish: () -> Unit
 ) {
@@ -123,9 +125,9 @@ fun WidgetConfigScreen(
     LaunchedEffect(Unit) {
         val secureStore = SecureStorage.getInstance(context)
 
-        backgroundOpacity = secureStore.get(StringOpacityKey)?.toFloatOrNull() ?: 1f
+        backgroundOpacity = secureStore.get("${StringOpacityKey}_$appWidgetId")?.toFloatOrNull() ?: 1f
 
-        var todayData = getCurrentUserTodayData(context)
+        val todayData = getCurrentUserTodayData(context)
 
         todayData.onSuccess {
             todayTime = formatMs(
@@ -228,6 +230,7 @@ fun Preview() {
             ) {
                 WidgetConfigScreen(
                     context = context,
+                    appWidgetId = 1,
                     onSaveConfig = { backgroundOpacity ->
                         Log.d("WidgetConfigScreen", "Saving config with backgroundOpacity: $backgroundOpacity")
 //                        saveWidgetConfiguration(

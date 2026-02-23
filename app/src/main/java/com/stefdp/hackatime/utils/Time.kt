@@ -1,8 +1,10 @@
 package com.stefdp.hackatime.utils
 
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -73,13 +75,13 @@ fun parseTimeToMillis(input: String): Long? {
         val value = match.groupValues[1].toLong()
         val unit = match.groupValues[2]
 
-        totalMillis += when {
-            unit in yearUnit -> value * 31_536_000_000L // 365 * 24 * 60 * 60 * 1000
-            unit in monthUnit -> value * 2_592_000_000L // 30 * 24 * 60 * 60 * 1000
-            unit in dayUnit -> value * 1.days.inWholeMilliseconds // 86_400_000L // 24 * 60 * 60 * 1000
-            unit in hourUnit -> value * 1.hours.inWholeMilliseconds // 3_600_000L // 60 * 60 * 1000
-            unit in minuteUnit -> value * 1.minutes.inWholeMilliseconds // 60_000L // 60 * 1000
-            unit in secondUnit -> value * 1.seconds.inWholeMilliseconds // 1_000L
+        totalMillis += when (unit) {
+            in yearUnit -> value * 31_536_000_000L // 365 * 24 * 60 * 60 * 1000
+            in monthUnit -> value * 2_592_000_000L // 30 * 24 * 60 * 60 * 1000
+            in dayUnit -> value * 1.days.inWholeMilliseconds // 86_400_000L // 24 * 60 * 60 * 1000
+            in hourUnit -> value * 1.hours.inWholeMilliseconds // 3_600_000L // 60 * 60 * 1000
+            in minuteUnit -> value * 1.minutes.inWholeMilliseconds // 60_000L // 60 * 1000
+            in secondUnit -> value * 1.seconds.inWholeMilliseconds // 1_000L
             else -> 0L
         }
     }
@@ -93,3 +95,17 @@ fun formatGoalDate(date: String): String = Instant
     .parse(date)
     .atZone(ZoneOffset.UTC)
     .format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+fun isSameDate(isoString: String, instant: Instant): Boolean {
+    val isoStringDate = Instant.parse(isoString).atZone(ZoneOffset.UTC).toLocalDate()
+
+    val instantDate = instant.atZone(ZoneOffset.UTC).toLocalDate()
+
+    return isoStringDate == instantDate
+}
+
+fun getDatesBetween(date1: LocalDate, date2: LocalDate): List<LocalDate> {
+    val daysBetween = ChronoUnit.DAYS.between(date1, date2)
+
+    return (0..daysBetween).map { date1.plusDays(it) }
+}

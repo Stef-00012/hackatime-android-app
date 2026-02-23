@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
@@ -116,6 +115,7 @@ fun GoalsScreen(
                     text = stringResource(R.string.api_key_not_on_server_home_button),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -163,15 +163,16 @@ fun GoalsScreen(
     }
 
     suspend fun updateUserGoals() {
-        when (statsRange) {
+        goals = when (statsRange) {
             Range.ALL_TIME -> {
-                goals = getUserGoals(
+                getUserGoals(
                     context = context,
                     all = true
                 )
             }
+
             Range.CUSTOM, Range.ONE_DAY -> {
-                goals = getUserGoals(
+                getUserGoals(
                     context = context,
                     startDate = rangeStart,
                     endDate = rangeEnd
@@ -403,7 +404,7 @@ fun GoalsScreen(
                 )
             )
         } else {
-            LazyColumn() {
+            LazyColumn {
                 items(count = goals!!.size) { index ->
                     GoalContainer(
                         modifier = Modifier.padding(

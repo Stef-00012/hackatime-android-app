@@ -20,7 +20,7 @@
     <color name="text">#ffffffff</color>
     <color name="background">#ff111217</color>
     <color name="elevated">#ff1E1E23</color>
-    <color name="elevated_ight">#FFBFBFBF</color>
+    <color name="elevated_light">#FFBFBFBF</color>
     <color name="sheet">#fff9fafc</color>
     <color name="sunken">#ffe0e6ed</color>
     <color name="border">#ffe0e6ed</color>

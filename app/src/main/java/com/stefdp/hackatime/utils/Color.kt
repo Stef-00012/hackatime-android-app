@@ -1,6 +1,5 @@
 package com.stefdp.hackatime.utils
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 
 fun colorHash(string: String): Color {
@@ -10,7 +9,7 @@ fun colorHash(string: String): Color {
         hash = char.code + ((hash shl 5) - hash)
     }
 
-    var color = StringBuilder()
+    val color = StringBuilder()
 
     for (i in 0..<3) {
         val value = (hash shr (i * 8)) and 0xff

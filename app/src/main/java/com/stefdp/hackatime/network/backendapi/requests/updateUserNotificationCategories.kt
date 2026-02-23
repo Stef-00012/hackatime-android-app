@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.UpdateNotificationCategoriesResponse
 import com.stefdp.hackatime.utils.SecureStorage
 

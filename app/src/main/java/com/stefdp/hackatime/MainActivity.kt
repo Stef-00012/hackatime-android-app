@@ -39,7 +39,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,6 +64,7 @@ import com.stefdp.hackatime.screens.projects.ProjectsScreen
 import com.stefdp.hackatime.screens.settings.SettingsScreen
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.NetworkMonitor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 val LocalLoggedUser = compositionLocalOf<UserStats?> { null }
@@ -69,12 +72,23 @@ val LocalUpdateUserStats = compositionLocalOf<suspend () -> UserStats?> { {null}
 
 // TODO: maybe switch to hackatime OAuth if i find a way for play store staff to test it
 
-// TODO: widgets
-// TODO: better splash screen
-
 class MainActivity : FragmentActivity() {
+    private var isAppReady by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
         super.onCreate(savedInstanceState)
+
+        splashScreen.setKeepOnScreenCondition {
+            !isAppReady
+        }
+
+        lifecycleScope.launch {
+            delay(100L)
+            isAppReady = true
+        }
+
         enableEdgeToEdge()
         setContent {
             HackatimeStatsTheme {

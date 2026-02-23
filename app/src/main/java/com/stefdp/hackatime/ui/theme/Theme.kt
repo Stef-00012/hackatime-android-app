@@ -32,6 +32,7 @@ private val DarkColorScheme = darkColorScheme(
 
 val DarkWidgetBackground = Background
 val DarkWidgetSurface = Dark
+val DarkOnSurfaceVariant = Muted
 
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
@@ -53,6 +54,7 @@ private val LightColorScheme = lightColorScheme(
 
 val LightWidgetBackground = White
 val LightWidgetSurface = Smoke
+val LightOnSurfaceVariant = Slate
 
 @Composable
 fun HackatimeStatsTheme(

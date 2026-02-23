@@ -1,4 +1,4 @@
-package com.stefdp.hackatime.widgets.topstats
+package com.stefdp.hackatime.widgets.goal
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -26,18 +26,22 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
 import com.stefdp.hackatime.components.Slider
-import com.stefdp.hackatime.network.hackatimeapi.models.Feature
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
+import com.stefdp.hackatime.components.Switch
+import com.stefdp.hackatime.network.backendapi.models.Goal
+import com.stefdp.hackatime.network.backendapi.requests.getUserGoals
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.SecureStorage
-import com.stefdp.hackatime.utils.getTop
 import com.stefdp.hackatime.widgets.CELL_HEIGHT
 import com.stefdp.hackatime.widgets.CELL_WIDTH
 import com.stefdp.hackatime.widgets.WidgetConfigSize
 import com.stefdp.hackatime.widgets.cornerRadius
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
-class TopStatsWidgetConfigurationActivity : ComponentActivity() {
+class GoalWidgetConfigurationActivity : ComponentActivity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,10 +77,11 @@ class TopStatsWidgetConfigurationActivity : ComponentActivity() {
                         WidgetConfigScreen(
                             context = applicationContext,
                             appWidgetId = appWidgetId,
-                            onSaveConfig = { backgroundOpacity ->
+                            onSaveConfig = { backgroundOpacity, progressTextBold ->
                                 saveWidgetConfiguration(
                                     context = applicationContext,
-                                    backgroundOpacity = backgroundOpacity
+                                    backgroundOpacity = backgroundOpacity,
+                                    progressTextBold = progressTextBold
                                 )
                             },
                             finish = { finish() }
@@ -89,21 +94,24 @@ class TopStatsWidgetConfigurationActivity : ComponentActivity() {
 
     private fun saveWidgetConfiguration(
         context: Context,
-        backgroundOpacity: Float
+        backgroundOpacity: Float,
+        progressTextBold: Boolean,
     ) {
         lifecycleScope.launch {
             val secureStore = SecureStorage.getInstance(context)
 
             secureStore.set("${StringOpacityKey}_$appWidgetId", backgroundOpacity.toString())
+            secureStore.set("${StringProgressTextBoldKey}_$appWidgetId", progressTextBold.toString())
 
             val glanceAppWidgetManager = GlanceAppWidgetManager(applicationContext)
             val glanceId = glanceAppWidgetManager.getGlanceIdBy(appWidgetId)
 
             updateAppWidgetState(context, glanceId) { prefs ->
                 prefs[OpacityKey] = backgroundOpacity
+                prefs[ProgressTextBoldKey] = progressTextBold
             }
 
-            TopStatsWidget().update(applicationContext, glanceId)
+            GoalWidget().update(applicationContext, glanceId)
 
             val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             setResult(RESULT_OK, resultValue)
@@ -161,14 +169,12 @@ val sizes = listOf(
 fun WidgetConfigScreen(
     context: Context,
     appWidgetId: Int,
-    onSaveConfig: (Float) -> Unit,
+    onSaveConfig: (Float, Boolean) -> Unit,
     finish: () -> Unit
 ) {
     var backgroundOpacity by remember { mutableFloatStateOf(1f) }
-    var topProject by remember { mutableStateOf("Hackatime Stats") }
-    var topLanguage by remember { mutableStateOf("Kotlin") }
-    var topEditor by remember { mutableStateOf("Android Studio") }
-    var topOperatingSystem by remember { mutableStateOf("Linux") }
+    var progressTextBold by remember { mutableStateOf(true) }
+    var goals by remember { mutableStateOf<List<Goal>>(emptyList()) }
 
     val context = LocalContext.current
 
@@ -176,23 +182,23 @@ fun WidgetConfigScreen(
         val secureStore = SecureStorage.getInstance(context)
 
         backgroundOpacity = secureStore.get("${StringOpacityKey}_$appWidgetId")?.toFloatOrNull() ?: 1f
+        progressTextBold = secureStore.get("${StringProgressTextBoldKey}_$appWidgetId")?.toBoolean() ?: true
 
-        val last7DaysStatsRes = getCurrentUserStatsLast7Days(
+        val startDate = Instant
+            .now()
+            .minus(Duration.ofDays(7))
+            .atZone(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val endDate = Instant
+            .now()
+            .atZone(ZoneOffset.UTC)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+        goals = getUserGoals(
             context = context,
-            features = listOf(
-                Feature.PROJECTS,
-                Feature.LANGUAGES,
-                Feature.EDITORS,
-                Feature.OPERATING_SYSTEMS
-            )
-        )
-
-        last7DaysStatsRes.onSuccess {
-            topProject = getTop(it.projects)?.name ?: "Unknown"
-            topLanguage = getTop(it.languages)?.name ?: "Unknown"
-            topEditor = getTop(it.editors)?.name ?: "Unknown"
-            topOperatingSystem = getTop(it.operatingSystems)?.name ?: "Unknown"
-        }
+            startDate = startDate,
+            endDate = endDate
+        ).reversed()
     }
 
     var widgetWidth by remember { mutableIntStateOf(5) }
@@ -202,15 +208,15 @@ fun WidgetConfigScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
             contentAlignment = Alignment.Center
         ) {
             WidgetPreview(
-                topProject = topProject,
-                topLanguage = topLanguage,
-                topEditor = topEditor,
-                topOperatingSystem = topOperatingSystem,
+                goals = goals,
                 backgroundOpacity = backgroundOpacity,
+                progressTextBold = progressTextBold,
                 modifier = Modifier.clip(
                     RoundedCornerShape(cornerRadius)
                 ),
@@ -222,10 +228,12 @@ fun WidgetConfigScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(
-                    topStart = 40.dp,
-                    topEnd = 40.dp
-                ))
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 40.dp,
+                        topEnd = 40.dp
+                    )
+                )
                 .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp)
         ) {
@@ -289,6 +297,13 @@ fun WidgetConfigScreen(
                 label = "Opacity:",
             )
 
+            Switch(
+                checked = progressTextBold,
+                onCheckedChange = { progressTextBold = it },
+                label = "Progress Bar Text Bold",
+                description = "Whether the text on the circular progress bar should be bold"
+            )
+
             Spacer(
                 modifier = Modifier.weight(1f)
             )
@@ -310,7 +325,7 @@ fun WidgetConfigScreen(
 
                 Button(
                     onClick = {
-                        onSaveConfig(backgroundOpacity)
+                        onSaveConfig(backgroundOpacity, progressTextBold)
                     },
                     modifier = Modifier.weight(1f),
                 ) {
@@ -344,7 +359,7 @@ fun Preview() {
                 WidgetConfigScreen(
                     context = context,
                     appWidgetId = 1,
-                    onSaveConfig = { backgroundOpacity ->
+                    onSaveConfig = { backgroundOpacity, _ ->
                         Log.d("WidgetConfigScreen", "Saving config with backgroundOpacity: $backgroundOpacity")
 //                        saveWidgetConfiguration(
 //                            context = applicationContext,

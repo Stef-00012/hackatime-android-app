@@ -17,12 +17,12 @@
         android:description="@string/app_description"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.HackatimeStats"
+        android:theme="@style/Theme.App.Starting"
     >
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.HackatimeStats"
+            android:theme="@style/Theme.App.Starting"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,6 +43,16 @@
 
         <activity
             android:name=".widgets.topstats.TopStatsWidgetConfigurationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.WallpaperBackground"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widgets.goal.GoalWidgetConfigurationActivity"
             android:exported="true"
             android:theme="@style/Theme.WallpaperBackground"
             >

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
@@ -38,13 +36,12 @@ import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayDat
 import com.stefdp.hackatime.ui.theme.DarkWidgetBackground
 import com.stefdp.hackatime.ui.theme.HackatimeStatsWidgetTheme
 import com.stefdp.hackatime.ui.theme.LightWidgetBackground
-import com.stefdp.hackatime.utils.SecureStorage
 import com.stefdp.hackatime.utils.formatMs
 import com.stefdp.hackatime.widgets.CELL_HEIGHT
 import com.stefdp.hackatime.widgets.CELL_WIDTH
 import com.stefdp.hackatime.widgets.components.Text as GlanceText
 
-val StringOpacityKey = "todayCodingHours_backgroundOpacity"
+const val StringOpacityKey = "todayCodingHours_backgroundOpacity"
 val OpacityKey = floatPreferencesKey(StringOpacityKey)
 
 open class TodayCodingHoursWidget : GlanceAppWidget() {
