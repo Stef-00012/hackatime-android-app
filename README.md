@@ -22,22 +22,22 @@ This is an android app made to view your [Hackatime](https://hackatime.hackclub.
 
 <table>
     <tr>
-        <td><img width="1080" height="2400" alt="image1" src="/assets/app/image1.png" /></td>
-        <td><img width="1080" height="2400" alt="image2" src="/assets/app/image2.png" /></td>
-        <td><img width="1080" height="2400" alt="image3" src="/assets/app/image3.png" /></td>
+        <td><img width="1080" height="2400" alt="image1" src="./assets/app/image1.png" /></td>
+        <td><img width="1080" height="2400" alt="image2" src="./assets/app/image2.png" /></td>
+        <td><img width="1080" height="2400" alt="image3" src="./assets/app/image3.png" /></td>
     </tr>
     <tr>
-        <td><img width="1080" height="2400" alt="image4" src="/assets/app/image4.png" /></td>
-        <td><img width="1080" height="2400" alt="image5" src="/assets/app/image5.png" /></td>
-        <td><img width="1080" height="2400" alt="image6" src="/assets/app/image6.png" /></td>
+        <td><img width="1080" height="2400" alt="image4" src="./assets/app/image4.png" /></td>
+        <td><img width="1080" height="2400" alt="image5" src="./assets/app/image5.png" /></td>
+        <td><img width="1080" height="2400" alt="image6" src="./assets/app/image6.png" /></td>
     </tr>
     <tr>
-        <td><img width="1080" height="2400" alt="image7" src="/assets/app/image7.png" /></td>
-        <td><img width="1080" height="2400" alt="image8" src="/assets/app/image8.png" /></td>
-        <td><img width="1080" height="2400" alt="image9" src="/assets/app/image9.png" /></td>
+        <td><img width="1080" height="2400" alt="image7" src="./assets/app/image7.png" /></td>
+        <td><img width="1080" height="2400" alt="image8" src="./assets/app/image8.png" /></td>
+        <td><img width="1080" height="2400" alt="image9" src="./assets/app/image9.png" /></td>
     </tr>
     <tr>
-        <td><img width="1080" height="2400" alt="image7" src="/assets/app/image10.png" /></td>
+        <td><img width="1080" height="2400" alt="image7" src="./assets/app/image10.png" /></td>
     </tr>
 </table>
 
