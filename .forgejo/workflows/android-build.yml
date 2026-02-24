@@ -81,9 +81,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
         with:
           direction: upload
-          prerelease: false
+#          prerelease: false
+          prerelease: true
           url: https://git.stefdp.com
           repo: Stef/Hackatime-Android-App
           token: ${{ secrets.FORGEJO_TOKEN }}
-          tag: "TEST - ${{ steps.sha.outputs.commit_sha }}"
+          tag: "TEST-${{ steps.sha.outputs.commit_sha }}"
           release-dir: ${{ github.workspace }}/output
+          verbose: true
