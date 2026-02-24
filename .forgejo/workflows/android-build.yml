@@ -34,6 +34,9 @@ jobs:
       - name: Setup Android SDK
         uses: https://github.com/android-actions/setup-android@v3
 
+      - name: test
+        run: ls /root/.android/sdk/build-tools
+
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
