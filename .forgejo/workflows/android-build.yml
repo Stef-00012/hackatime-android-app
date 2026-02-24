@@ -39,19 +39,21 @@ jobs:
 
       - name: Build All Artifacts
         run: |
-          ./gradlew assembleDebug
+          # ./gradlew assembleDebug
           ./gradlew assembleRelease
-          ./gradlew ${{ env.main_project_module }}:bundleRelease
+          # ./gradlew ${{ env.main_project_module }}:bundleRelease
 
       - name: Prepare for signing
         run: |
           mkdir -p signing_staging
           cp ${{ env.main_project_module }}/build/outputs/apk/release/*.apk signing_staging/
-          cp ${{ env.main_project_module }}/build/outputs/bundle/release/*.aab signing_staging/
+          # cp ${{ env.main_project_module }}/build/outputs/bundle/release/*.aab signing_staging/
 
       - name: Sign Release Artifacts
         id: sign_app
         uses: https://github.com/r0adkll/sign-android-release@v1
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
         with:
           releaseDirectory: signing_staging
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
@@ -63,10 +65,10 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/output
           
-          cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
+          # cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
           
           cp signing_staging/*-signed.apk ${{ github.workspace }}/output/
-          cp signing_staging/*-signed.aab ${{ github.workspace }}/output/
+          # cp signing_staging/*-signed.aab ${{ github.workspace }}/output/
 
       - name: Publish Release
         uses: actions/forgejo-release@v2.7.3
