@@ -35,7 +35,7 @@ jobs:
         uses: https://github.com/android-actions/setup-android@v3
 
       - name: test
-        run: ls %ANDROID_HOME/build-tools
+        run: ls $ANDROID_HOME/build-tools
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
