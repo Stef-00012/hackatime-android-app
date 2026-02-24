@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ import androidx.glance.layout.Column as GlanceColumn
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.stefdp.hackatime.R
 import androidx.glance.preview.Preview as GlancePreview
 import androidx.glance.text.FontWeight as GlanceFontWeight
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayData
@@ -50,11 +52,12 @@ open class TodayCodingHoursWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        var todayTime = "Unknown"
+        var todayTime = context.getString(R.string.unknown)
         val todayDataRes = getCurrentUserTodayData(context)
 
         todayDataRes.onSuccess {
             todayTime = formatMs(
+                context = context,
                 ms = it.grandTotal.totalSeconds * 1000,
                 limit = 2
             )
@@ -65,6 +68,7 @@ open class TodayCodingHoursWidget : GlanceAppWidget() {
             val backgroundOpacity = prefs[OpacityKey] ?: 1f
 
             WidgetContent(
+                context = context,
                 todayTime = todayTime,
                 backgroundOpacity = backgroundOpacity
             )
@@ -79,7 +83,8 @@ open class TodayCodingHoursWidget : GlanceAppWidget() {
 )
 @Composable
 private fun WidgetContent(
-    todayTime: String = "Unknown",
+    context: Context,
+    todayTime: String = context.getString(R.string.unknown),
     backgroundOpacity: Float = 1f
 ) {
     HackatimeStatsWidgetTheme {
@@ -96,7 +101,7 @@ private fun WidgetContent(
             verticalAlignment = GlanceAlignment.CenterVertically
         ) {
             GlanceText(
-                text = "Today's Hours",
+                text = context.getString(R.string.todays_hours),
                 color = GlanceTheme.colors.primary,
                 fontWeight = GlanceFontWeight.Bold,
                 fontSize = 20.sp
@@ -113,7 +118,7 @@ private fun WidgetContent(
 @Composable
 fun WidgetPreview(
     modifier: Modifier = Modifier,
-    todayTime: String = "Unknown",
+    todayTime: String = stringResource(R.string.unknown),
     backgroundOpacity: Float = 1f
 ) {
     Column(
@@ -127,7 +132,7 @@ fun WidgetPreview(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Today's Hours",
+            text = stringResource(R.string.todays_hours),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp

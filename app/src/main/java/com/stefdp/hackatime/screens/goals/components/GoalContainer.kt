@@ -1,5 +1,6 @@
 package com.stefdp.hackatime.screens.goals.components
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,7 @@ import ir.ehsannarmani.compose_charts.extensions.format
 @Composable
 fun GoalContainer(
     modifier: Modifier = Modifier,
+    context: Context,
     goal: Goal
 ) {
     Column(
@@ -56,7 +59,11 @@ fun GoalContainer(
             )
 
             Text(
-                text = formatMs(goal.goal * 1000),
+                text = formatMs(
+                    context = context,
+                    ms = goal.goal * 1000,
+                    limit = 2
+                ),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -77,7 +84,15 @@ fun GoalContainer(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${formatMs(goalAchieved * 1000)} / ${formatMs(goalGoal * 1000)}",
+                text = "${formatMs(
+                    context = context,
+                    ms = goalAchieved * 1000,
+                    limit = 2
+                )} / ${formatMs(
+                    context = context,
+                    ms = goalGoal * 1000,
+                    limit = 2
+                )}",
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -118,7 +133,9 @@ fun GoalContainerPreview() {
         achieved = 2200.0
     )
 
+    val context = LocalContext.current
+
     HackatimeStatsTheme {
-        GoalContainer(goal = goal)
+        GoalContainer(goal = goal, context = context)
     }
 }

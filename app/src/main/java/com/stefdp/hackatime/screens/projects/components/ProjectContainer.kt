@@ -88,7 +88,10 @@ fun ProjectContainer(
         }
 
         Text(
-            text = formatMs(project.totalSeconds * 1000L),
+            text = formatMs(
+                context = context,
+                ms = project.totalSeconds * 1000L,
+            ),
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

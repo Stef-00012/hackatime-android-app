@@ -1,5 +1,7 @@
 package com.stefdp.hackatime.utils
 
+import android.content.Context
+import com.stefdp.hackatime.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -11,13 +13,21 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 fun formatMs(
+    context: Context,
     ms: Double,
     abbreviated: Boolean = true,
     limit: Int = 7
 ): String {
     val duration = ms.toLong()
 
-    if (duration == 0L) return "0s"
+    val secondsShortSuffix = context.getString(R.string.seconds_short)
+    val minutesShortSuffix = context.getString(R.string.minutes_short)
+    val hoursShortSuffix = context.getString(R.string.hours_short)
+    val daysShortSuffix = context.getString(R.string.days_short)
+    val monthsShortSuffix = context.getString(R.string.months_short)
+    val yearsShortSuffix = context.getString(R.string.years_short)
+
+    if (duration == 0L) return "0$secondsShortSuffix"
 
     val second = 1.seconds.inWholeMilliseconds // 1000L
     val minute = 1.minutes.inWholeMilliseconds // second * 60
@@ -33,20 +43,20 @@ fun formatMs(
     val minutes = (duration % hour) / minute
     val seconds = (duration % minute) / second
 
-    val secondsLongSuffix = if (seconds > 1) "seconds" else "second"
-    val minutesLongSuffix = if (minutes > 1) "minutes" else "minute"
-    val hoursLongSuffix = if (hours > 1) "hours" else "hour"
-    val daysLongSuffix = if (days > 1) "days" else "day"
-    val monthsLongSuffix = if (months > 1) "months" else "month"
-    val yearsLongSuffix = if (years > 1) "years" else "year"
+    val secondsLongSuffix = context.resources.getQuantityString(R.plurals.seconds_unit, seconds.toInt()) //if (seconds > 1) "seconds" else "second"
+    val minutesLongSuffix = context.resources.getQuantityString(R.plurals.minutes_unit, minutes.toInt()) //if (minutes > 1) "minutes" else "minute"
+    val hoursLongSuffix = context.resources.getQuantityString(R.plurals.hours_unit, hours.toInt()) //if (hours > 1) "hours" else "hour"
+    val daysLongSuffix = context.resources.getQuantityString(R.plurals.days_unit, days.toInt()) //if (days > 1) "days" else "day"
+    val monthsLongSuffix = context.resources.getQuantityString(R.plurals.months_unit, months.toInt()) //if (months > 1) "months" else "month"
+    val yearsLongSuffix = context.resources.getQuantityString(R.plurals.years_unit, years.toInt()) //if (years > 1) "years" else "year"
 
     val dateSegments = listOfNotNull(
-        if (years > 0) "${years}${if (abbreviated) "y" else yearsLongSuffix}" else null,
-        if (months > 0) "${months}${if (abbreviated) "mo" else monthsLongSuffix}" else null,
-        if (days > 0) "${days}${if (abbreviated) "d" else daysLongSuffix}" else null,
-        if (hours > 0) "${hours}${if (abbreviated) "h" else hoursLongSuffix}" else null,
-        if (minutes > 0) "${minutes}${if (abbreviated) "m" else minutesLongSuffix}" else null,
-        if (seconds > 0) "${seconds}${if (abbreviated) "s" else secondsLongSuffix}" else null
+        if (years > 0) "${years}${if (abbreviated) yearsShortSuffix else yearsLongSuffix}" else null,
+        if (months > 0) "${months}${if (abbreviated) monthsShortSuffix else monthsLongSuffix}" else null,
+        if (days > 0) "${days}${if (abbreviated) daysShortSuffix else daysLongSuffix}" else null,
+        if (hours > 0) "${hours}${if (abbreviated) hoursShortSuffix else hoursLongSuffix}" else null,
+        if (minutes > 0) "${minutes}${if (abbreviated) minutesShortSuffix else minutesLongSuffix}" else null,
+        if (seconds > 0) "${seconds}${if (abbreviated) secondsShortSuffix else secondsLongSuffix}" else null
     )
 
     return dateSegments.take(limit).joinToString(" ")

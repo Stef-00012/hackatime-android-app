@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -51,6 +52,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.hackatimeapi.models.Feature
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
 import com.stefdp.hackatime.ui.theme.DarkWidgetBackground
@@ -75,10 +77,10 @@ open class TopStatsWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        var topProject = "Unknown"
-        var topLanguage = "Unknown"
-        var topEditor = "Unknown"
-        var topOperatingSystem = "Unknown"
+        var topProject = context.getString(R.string.unknown)
+        var topLanguage = context.getString(R.string.unknown)
+        var topEditor = context.getString(R.string.unknown)
+        var topOperatingSystem = context.getString(R.string.unknown)
 
         val last7DaysStatsRes = getCurrentUserStatsLast7Days(
             context = context,
@@ -91,10 +93,10 @@ open class TopStatsWidget : GlanceAppWidget() {
         )
 
         last7DaysStatsRes.onSuccess {
-            topProject = getTop(it.projects)?.name ?: "Unknown"
-            topLanguage = getTop(it.languages)?.name ?: "Unknown"
-            topEditor = getTop(it.editors)?.name ?: "Unknown"
-            topOperatingSystem = getTop(it.operatingSystems)?.name ?: "Unknown"
+            topProject = getTop(it.projects)?.name ?: context.getString(R.string.unknown)
+            topLanguage = getTop(it.languages)?.name ?: context.getString(R.string.unknown)
+            topEditor = getTop(it.editors)?.name ?: context.getString(R.string.unknown)
+            topOperatingSystem = getTop(it.operatingSystems)?.name ?: context.getString(R.string.unknown)
         }
 
         provideContent {
@@ -102,6 +104,7 @@ open class TopStatsWidget : GlanceAppWidget() {
             val backgroundOpacity = prefs[OpacityKey] ?: 1f
 
             WidgetContent(
+                context = context,
                 topProject = topProject,
                 topLanguage = topLanguage,
                 topEditor = topEditor,
@@ -120,10 +123,11 @@ open class TopStatsWidget : GlanceAppWidget() {
 )
 @Composable
 private fun WidgetContent(
-    topProject: String = "Unknown",
-    topLanguage: String = "Unknown",
-    topEditor: String = "Unknown",
-    topOperatingSystem: String = "Unknown",
+    context: Context,
+    topProject: String = context.getString(R.string.unknown),
+    topLanguage: String = context.getString(R.string.unknown),
+    topEditor: String = context.getString(R.string.unknown),
+    topOperatingSystem: String = context.getString(R.string.unknown),
     backgroundOpacity: Float = 1f
 ) {
     HackatimeStatsWidgetTheme {
@@ -167,7 +171,7 @@ private fun WidgetContent(
                         .defaultWeight()
                 ) {
                     GlanceText(
-                        text = "Top Project",
+                        text = context.getString(R.string.top_project),
                         color = GlanceTheme.colors.primary,
                         fontWeight = GlanceFontWeight.Bold,
                         fontSize = 20.sp
@@ -202,7 +206,7 @@ private fun WidgetContent(
                             .defaultWeight()
                     ) {
                         GlanceText(
-                            text = "Top Language",
+                            text = context.getString(R.string.top_language),
                             color = GlanceTheme.colors.primary,
                             fontWeight = GlanceFontWeight.Bold,
                             fontSize = 20.sp
@@ -242,7 +246,7 @@ private fun WidgetContent(
                             .defaultWeight()
                     ) {
                         GlanceText(
-                            text = "Top Editor",
+                            text = context.getString(R.string.top_editor),
                             color = GlanceTheme.colors.primary,
                             fontWeight = GlanceFontWeight.Bold,
                             fontSize = 20.sp
@@ -277,7 +281,7 @@ private fun WidgetContent(
                                 .defaultWeight()
                         ) {
                             GlanceText(
-                                text = "Top OS",
+                                text = context.getString(R.string.top_operating_system),
                                 color = GlanceTheme.colors.primary,
                                 fontWeight = GlanceFontWeight.Bold,
                                 fontSize = 20.sp
@@ -308,10 +312,10 @@ private fun WidgetContent(
 @Composable
 fun WidgetPreview(
     modifier: Modifier = Modifier,
-    topProject: String = "Unknown",
-    topLanguage: String = "Unknown",
-    topEditor: String = "Unknown",
-    topOperatingSystem: String = "Unknown",
+    topProject: String = stringResource(R.string.unknown),
+    topLanguage: String = stringResource(R.string.unknown),
+    topEditor: String = stringResource(R.string.unknown),
+    topOperatingSystem: String = stringResource(R.string.unknown),
     backgroundOpacity: Float = 1f,
     width: Dp = (CELL_WIDTH * 5).dp,
     height: Dp = (CELL_HEIGHT * 2).dp
@@ -350,7 +354,7 @@ fun WidgetPreview(
                     .weight(1f)
             ) {
                 Text(
-                    text = "Top Project",
+                    text = stringResource(R.string.top_project),
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -385,7 +389,7 @@ fun WidgetPreview(
                         .weight(1f)
                 ) {
                     Text(
-                        text = "Top Language",
+                        text = stringResource(R.string.top_language),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -425,7 +429,7 @@ fun WidgetPreview(
                         .weight(1f)
                 ) {
                     Text(
-                        text = "Top Editor",
+                        text = stringResource(R.string.top_editor),
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -460,7 +464,7 @@ fun WidgetPreview(
                             .weight(1f)
                     ) {
                         Text(
-                            text = "Top OS",
+                            text = stringResource(R.string.top_operating_system),
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp

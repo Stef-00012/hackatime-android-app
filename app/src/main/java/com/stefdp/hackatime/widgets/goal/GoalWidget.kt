@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -132,7 +133,8 @@ open class GoalWidget : GlanceAppWidget() {
             WidgetContent(
                 goals = goals,
                 progressTextBold = progressTextBold,
-                backgroundOpacity = backgroundOpacity
+                backgroundOpacity = backgroundOpacity,
+                context = context
             )
         }
     }
@@ -147,7 +149,8 @@ open class GoalWidget : GlanceAppWidget() {
 private fun WidgetContent(
     goals: List<Goal> = emptyList(),
     progressTextBold: Boolean = true,
-    backgroundOpacity: Float = 1f
+    backgroundOpacity: Float = 1f,
+    context: Context
 ) {
     HackatimeStatsWidgetTheme {
         val context = GlanceLocalContext.current
@@ -180,7 +183,7 @@ private fun WidgetContent(
         ) {
             if (goals.isEmpty()) {
                 GlanceText(
-                    "No Goal Data",
+                    context.getString(R.string.no_goal_data_text),
                     fontSize = 20.sp,
                     fontWeight = GlanceFontWeight.Bold,
                     maxLines = 3,
@@ -218,6 +221,7 @@ private fun WidgetContent(
 
                 GlanceText(
                     text = formatMs(
+                        context = context,
                         ms = todayGoal.achieved * 1000,
                         limit = 2
                     ),
@@ -273,7 +277,7 @@ private fun WidgetContent(
                             val timerIcon = GlanceImageProvider(R.drawable.timer)
                             GlanceImage(
                                 provider = timerIcon,
-                                contentDescription = "Timer Icon",
+                                contentDescription = context.getString(R.string.goal_widget_timer_icon_content_description),
                                 colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
                                 modifier = GlanceModifier.fillMaxSize(),
                                 contentScale = GlanceContentScale.FillBounds
@@ -300,9 +304,13 @@ private fun WidgetContent(
                             )
 
                             GlanceText(
-                                text = "Target: " + formatMs(
-                                    ms = todayGoal.goal * 1000,
-                                    limit = 2
+                                text = context.getString(
+                                    R.string.goal_widget_target_time,
+                                    formatMs(
+                                        context = context,
+                                        ms = todayGoal.goal * 1000,
+                                        limit = 2
+                                    )
                                 ),
                                 fontSize = 25.sp,
                                 fontWeight = GlanceFontWeight.Bold
@@ -338,7 +346,7 @@ private fun WidgetContent(
                     modifier = GlanceModifier.fillMaxSize()
                 ) {
                     GlanceText(
-                        text = "Hours",
+                        text = context.getString(R.string.goal_widget_title),
                         fontSize = 35.sp,
                         fontWeight = GlanceFontWeight.Bold,
                         color = GlanceTheme.colors.primary
@@ -350,6 +358,7 @@ private fun WidgetContent(
 
                     GlanceText(
                         text = formatMs(
+                            context = context,
                             ms = todayGoal.achieved * 1000,
                             limit = 2
                         ),
@@ -359,6 +368,7 @@ private fun WidgetContent(
 
                     GlanceText(
                         text = "/" + formatMs(
+                            context = context,
                             ms = todayGoal.goal * 1000,
                             limit = 2
                         ),
@@ -398,7 +408,7 @@ private fun WidgetContent(
                         modifier = GlanceModifier.fillMaxWidth(),
                     ) {
                         GlanceText(
-                            text = "Hours",
+                            text = context.getString(R.string.goal_widget_title),
                             fontSize = 25.sp,
                             fontWeight = GlanceFontWeight.Bold,
                             color = GlanceTheme.colors.primary
@@ -410,6 +420,7 @@ private fun WidgetContent(
 
                         GlanceText(
                             text = formatMs(
+                                context = context,
                                 ms = todayGoal.achieved * 1000,
                                 limit = 2
                             ),
@@ -419,6 +430,7 @@ private fun WidgetContent(
 
                         GlanceText(
                             text = "/" + formatMs(
+                                context = context,
                                 ms = todayGoal.goal * 1000,
                                 limit = 2
                             ),
@@ -446,7 +458,7 @@ private fun WidgetContent(
 
                     GlanceImage(
                         provider = circularProgressBarProvider,
-                        contentDescription = "Progress",
+                        contentDescription = context.getString(R.string.goal_widget_circular_progress_bar_content_description),
                         modifier = GlanceModifier.fillMaxWidth().defaultWeight().padding(vertical = 8.dp),
                         contentScale = GlanceContentScale.Fit
                     )
@@ -475,7 +487,7 @@ private fun WidgetContent(
                         modifier = GlanceModifier.fillMaxHeight()
                     ) {
                         GlanceText(
-                            text = "Hours",
+                            text = context.getString(R.string.goal_widget_title),
                             fontSize = 25.sp,
                             fontWeight = GlanceFontWeight.Bold,
                             color = GlanceTheme.colors.primary
@@ -487,6 +499,7 @@ private fun WidgetContent(
 
                         GlanceText(
                             text = formatMs(
+                                context = context,
                                 ms = todayGoal.achieved * 1000,
                                 limit = 2
                             ),
@@ -496,6 +509,7 @@ private fun WidgetContent(
 
                         GlanceText(
                             text = "/" + formatMs(
+                                context = context,
                                 ms = todayGoal.goal * 1000,
                                 limit = 2
                             ),
@@ -624,7 +638,7 @@ fun WidgetPreview(
     ) {
         if (goals.isEmpty()) {
             Text(
-                "No Goal Data",
+                stringResource(R.string.no_goal_data_text),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 3,
@@ -662,6 +676,7 @@ fun WidgetPreview(
 
             Text(
                 text = formatMs(
+                    context = context,
                     ms = todayGoal.achieved * 1000,
                     limit = 2
                 ),
@@ -721,7 +736,7 @@ fun WidgetPreview(
                         val timerIcon = painterResource(R.drawable.timer)
                         Icon(
                             painter = timerIcon,
-                            contentDescription = "Timer Icon",
+                            contentDescription = stringResource(R.string.goal_widget_timer_icon_content_description),
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -747,9 +762,13 @@ fun WidgetPreview(
                         )
 
                         Text(
-                            text = "Target: " + formatMs(
-                                ms = todayGoal.goal * 1000,
-                                limit = 2
+                            text = stringResource(
+                                R.string.goal_widget_target_time,
+                                formatMs(
+                                    context = context,
+                                    ms = todayGoal.goal * 1000,
+                                    limit = 2
+                                )
                             ),
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Bold
@@ -788,7 +807,7 @@ fun WidgetPreview(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Text(
-                    text = "Hours",
+                    text = stringResource(R.string.goal_widget_title),
                     fontSize = 35.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -800,6 +819,7 @@ fun WidgetPreview(
 
                 Text(
                     text = formatMs(
+                        context = context,
                         ms = todayGoal.achieved * 1000,
                         limit = 2
                     ),
@@ -809,6 +829,7 @@ fun WidgetPreview(
 
                 Text(
                     text = "/" + formatMs(
+                        context = context,
                         ms = todayGoal.goal * 1000,
                         limit = 2
                     ),
@@ -851,7 +872,7 @@ fun WidgetPreview(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
-                        text = "Hours",
+                        text = stringResource(R.string.goal_widget_title),
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -863,6 +884,7 @@ fun WidgetPreview(
 
                     Text(
                         text = formatMs(
+                            context = context,
                             ms = todayGoal.achieved * 1000,
                             limit = 2
                         ),
@@ -872,6 +894,7 @@ fun WidgetPreview(
 
                     Text(
                         text = "/" + formatMs(
+                            context = context,
                             ms = todayGoal.goal * 1000,
                             limit = 2
                         ),
@@ -899,7 +922,7 @@ fun WidgetPreview(
 
                 Image(
                     bitmap = circularProgressBar.asImageBitmap(),
-                    contentDescription = "Progress",
+                    contentDescription = stringResource(R.string.goal_widget_circular_progress_bar_content_description),
                     modifier = Modifier.fillMaxWidth().weight(1f).padding(vertical = 8.dp),
                     contentScale = ContentScale.Fit
                 )
@@ -928,7 +951,7 @@ fun WidgetPreview(
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     Text(
-                        text = "Hours",
+                        text = stringResource(R.string.goal_widget_title),
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -940,6 +963,7 @@ fun WidgetPreview(
 
                     Text(
                         text = formatMs(
+                            context = context,
                             ms = todayGoal.achieved * 1000,
                             limit = 2
                         ),
@@ -949,6 +973,7 @@ fun WidgetPreview(
 
                     Text(
                         text = "/" + formatMs(
+                            context = context,
                             ms = todayGoal.goal * 1000,
                             limit = 2
                         ),

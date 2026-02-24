@@ -68,7 +68,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 val LocalLoggedUser = compositionLocalOf<UserStats?> { null }
-val LocalUpdateUserStats = compositionLocalOf<suspend () -> UserStats?> { {null} }
+val LocalUpdateUserStats = compositionLocalOf<suspend () -> Result<UserStats>> {
+    {
+        Result.failure(
+            Exception("Placeholder")
+        )
+    }
+}
 
 // TODO: maybe switch to hackatime OAuth if i find a way for play store staff to test it
 
@@ -91,6 +97,9 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
         setContent {
+            Log.d("IS_DEBUG", "IS_DEBUG: $IS_DEBUG")
+            Log.d("NETWORK_DEBUG", "IS_DEBUG: $DEBUG_NETWORK")
+
             HackatimeStatsTheme {
                 val activity = this@MainActivity
 
@@ -105,7 +114,7 @@ class MainActivity : FragmentActivity() {
 
                 val isConnected by networkMonitor.isConnected.collectAsState(initial = true)
 
-                suspend fun updateUserStats(): UserStats? {
+                suspend fun updateUserStats(): Result<UserStats> {
                     val tag = "MainActivity[updateUserStats]"
 
                     Log.d(tag, "Checking if user is already logged in...")
@@ -127,17 +136,20 @@ class MainActivity : FragmentActivity() {
 
                            userStats = userStatsData
 
-                            return@updateUserStats userStatsData
+                            return@updateUserStats Result.success(userStatsData)
                         }
-                        .onFailure {
+                        .onFailure { error ->
                             Log.d(tag, "User is not logged in")
+                            Log.e(tag, "Failed to fetch user stats: ${error.message}")
 
                             userStats = null
 
-                            return@updateUserStats null
+                            return@updateUserStats Result.failure(error)
                         }
 
-                    return null
+                    return Result.failure(
+                        Exception("Something went wrong...")
+                    )
                 }
 
                 LaunchedEffect(isConnected) {

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
+import com.stefdp.hackatime.ui.theme.getSwitchColors
 import com.stefdp.hackatime.utils.toAnnotatedString
 
 @Composable
@@ -35,6 +36,7 @@ fun Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             enabled = enabled,
+            colors = getSwitchColors()
         )
 
         Column(
@@ -70,13 +72,39 @@ fun SwitchPreview() {
                 modifier = Modifier.padding(innerPadding),
                 color = MaterialTheme.colorScheme.background
             ) {
-                Switch(
-                    checked = true,
-                    onCheckedChange = {},
-                    enabled = true,
-                    label = "test label",
-                    description = "a very long description to test how it goes on a new line hello hello hello hello hello hello hello"
-                )
+                Column() {
+                    Switch(
+                        checked = true,
+                        onCheckedChange = {},
+                        enabled = true,
+                        label = "test label",
+                        description = "a very long description to test how it goes on a new line hello hello hello hello hello hello hello"
+                    )
+
+                    Switch(
+                        checked = false,
+                        onCheckedChange = {},
+                        enabled = true,
+                        label = "test label",
+                        description = "a very long description to test how it goes on a new line hello hello hello hello hello hello hello"
+                    )
+
+                    Switch(
+                        checked = true,
+                        onCheckedChange = {},
+                        enabled = false,
+                        label = "test label",
+                        description = "a very long description to test how it goes on a new line hello hello hello hello hello hello hello"
+                    )
+
+                    Switch(
+                        checked = false,
+                        onCheckedChange = {},
+                        enabled = false,
+                        label = "test label",
+                        description = "a very long description to test how it goes on a new line hello hello hello hello hello hello hello"
+                    )
+                }
             }
 
         }

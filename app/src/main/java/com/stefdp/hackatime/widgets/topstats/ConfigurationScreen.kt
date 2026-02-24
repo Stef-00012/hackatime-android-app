@@ -12,12 +12,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.stefdp.hackatime.components.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Slider
 import com.stefdp.hackatime.network.hackatimeapi.models.Feature
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
@@ -172,6 +175,8 @@ fun WidgetConfigScreen(
 
     val context = LocalContext.current
 
+    val unknownText = stringResource(R.string.unknown)
+
     LaunchedEffect(Unit) {
         val secureStore = SecureStorage.getInstance(context)
 
@@ -188,10 +193,10 @@ fun WidgetConfigScreen(
         )
 
         last7DaysStatsRes.onSuccess {
-            topProject = getTop(it.projects)?.name ?: "Unknown"
-            topLanguage = getTop(it.languages)?.name ?: "Unknown"
-            topEditor = getTop(it.editors)?.name ?: "Unknown"
-            topOperatingSystem = getTop(it.operatingSystems)?.name ?: "Unknown"
+            topProject = getTop(it.projects)?.name ?: unknownText
+            topLanguage = getTop(it.languages)?.name ?: unknownText
+            topEditor = getTop(it.editors)?.name ?: unknownText
+            topOperatingSystem = getTop(it.operatingSystems)?.name ?: unknownText
         }
     }
 
@@ -230,7 +235,7 @@ fun WidgetConfigScreen(
                 .padding(20.dp)
         ) {
             Text(
-                text = "Preview Configuration",
+                text = stringResource(R.string.widget_preview_configuration),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -277,7 +282,7 @@ fun WidgetConfigScreen(
             )
 
             Text(
-                text = "Widget Configuration",
+                text = stringResource(R.string.widget_configuration),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -286,7 +291,7 @@ fun WidgetConfigScreen(
             Slider(
                 value = backgroundOpacity,
                 onValueChange = { backgroundOpacity = it },
-                label = "Opacity:",
+                label = stringResource(R.string.widget_opacity),
             )
 
             Spacer(
@@ -299,7 +304,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel_button),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -315,7 +320,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save_button),
                         fontWeight = FontWeight.Bold
                     )
                 }

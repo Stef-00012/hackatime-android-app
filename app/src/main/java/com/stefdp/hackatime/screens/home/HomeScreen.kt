@@ -21,7 +21,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
@@ -339,7 +339,10 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = formatMs(totalSeconds * 1000L),
+                text = formatMs(
+                    context = context,
+                    ms = totalSeconds * 1000L
+                ),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -502,6 +505,7 @@ fun HomeScreen(
                             ),
                             contentBuilder = { value ->
                                 formatMs(
+                                    context = context,
                                     ms = value.value * 1000L,
                                     limit = 2
                                 )
@@ -520,6 +524,7 @@ fun HomeScreen(
                             count = IndicatorCount.CountBased(7),
                             contentBuilder = { value ->
                                 formatMs(
+                                    context = context,
                                     ms = value * 1000L,
                                     limit = 2
                                 )
@@ -628,6 +633,7 @@ fun HomeScreen(
 
                         Text(
                             text = "${selectedLanguage?.label}: ${formatMs(
+                                context = context,
                                 ms = (selectedLanguage?.data ?: 0.0) * 1000L,
                                 limit = 2
                             )}"
@@ -706,6 +712,7 @@ fun HomeScreen(
 
                             Text(
                                 text = "${selectedEditor?.label}: ${formatMs(
+                                    context = context,
                                     ms = (selectedEditor?.data ?: 0.0) * 1000L,
                                     limit = 2
                                 )}"
@@ -783,6 +790,7 @@ fun HomeScreen(
 
                             Text(
                                 text = "${selectedOperatingSystem?.label}: ${formatMs(
+                                    context = context,
                                     ms = (selectedOperatingSystem?.data ?: 0.0) * 1000L,
                                     limit = 2
                                 )}"
@@ -870,6 +878,7 @@ fun HomeScreen(
 
                             Text(
                                 text = "${selectedMachine?.label}: ${formatMs(
+                                    context = context,
                                     ms = (selectedMachine?.data ?: 0.0) * 1000L,
                                     limit = 2
                                 )}"

@@ -40,23 +40,26 @@ fun LoadingScreen(
 
         val unlockWithBiometrics = secureStore.get("unlockWithBiometrics")?.toBoolean() ?: false
         val biometricAuthenticationStatus = getBiometricStatus(context)
-        val newUserStats = updateUserStats()
 
-        if (newUserStats == null) {
-            navController.navigate(LoginScreen) {
-                popUpTo(navController.graph.id) { inclusive = true }
-            }
-        } else {
-            if (unlockWithBiometrics && biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS) {
-                navController.navigate(BiometricAuthScreen) {
-                    popUpTo(navController.graph.id) { inclusive = true }
-                }
-            } else {
-                navController.navigate(HomeScreen) {
+        val newUserStatsRes = updateUserStats()
+
+        newUserStatsRes
+            .onFailure {
+                navController.navigate(LoginScreen) {
                     popUpTo(navController.graph.id) { inclusive = true }
                 }
             }
-        }
+            .onSuccess {
+                if (unlockWithBiometrics && biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS) {
+                    navController.navigate(BiometricAuthScreen) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                } else {
+                    navController.navigate(HomeScreen) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
+            }
     }
 
     Column(

@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
+import com.stefdp.hackatime.ui.theme.getOutlinedTextFieldColors
 import com.stefdp.hackatime.utils.toAnnotatedString
 
 @Composable
@@ -52,25 +50,7 @@ fun TextInput(
     sideButtonIcon: Painter? = null,
     onSideButtonPress: () -> Unit = {},
     sideButtonContentDescription: String? = null,
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
-        selectionColors = TextSelectionColors(
-            handleColor = MaterialTheme.colorScheme.primary,
-            backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-        ),
-        cursorColor = MaterialTheme.colorScheme.primary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-        focusedBorderColor = MaterialTheme.colorScheme.primary,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-        focusedLabelColor = MaterialTheme.colorScheme.onBackground,
-        unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
-        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-        focusedTextColor = MaterialTheme.colorScheme.onBackground,
-        focusedContainerColor = Color.Transparent,
-        unfocusedContainerColor = Color.Transparent,
-        disabledContainerColor = Color.Transparent,
-        errorContainerColor = Color.Transparent
-    )
+    colors: TextFieldColors = getOutlinedTextFieldColors()
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 

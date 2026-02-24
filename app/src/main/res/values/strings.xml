@@ -7,12 +7,55 @@
     <string name="date_range">Range: %1$s</string>
     <string name="select_date_range">Select Date Range</string>
     <string name="close_button">Close</string>
+    <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
     <string name="login_button">Login</string>
     <string name="hackatime_api_key_input_label">Hackatime API Key</string>
     <string name="share_api_key_with_server_switch_label">Share API key with the app\'s server</string>
     <string name="send_api_key_fail_message">Failed to send the API key to the server. Please try again later</string>
     <string name="biometric_authentication_failed">Biometric authentication failed</string>
+    <string name="unknown">Unknown</string>
+    <string name="top_project">Top Project</string>
+    <string name="top_language">Top Language</string>
+    <string name="top_editor">Top Editor</string>
+    <string name="top_operating_system">Top OS</string>
+
+    <!--  utils.Time  -->
+    <plurals name="seconds_unit">
+        <item quantity="one">second</item>
+        <item quantity="other">seconds</item>
+    </plurals>
+    <string name="seconds_short">s</string>
+
+    <plurals name="minutes_unit">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
+    </plurals>
+    <string name="minutes_short">m</string>
+
+    <plurals name="hours_unit">
+        <item quantity="one">hour</item>
+        <item quantity="other">hours</item>
+    </plurals>
+    <string name="hours_short">h</string>
+
+    <plurals name="days_unit">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <string name="days_short">d</string>
+
+    <plurals name="months_unit">
+        <item quantity="one">month</item>
+        <item quantity="other">months</item>
+    </plurals>
+    <string name="months_short">mo</string>
+
+    <plurals name="years_unit">
+        <item quantity="one">year</item>
+        <item quantity="other">years</item>
+    </plurals>
+    <string name="years_short">y</string>
 
     <!--  AndroidManifest  -->
     <string name="app_name">Hackatime Stats</string>
@@ -46,13 +89,9 @@
 
     <!--  screens.home.HomeScreen  -->
     <string name="total_time">Total Time</string>
-    <string name="top_project">Top Project</string>
     <string name="unknown_project">Unknown Project</string>
-    <string name="top_language">Top Language</string>
     <string name="unknown_language">Unknown Language</string>
-    <string name="top_operating_system">Top OS</string>
     <string name="unknown_operating_system">Unknown OS</string>
-    <string name="top_editor">Top Editor</string>
     <string name="unknown_editor">Unknown Editor</string>
     <string name="top_machine">Top Machine</string>
     <string name="unknown_machine">Unknown Machine</string>
@@ -147,4 +186,23 @@
     <string name="top_stats_widget_description">Display your top language, project, editor, machine and OS of the last 7 days. Updates every 30 minutes</string>
     <string name="goal_widget_name">Hour Goal</string>
     <string name="goal_widget_description">Display a goal of hours chosen by you. Updates every 30 minutes</string>
+    
+    <!--  Widgets General  -->
+    <string name="widget_preview_configuration">Preview Configuration</string>
+    <string name="widget_configuration">Widget Configuration</string>
+    <string name="widget_opacity">Opacity:</string>
+
+    <!--  widgets.goal.ConfigurationScreen  -->
+    <string name="progress_text_bold_switch_label">Progress Bar Text Bold</string>
+    <string name="progress_text_bold_switch_description">Whether the text on the circular progress bar should be bold</string>
+
+    <!--  widgets.goal.GoalWidget  -->
+    <string name="no_goal_data_text">No Goal Data</string>
+    <string name="goal_widget_timer_icon_content_description">Timer Icon</string>
+    <string name="goal_widget_target_time">Target: %1$s</string>
+    <string name="goal_widget_title">Hours</string>
+    <string name="goal_widget_circular_progress_bar_content_description">Progress</string>
+
+    <!--  widgets.todayhours.TodayCodingHoursWidget  -->
+    <string name="todays_hours">Today\'s Hours</string>
 </resources>

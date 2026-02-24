@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -413,7 +413,8 @@ fun GoalsScreen(
                             top = if (index == 0) 10.dp else 5.dp,
                             bottom = if (index == goals!!.size - 1) 10.dp else 5.dp
                         ),
-                        goal = goals!![index]
+                        goal = goals!![index],
+                        context = context
                     )
                 }
             }

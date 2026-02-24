@@ -12,12 +12,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.stefdp.hackatime.components.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Slider
 import com.stefdp.hackatime.components.Switch
 import com.stefdp.hackatime.network.backendapi.models.Goal
@@ -75,7 +78,6 @@ class GoalWidgetConfigurationActivity : ComponentActivity() {
                         color = Color.Transparent
                     ) {
                         WidgetConfigScreen(
-                            context = applicationContext,
                             appWidgetId = appWidgetId,
                             onSaveConfig = { backgroundOpacity, progressTextBold ->
                                 saveWidgetConfiguration(
@@ -167,7 +169,6 @@ val sizes = listOf(
 
 @Composable
 fun WidgetConfigScreen(
-    context: Context,
     appWidgetId: Int,
     onSaveConfig: (Float, Boolean) -> Unit,
     finish: () -> Unit
@@ -238,7 +239,7 @@ fun WidgetConfigScreen(
                 .padding(20.dp)
         ) {
             Text(
-                text = "Preview Configuration",
+                text = stringResource(R.string.widget_preview_configuration),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -285,7 +286,7 @@ fun WidgetConfigScreen(
             )
 
             Text(
-                text = "Widget Configuration",
+                text = stringResource(R.string.widget_configuration),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -294,14 +295,14 @@ fun WidgetConfigScreen(
             Slider(
                 value = backgroundOpacity,
                 onValueChange = { backgroundOpacity = it },
-                label = "Opacity:",
+                label = stringResource(R.string.widget_opacity),
             )
 
             Switch(
                 checked = progressTextBold,
                 onCheckedChange = { progressTextBold = it },
-                label = "Progress Bar Text Bold",
-                description = "Whether the text on the circular progress bar should be bold"
+                label = stringResource(R.string.progress_text_bold_switch_label),
+                description = stringResource(R.string.progress_text_bold_switch_description)
             )
 
             Spacer(
@@ -314,7 +315,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel_button),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -330,7 +331,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save_button),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -345,8 +346,6 @@ fun WidgetConfigScreen(
 )
 @Composable
 fun Preview() {
-    val context = LocalContext.current
-
     HackatimeStatsTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -357,7 +356,6 @@ fun Preview() {
                 color = Color.Transparent
             ) {
                 WidgetConfigScreen(
-                    context = context,
                     appWidgetId = 1,
                     onSaveConfig = { backgroundOpacity, _ ->
                         Log.d("WidgetConfigScreen", "Saving config with backgroundOpacity: $backgroundOpacity")

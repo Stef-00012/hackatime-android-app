@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -168,7 +168,7 @@ fun SettingsScreen(
                 isPassword = true,
                 value = apiKey,
                 onValueChange = { apiKey = it },
-                label = stringResource(R.string.hackatime_api_key_input_label)
+                label = stringResource(R.string.hackatime_api_key_input_label),
             )
 
             Spacer(
@@ -253,9 +253,9 @@ fun SettingsScreen(
                         secureStore.set("apiKey", apiKey.text)
                         secureStore.set("shareApiKey", shareApikey.toString())
 
-                        val newUser = updateUserStats()
+                        val newUserRes = updateUserStats()
 
-                        if (newUser == null) {
+                        if (newUserRes.isFailure) {
                             navController.navigate(LoginScreen) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }

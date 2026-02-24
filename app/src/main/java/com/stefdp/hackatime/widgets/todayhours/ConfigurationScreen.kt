@@ -12,12 +12,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import com.stefdp.hackatime.components.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
@@ -26,6 +28,7 @@ import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.lifecycle.lifecycleScope
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Slider
 import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayData
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
@@ -131,6 +134,7 @@ fun WidgetConfigScreen(
 
         todayData.onSuccess {
             todayTime = formatMs(
+                context = context,
                 ms = it.grandTotal.totalSeconds * 1000,
                 limit = 2
             )
@@ -164,7 +168,7 @@ fun WidgetConfigScreen(
                 .padding(20.dp)
         ) {
             Text(
-                text = "Widget Configuration",
+                text = stringResource(R.string.widget_configuration),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
@@ -173,7 +177,7 @@ fun WidgetConfigScreen(
             Slider(
                 value = backgroundOpacity,
                 onValueChange = { backgroundOpacity = it },
-                label = "Opacity:",
+                label = stringResource(R.string.widget_opacity),
             )
 
             Spacer(
@@ -186,7 +190,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel_button),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -202,7 +206,7 @@ fun WidgetConfigScreen(
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save_button),
                         fontWeight = FontWeight.Bold
                     )
                 }
