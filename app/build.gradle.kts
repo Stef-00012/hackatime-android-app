@@ -90,6 +90,8 @@ dependencies {
     // Widgets
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
+    implementation(libs.glance.preview)
+    implementation(libs.glance.appwidget.preview)
     debugImplementation(libs.glance.preview)
     debugImplementation(libs.glance.appwidget.preview)
 }

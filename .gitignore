@@ -3,7 +3,6 @@
 *.apk
 .gradle
 .kotlin
-/local.properties
 .idea
 .DS_Store
 /build
@@ -12,3 +11,6 @@
 .cxx
 local.properties
 /app/google-services.json
+/app/release
+*.jks
+*.keystore

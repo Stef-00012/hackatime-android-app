@@ -1,0 +1,82 @@
+name: Generated APK AAB
+
+env:
+  main_project_module: app
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Commit SHA
+        id: sha
+        run: |
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Setup Firebase Android google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > ./app/google-services.json
+
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          #cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: https://github.com/android-actions/setup-android@v3
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Build All Artifacts
+        run: |
+          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+          ./gradlew ${{ env.main_project_module }}:bundleRelease
+
+      - name: Prepare for signing
+        run: |
+          mkdir -p signing_staging
+          cp ${{ env.main_project_module }}/build/outputs/apk/release/*.apk signing_staging/
+          cp ${{ env.main_project_module }}/build/outputs/bundle/release/*.aab signing_staging/
+
+      - name: Sign Release Artifacts
+        id: sign_app
+        uses: https://github.com/r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: signing_staging
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Copy debug and signed artifacts to output
+        run: |
+          mkdir -p ${{ github.workspace }}/output
+          
+          cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
+          
+          cp signing_staging/*-signed.apk ${{ github.workspace }}/output/
+          cp signing_staging/*-signed.aab ${{ github.workspace }}/output/
+
+      - name: Publish Release
+        uses: actions/forgejo-release@v2.7.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+        with:
+          direction: upload
+          prerelease: false
+          url: https://git.stefdp.com
+          repo: Stef/Hackatime-Android-App
+          token: ${{ secrets.FORGEJO_TOKEN }}
+          tag: "TEST - ${{ steps.sha.outputs.commit_sha }}"
+          release-dir: ${{ github.workspace }}/output
