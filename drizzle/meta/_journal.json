@@ -8,6 +8,13 @@
       "when": 1760792585502,
       "tag": "0000_mushy_lady_ursula",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1771370086894,
+      "tag": "0001_aromatic_retro_girl",
+      "breakpoints": true
     }
   ]
 }

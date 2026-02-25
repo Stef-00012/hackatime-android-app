@@ -43,3 +43,4 @@ next-env.d.ts
 
 /data/*.db
 /__start.sh
+/firebase-adminsdk.json

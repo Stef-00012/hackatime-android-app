@@ -18,7 +18,7 @@
     "@libsql/client": "^0.15.15",
     "axios": "^1.12.2",
     "drizzle-orm": "^0.44.6",
-    "expo-server-sdk": "^4.0.0",
+    "firebase-admin": "^13.6.1",
     "next": "15.5.7",
     "node-schedule": "^2.1.1",
     "react": "19.1.2",
@@ -40,5 +40,13 @@
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "trustedDependencies": [
+    "@firebase/util",
+    "@tailwindcss/oxide",
+    "esbuild",
+    "protobufjs",
+    "sharp",
+    "unrs-resolver"
+  ]
 }

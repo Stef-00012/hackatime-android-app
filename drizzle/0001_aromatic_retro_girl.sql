@@ -1,0 +1,1 @@
+ALTER TABLE `users` RENAME COLUMN "expo_push_token" TO "android_push_token";

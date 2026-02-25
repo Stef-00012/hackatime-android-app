@@ -1,7 +1,7 @@
 import db, { schema } from "@/db/db";
+import { validateFCMToken } from "@/functions/firebase";
 import { isHackatimeApiKey } from "@/functions/util";
 import { eq } from "drizzle-orm";
-import Expo from "expo-server-sdk";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -14,20 +14,22 @@ export async function POST(req: NextRequest) {
 		);
 
 	const body = (await req.json()) as {
-		expoPushToken: string;
+		androidPushToken: string;
 	};
 
-	if (!body.expoPushToken)
+	if (!body.androidPushToken)
 		return NextResponse.json(
 			{ error: "Invalid body", success: false },
 			{ status: 400 },
 		);
 
-	const expoPushToken = body.expoPushToken;
+	const androidPushToken = body.androidPushToken;
 
-	if (!Expo.isExpoPushToken(expoPushToken))
+	const isTokenValid = await validateFCMToken(androidPushToken);
+
+	if (!isTokenValid)
 		return NextResponse.json(
-			{ error: "Invalid Expo Push Token", success: false },
+			{ error: "Invalid FCM Token", success: false },
 			{ status: 400 },
 		);
 
@@ -35,21 +37,25 @@ export async function POST(req: NextRequest) {
 		where: eq(schema.users.apiKey, apiKey),
 	});
 
-	if (user?.expoPushToken === expoPushToken)
-		return NextResponse.json({ success: true });
+	if (user?.androidPushToken === androidPushToken)
+		return NextResponse.json({
+			success: true,
+		});
 
 	await db
 		.insert(schema.users)
 		.values({
-			apiKey: apiKey,
-			expoPushToken,
+			apiKey,
+			androidPushToken,
 		})
 		.onConflictDoUpdate({
 			target: schema.users.apiKey,
 			set: {
-				expoPushToken,
+				androidPushToken,
 			},
 		});
 
-	return NextResponse.json({ success: true });
+	return NextResponse.json({
+		success: true,
+	});
 }

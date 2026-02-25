@@ -12,6 +12,16 @@ export async function GET(req: NextRequest) {
 			{ status: 401 },
 		);
 
+	const user = await db.query.users.findFirst({
+		where: eq(schema.users.apiKey, apiKey),
+	})
+
+	if (!user)
+		return NextResponse.json(
+			{ error: "User not found", success: false },
+			{ status: 404 },
+		);
+
 	return NextResponse.json({ success: true });
 }
 

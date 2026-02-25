@@ -1,8 +1,9 @@
 import db, { schema } from "@/db/db";
-import { sendPushNotifications } from "@/functions/expo";
 import { eq } from "drizzle-orm";
-import { Expo, type ExpoPushMessage } from "expo-server-sdk";
 import { type NextRequest, NextResponse } from "next/server";
+import { messaging } from "@/util/firebase";
+import type { Message } from "firebase-admin/messaging";
+import { validateFCMToken } from "@/functions/firebase";
 
 export async function POST(req: NextRequest) {
 	const apiKey = req.headers.get("Authorization");
@@ -24,37 +25,40 @@ export async function POST(req: NextRequest) {
 		);
 
 	const body = (await req.json()) as {
-		expoPushToken: string;
-		notification: ExpoPushMessage;
+		androidPushToken: string;
+		notification: Message;
 	};
 
-	const expoPushToken = body.expoPushToken;
+	const androidPushToken = body.androidPushToken;
 	const notificationData = body.notification;
 
 	if (
-		!expoPushToken ||
-		!Expo.isExpoPushToken(expoPushToken) ||
+		!androidPushToken ||
+		!(await validateFCMToken(androidPushToken)) ||
 		!notificationData ||
-		!notificationData.title
+		!notificationData.android?.notification?.title
 	)
 		return NextResponse.json(
 			{ error: "Invalid body", success: false },
 			{ status: 400 },
 		);
 
-	const expo = new Expo();
-
 	console.info(
-		`Admin "${admin.username}" sent a notification to "${expoPushToken}". Notification data:`,
+		`Admin "${admin.username}" sent a notification to "${androidPushToken}". Notification data:`,
 		notificationData,
 	);
 
-	const receipts = await sendPushNotifications(expo, [
-		{
+	try {
+		const messageId = await messaging.send({
+			token: androidPushToken,
 			...notificationData,
-			to: expoPushToken,
-		},
-	]);
+		});
 
-	return NextResponse.json({ success: true, receipt: receipts[0] });
+		return NextResponse.json({ success: true, messageId });
+	} catch (_e) {
+		return NextResponse.json(
+			{ error: "Failed to send notification", success: false },
+			{ status: 500 },
+		);
+	}
 }

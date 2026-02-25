@@ -9,6 +9,7 @@ import previewImage6 from "#/images/app/image6.png";
 import previewImage7 from "#/images/app/image7.png";
 import previewImage8 from "#/images/app/image8.png";
 import previewImage9 from "#/images/app/image9.png";
+import previewImage10 from "#/images/app/image10.png"
 import githubButton from "#/images/github.png";
 import googlePlayButton from "#/images/google-play.png";
 import icon from "#/images/icon.png";
@@ -33,6 +34,7 @@ const previewImages = [
 	previewImage7,
 	previewImage8,
 	previewImage9,
+	previewImage10,
 ];
 
 export default function Home() {
@@ -112,7 +114,7 @@ export default function Home() {
 
 					<div>
 						<Link
-							href="https://github.com/Stef-00012/hackatime-android-app/releases/latest"
+							href="https://git.stefdp.com/Stef/hackatime-android-app/releases/latest"
 							className="github-link"
 						>
 							<Image
@@ -152,7 +154,6 @@ export default function Home() {
 				</Tooltip>
 
 				{/** biome-ignore lint/a11y/useValidAnchor: The anchor is used just for the tooltip */}
-				{/** biome-ignore lint/correctness/useUniqueElementIds: The anchor is used just for the tooltip */}
 				<a
 					className="cursor-pointer font-semibold text-white text-[1.15em] underline! decoration-dotted"
 					id="som-tooltip-target"

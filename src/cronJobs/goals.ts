@@ -1,15 +1,12 @@
 import { goalsTitles } from "@/constants/goalsNotifications";
 import db, { schema } from "@/db/db";
-import { sendPushNotifications } from "@/functions/expo";
+import { sendPushNotifications } from "@/functions/firebase";
 import { getCurrentUserTodayData } from "@/functions/hackatime";
 import { chunk, formatDate, sleep } from "@/functions/util";
 import { and, eq } from "drizzle-orm";
-import Expo from "expo-server-sdk";
 
 export async function goalsCronJob() {
 	const users = await db.query.users.findMany();
-
-	const expo = new Expo();
 
 	const today = new Date();
 	today.setUTCHours(0, 0, 0, 0);
@@ -55,19 +52,24 @@ export async function goalsCronJob() {
 				) {
 					notificationsSent.push(checkpoint);
 
-					if (!user.expoPushToken || !user.notificationCategories.goals) break;
+					if (!user.androidPushToken || !user.notificationCategories.goals)
+						break;
 
 					const title =
 						goalsTitles[Math.floor(Math.random() * goalsTitles.length)];
 
-					sendPushNotifications(expo, [
+					sendPushNotifications([
 						{
-							to: user.expoPushToken,
-							channelId: "goals",
-							title: title,
-							body: `You just passed ${checkpoint}% of your goal, keep going!`,
-							priority: "high",
-							sound: "default",
+							token: user.androidPushToken,
+							android: {
+								priority: "high",
+								notification: {
+									channelId: "goals",
+									sound: "default",
+									title,
+									body: `You just passed ${checkpoint}% of your goal, keep going!`,
+								},
+							},
 						},
 					]);
 				}

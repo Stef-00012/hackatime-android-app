@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
-import Expo, { type ExpoPushMessage } from "expo-server-sdk";
 
 import {
 	motivationalMessages,
 	motivationalTitles,
 } from "@/constants/motivationalNotifications";
 import db, { schema } from "@/db/db";
-import { sendPushNotifications } from "@/functions/expo";
 import { getCurrentUserTodayData } from "@/functions/hackatime";
+import type { Message } from "firebase-admin/messaging";
+import { sendPushNotifications } from "@/functions/firebase";
 
 const minimumCodeTime = 60 * 60; // 1h
 
@@ -42,10 +42,10 @@ async function getMotivationalNotificationsUsersList() {
 export async function motivationalNotificationsCronJob() {
 	const userList = await getMotivationalNotificationsUsersList();
 
-	const notifications: ExpoPushMessage[] = [];
+	const notifications: Message[] = [];
 
 	for (const user of userList) {
-		const token = user.expoPushToken;
+		const token = user.androidPushToken;
 
 		if (!token) continue;
 
@@ -55,23 +55,23 @@ export async function motivationalNotificationsCronJob() {
 			];
 
 		const title =
-			motivationalTitles[
-				Math.floor(Math.random() * motivationalTitles.length)
-			];
+			motivationalTitles[Math.floor(Math.random() * motivationalTitles.length)];
 
-		const userNotification: ExpoPushMessage = {
-			to: token,
-			channelId: "motivational-quotes",
-			title: title,
-			body: motivationalMessage,
-			priority: "high",
-			sound: "default",
-		}
+		const userNotification: Message = {
+			token,
+			android: {
+				priority: "high",
+				notification: {
+					channelId: "motivational-quotes",
+					sound: "default",
+					title,
+					body: motivationalMessage,
+				},
+			},
+		};
 
 		notifications.push(userNotification);
 	}
 
-	const expo = new Expo();
-
-	await sendPushNotifications(expo, notifications);
+	await sendPushNotifications(notifications);
 }
