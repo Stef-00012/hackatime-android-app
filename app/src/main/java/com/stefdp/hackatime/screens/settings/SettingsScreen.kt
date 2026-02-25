@@ -11,17 +11,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.Text
@@ -35,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -141,7 +147,9 @@ fun SettingsScreen(
             var shareApikey by rememberSaveable { mutableStateOf(false) }
             var unlockWithBiometrics by rememberSaveable { mutableStateOf(false) }
 
-             var isAPiOnServer by remember { mutableStateOf(false) }
+            var isAPiOnServer by remember { mutableStateOf(false) }
+
+            var isLoading by remember { mutableStateOf(false) }
 
             val updateUserStats = LocalUpdateUserStats.current
 
@@ -169,6 +177,7 @@ fun SettingsScreen(
                 value = apiKey,
                 onValueChange = { apiKey = it },
                 label = stringResource(R.string.hackatime_api_key_input_label),
+                enabled = !isLoading
             )
 
             Spacer(
@@ -179,7 +188,8 @@ fun SettingsScreen(
                 checked = shareApikey,
                 onCheckedChange = { shareApikey = it },
                 label = stringResource(R.string.share_api_key_with_server_switch_label),
-                description = stringResource(R.string.share_api_key_with_server_switch_description_settings)
+                description = stringResource(R.string.share_api_key_with_server_switch_description_settings),
+                enabled = !isLoading
             )
 
             Spacer(
@@ -188,9 +198,11 @@ fun SettingsScreen(
 
             Switch(
                 checked = unlockWithBiometrics,
-                enabled = biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS || (
-                        biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
+                enabled = !isLoading && (
+                        biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS || (
+                            biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
                                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                            )
                         ),
                 onCheckedChange = { checked ->
                     val biometricPrompt = createBiometricPrompt(
@@ -248,6 +260,8 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     coroutineScope.launch {
+                        isLoading = true
+
                         val secureStore = SecureStorage.getInstance(context)
 
                         secureStore.set("apiKey", apiKey.text)
@@ -256,6 +270,8 @@ fun SettingsScreen(
                         val newUserRes = updateUserStats()
 
                         if (newUserRes.isFailure) {
+                            isLoading = false
+
                             navController.navigate(LoginScreen) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }
@@ -289,35 +305,53 @@ fun SettingsScreen(
                             }
                         }
 
+                        isLoading = false
+
                         Toast.makeText(
                             context,
                             context.getString(R.string.settings_saved_message),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }
+                },
+                enabled = !isLoading
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.save),
-                    contentDescription = stringResource(R.string.save_settings_content_description)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = LocalContentColor.current
+                        )
 
-                Spacer(
-                    modifier = Modifier.width(5.dp)
-                )
+                        Spacer(
+                            modifier = Modifier.width(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.save),
+                            contentDescription = stringResource(R.string.save_settings_content_description)
+                        )
 
-                Text(
-                    text = stringResource(R.string.save_button),
-                    fontWeight = FontWeight.Bold
-                )
+                        Spacer(
+                            modifier = Modifier.width(5.dp)
+                        )
+                    }
+
+                    Text(
+                        text = stringResource(R.string.save_button),
+                        fontWeight = FontWeight.Bold,
+                        color = LocalContentColor.current
+                    )
+                }
             }
 
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(
-                    color = MaterialTheme.colorScheme.primary,
-                    width = 2.dp
-                ),
                 onClick = {
                     coroutineScope.launch {
                         val secureStore = SecureStorage.getInstance(context)
@@ -330,12 +364,12 @@ fun SettingsScreen(
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     }
-                }
+                },
+                enabled = !isLoading
             ) {
                 Icon(
                     painter = painterResource(R.drawable.logout),
                     contentDescription = stringResource(R.string.logout_content_description),
-                    tint = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(
@@ -345,7 +379,7 @@ fun SettingsScreen(
                 Text(
                     text = stringResource(R.string.logout_button),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = LocalContentColor.current
                 )
             }
         }
@@ -372,6 +406,8 @@ fun SettingsScreen(
             var motivationalNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
             var goalsNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
 
+            var isLoading by remember { mutableStateOf(false) }
+
             LaunchedEffect(Unit) {
                 val notificationCategories = getUserNotificationCategories(context)
 
@@ -391,7 +427,7 @@ fun SettingsScreen(
             )
 
             Switch(
-                enabled = hasNotificationsPermissions,
+                enabled = !isLoading && hasNotificationsPermissions,
                 checked = motivationalNotificationsEnabled,
                 onCheckedChange = { motivationalNotificationsEnabled = it },
                 label = stringResource(R.string.motivational_notifications_switch_label),
@@ -400,7 +436,7 @@ fun SettingsScreen(
                     if (!hasNotificationsPermissions)
                         stringResource(R.string.switch_description_notifications_permission_not_granted)
                     else ""
-                )
+                ),
             )
 
             Spacer(
@@ -409,7 +445,7 @@ fun SettingsScreen(
 
 
             Switch(
-                enabled = hasNotificationsPermissions,
+                enabled = !isLoading && hasNotificationsPermissions,
                 checked = goalsNotificationsEnabled,
                 onCheckedChange = { goalsNotificationsEnabled = it },
                 label = stringResource(R.string.goals_notifications_switch_label),
@@ -442,7 +478,7 @@ fun SettingsScreen(
                                 Toast.LENGTH_LONG
                             ).show()
                         }
-                    }
+                    },
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.notifications),
@@ -466,13 +502,15 @@ fun SettingsScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = hasNotificationsPermissions,
+                enabled = !isLoading && hasNotificationsPermissions,
                 colors = ButtonDefaults.buttonColors().copy(
                     disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                     disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
                 ),
                 onClick = {
                     coroutineScope.launch {
+                        isLoading = true
+
                         val newNotificationCategories = updateUserNotificationCategories(
                             context = context,
                             categories = mapOf(
@@ -481,10 +519,10 @@ fun SettingsScreen(
                             )
                         )
 
-                        println(newNotificationCategories)
-
                         motivationalNotificationsEnabled = newNotificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
                         goalsNotificationsEnabled = newNotificationCategories[NotificationCategory.GOALS] == true
+
+                        isLoading = false
 
                         Toast.makeText(
                             context,
@@ -494,18 +532,31 @@ fun SettingsScreen(
                     }
                 }
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.save),
-                    contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = LocalContentColor.current
+                    )
 
-                Spacer(
-                    modifier = Modifier.width(5.dp)
-                )
+                    Spacer(
+                        modifier = Modifier.width(16.dp)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.save),
+                        contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(5.dp)
+                    )
+                }
 
                 Text(
                     text = stringResource(R.string.save_button),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = LocalContentColor.current
                 )
             }
 

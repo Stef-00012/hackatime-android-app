@@ -35,7 +35,7 @@ fun getButtonColors() = ButtonDefaults.buttonColors().copy(
     containerColor = MaterialTheme.colorScheme.primary,
     contentColor = MaterialTheme.colorScheme.onPrimary,
     disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-    disabledContentColor = MaterialTheme.colorScheme.onPrimary
+    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
 )
 
 @Composable

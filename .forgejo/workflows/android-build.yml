@@ -79,8 +79,8 @@ jobs:
           
           cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
           
-          cp ${{ steps.sign_app.signedReleaseFile0 }} ${{ github.workspace }}/output/
-          cp ${{ steps.sign_app.signedReleaseFile0 }} ${{ github.workspace }}/output/
+          cp ${{ steps.sign_app.outputs.signedReleaseFile0 }} ${{ github.workspace }}/output/
+          cp ${{ steps.sign_app.outputs.signedReleaseFile0 }} ${{ github.workspace }}/output/
 
       - name: Publish Release
         uses: actions/forgejo-release@v2.7.3

@@ -1,13 +1,18 @@
 package com.stefdp.hackatime.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -23,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -57,6 +63,12 @@ fun TextInput(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        textStyle = LocalTextStyle.current.copy(
+            color = if (enabled)
+                MaterialTheme.colorScheme.onBackground
+            else
+                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+        ),
         modifier = modifier
             .fillMaxWidth(),
         singleLine = singleLine,
@@ -65,7 +77,11 @@ fun TextInput(
                 Text(
                     text = label.toAnnotatedString(),
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+                    maxLines = 1,
+                    color = if (enabled)
+                        MaterialTheme.colorScheme.onBackground
+                    else
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
             }
         } else null,
@@ -74,7 +90,11 @@ fun TextInput(
                 Text(
                     text = placeholder.toAnnotatedString(),
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+                    maxLines = 1,
+                    color = if (enabled)
+                        MaterialTheme.colorScheme.onBackground
+                    else
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
             }
         } else null,
@@ -137,13 +157,58 @@ fun TextInputPreview() {
                 modifier = Modifier.padding(innerPadding),
                 color = Color.Transparent
             ) {
-                TextInput(
-                    value = TextFieldValue(""),
-                    onValueChange = { },
-//                    label = "Label",
-                    isPassword = true,
-                    placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    TextInput(
+                        value = TextFieldValue(""),
+                        onValueChange = { },
+                        label = "Label",
+                        isPassword = true,
+                        placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    TextInput(
+                        value = TextFieldValue(""),
+                        onValueChange = { },
+                        enabled = false,
+                        label = "Label",
+                        isPassword = true,
+                        placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    TextInput(
+                        value = TextFieldValue("aaa"),
+                        onValueChange = { },
+                        enabled = false,
+                        label = "Label",
+                        isPassword = true,
+                        placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    TextInput(
+                        value = TextFieldValue("aaa"),
+                        onValueChange = { },
+                        enabled = false,
+                        label = "Label",
+                        isPassword = false,
+                        placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                    )
+                }
             }
             
         }

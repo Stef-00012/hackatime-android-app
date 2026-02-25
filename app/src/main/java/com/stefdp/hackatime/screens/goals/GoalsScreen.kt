@@ -11,12 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.SelectableDates
@@ -39,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
@@ -154,15 +160,21 @@ fun GoalsScreen(
 
     var goals by remember { mutableStateOf<List<Goal>?>(null) }
 
+    var isLoading by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         goals = getUserGoals(
             context = context,
             startDate = rangeStart,
             endDate = rangeEnd
         )
+
+        isLoading = false
     }
 
     suspend fun updateUserGoals() {
+        isLoading = true
+
         goals = when (statsRange) {
             Range.ALL_TIME -> {
                 getUserGoals(
@@ -179,6 +191,8 @@ fun GoalsScreen(
                 )
             }
         }
+
+        isLoading = false
     }
 
     LaunchedEffect(statsRange, rangeStart, rangeEnd) {
@@ -187,17 +201,14 @@ fun GoalsScreen(
 
     Column {
         OutlinedButton(
-            enabled = true,
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showRangePopup = true },
-            border = BorderStroke(
-                color = MaterialTheme.colorScheme.primary,
-                width = 2.dp
-            ),
         ) {
             Text(
                 text = stringResource(R.string.date_range, rangeText),
-                color = MaterialTheme.colorScheme.primary
+                color = LocalContentColor.current,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -272,10 +283,13 @@ fun GoalsScreen(
                 onClick = {
                     statsRange = Range.ALL_TIME
                     showRangePopup = false
-                }
+                },
+                enabled = statsRange != Range.ALL_TIME
             ) {
                 Text(
-                    text = stringResource(R.string.date_range_all_time)
+                    text = stringResource(R.string.date_range_all_time),
+                    color = LocalContentColor.current,
+                    fontWeight = FontWeight.Bold,
                 )
             }
 
@@ -286,23 +300,21 @@ fun GoalsScreen(
                 }
             ) {
                 Text(
-                    text = stringResource(R.string.close_button)
+                    text = stringResource(R.string.close_button),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
 
         OutlinedButton(
-            enabled = true,
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showUpdateGoalPopup = true },
-            border = BorderStroke(
-                color = MaterialTheme.colorScheme.primary,
-                width = 2.dp
-            )
         ) {
             Text(
                 text = stringResource(R.string.update_goal_button),
-                color = MaterialTheme.colorScheme.primary
+                color = LocalContentColor.current,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -322,6 +334,8 @@ fun GoalsScreen(
 
                 var newGoal by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
 
+                var isNewGoalLoading by remember { mutableStateOf(false) }
+
                 TextInput(
                     value = newGoal,
                     onValueChange = { newGoal = it },
@@ -335,6 +349,8 @@ fun GoalsScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     onClick = {
                         coroutineScope.launch {
+                            isNewGoalLoading = true
+
                             val newGoalDuration = parseTimeToMillis(newGoal.text)
 
                             if (newGoalDuration == null || newGoalDuration < 1.minutes.inWholeMilliseconds || newGoalDuration > 23.hours.inWholeMilliseconds) {
@@ -368,24 +384,51 @@ fun GoalsScreen(
                                     showUpdateGoalPopup = false
                                 }
                             }
+
+                            isNewGoalLoading = false
                         }
-                    }
+                    },
+                    enabled = !isNewGoalLoading
                 ) {
+                    if (isNewGoalLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = LocalContentColor.current
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.save),
+                            contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
+                        )
+
+                        Spacer(
+                            modifier = Modifier.width(5.dp)
+                        )
+                    }
+
                     Text(
                         text = stringResource(R.string.save_button),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
+                        fontWeight = FontWeight.Bold,
+                        color = LocalContentColor.current
                     )
                 }
             }
         }
 
-        if (goals == null) {
+        if (isLoading || goals == null) {
+            val loadingScrollState = rememberScrollState()
+
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(loadingScrollState)
             ) {
-                val repeatCount = 5
+                val repeatCount = 6
 
                 repeat(repeatCount) {
                     SkeletonGoal(
@@ -439,14 +482,14 @@ private enum class Range(val value: String) {
 fun SkeletonGoal(index: Int, size: Int) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(
                 start = 10.dp,
                 end = 10.dp,
                 top = if (index == 0) 10.dp else 5.dp,
                 bottom = if (index == size - 1) 10.dp else 5.dp
             )
-            .height(200.dp)
+            .height(120.dp)
             .shimmerable(
                 enabled = true,
                 shape = RoundedCornerShape(10.dp)

@@ -16,10 +16,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.SelectableDates
@@ -117,8 +118,12 @@ fun HomeScreen(
     var operatingSystems by remember { mutableStateOf<List<OperatingSystemLast7Days>>(emptyList()) }
     var machines by remember { mutableStateOf<List<MachineLast7Days>>(emptyList()) }
 
+    var isLoading by remember { mutableStateOf(true) }
+
     LaunchedEffect(statsRange, rangeStart, rangeEnd) {
-         when (statsRange) {
+        isLoading = true
+
+        when (statsRange) {
             Range.LAST_SEVEN_DAYS -> {
                 val currentUserStats = getCurrentUserStatsLast7Days(
                     context = context,
@@ -185,6 +190,8 @@ fun HomeScreen(
                 }
             }
         }
+
+        isLoading = false
     }
 
     LaunchedEffect(Unit) {
@@ -193,6 +200,8 @@ fun HomeScreen(
         )
 
         last7DaysData = stats
+
+        isLoading = false
     }
 
     Column(
@@ -209,17 +218,14 @@ fun HomeScreen(
         }
 
         OutlinedButton(
-            enabled = true,
+            enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
             onClick = { showRangePopup = true },
-            border = BorderStroke(
-                color = MaterialTheme.colorScheme.primary,
-                width = 2.dp
-            )
         ) {
             Text(
                 text = stringResource(R.string.date_range, rangeText),
-                color = MaterialTheme.colorScheme.primary
+                color = LocalContentColor.current,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -294,10 +300,13 @@ fun HomeScreen(
                 onClick = {
                     statsRange = Range.LAST_SEVEN_DAYS
                     showRangePopup = false
-                }
+                },
+                enabled = statsRange != Range.LAST_SEVEN_DAYS
             ) {
                 Text(
-                    text = stringResource(R.string.date_range_last_7_days_button)
+                    text = stringResource(R.string.date_range_last_7_days_button),
+                    fontWeight = FontWeight.Bold,
+                    color = LocalContentColor.current
                 )
             }
 
@@ -306,10 +315,13 @@ fun HomeScreen(
                 onClick = {
                     statsRange = Range.ALL_TIME
                     showRangePopup = false
-                }
+                },
+                enabled = statsRange != Range.ALL_TIME
             ) {
                 Text(
-                    text = stringResource(R.string.date_range_all_time_button)
+                    text = stringResource(R.string.date_range_all_time_button),
+                    fontWeight = FontWeight.Bold,
+                    color = LocalContentColor.current
                 )
             }
 
@@ -320,7 +332,8 @@ fun HomeScreen(
                 }
             ) {
                 Text(
-                    text = stringResource(R.string.close_button)
+                    text = stringResource(R.string.close_button),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -344,7 +357,10 @@ fun HomeScreen(
                     ms = totalSeconds * 1000L
                 ),
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.shimmerable(
+                    enabled = isLoading,
+                )
             )
         }
 
@@ -359,7 +375,10 @@ fun HomeScreen(
             Text(
                 text = topProject?.name ?: stringResource(R.string.unknown_project),
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.shimmerable(
+                    enabled = isLoading,
+                )
             )
         }
 
@@ -374,7 +393,10 @@ fun HomeScreen(
             Text(
                 text = topLanguage?.name ?: stringResource(R.string.unknown_language),
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.shimmerable(
+                    enabled = isLoading,
+                )
             )
         }
 
@@ -390,7 +412,10 @@ fun HomeScreen(
                 Text(
                     text = topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = isLoading,
+                    )
                 )
             }
 
@@ -405,7 +430,10 @@ fun HomeScreen(
                 Text(
                     text = topEditor?.name ?: stringResource(R.string.unknown_editor),
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = isLoading,
+                    )
                 )
             }
 
@@ -420,7 +448,10 @@ fun HomeScreen(
                 Text(
                     text = topMachine?.name ?: stringResource(R.string.unknown_machine),
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = isLoading,
+                    )
                 )
             }
 
@@ -437,7 +468,7 @@ fun HomeScreen(
                 val primaryColor = MaterialTheme.colorScheme.primary
                 val chartHeight = 250.dp
 
-                if (last7DaysData.isNotEmpty()) {
+                if (!isLoading && last7DaysData.isNotEmpty()) {
                     val lines by remember(last7DaysData) { mutableStateOf(
                         listOf(
                             Line(
@@ -601,7 +632,7 @@ fun HomeScreen(
                 selectedLanguage = null
             }
 
-            if (pieChartLanguages.isNotEmpty()) {
+            if (!isLoading && pieChartLanguages.isNotEmpty()) {
                 PieChart(
                     data = pieChartLanguages,
                     modifier = Modifier
@@ -680,7 +711,7 @@ fun HomeScreen(
 
                 val chartSize = 250.dp
 
-                if (pieChartEditors.isNotEmpty()) {
+                if (!isLoading && pieChartEditors.isNotEmpty()) {
                     PieChart(
                         data = pieChartEditors,
                         modifier = Modifier
@@ -758,7 +789,7 @@ fun HomeScreen(
 
                 val chartSize = 250.dp
 
-                if (pieChartOperatingSystems.isNotEmpty()) {
+                if (!isLoading && pieChartOperatingSystems.isNotEmpty()) {
                     PieChart(
                         data = pieChartOperatingSystems,
                         modifier = Modifier
@@ -830,23 +861,13 @@ fun HomeScreen(
                         }
                 ) }
 
-//                    .groupBy { it.name }
-//                    .map { (name, language) ->
-//                        Pie(
-//                            label = name,
-//                            data = language.sumOf { it.totalSeconds },
-//                            color = languageColors[name.lowercase()] ?: colorHash(name),
-//                            selected = name == selectedLanguage?.label
-//                        )
-//                    }
-
                 LaunchedEffect(statsRange, rangeStart, rangeEnd) {
                     selectedMachine = null
                 }
 
                 val chartSize = 250.dp
 
-                if (pieChartMachines.isNotEmpty()) {
+                if (!isLoading && pieChartMachines.isNotEmpty()) {
                     PieChart(
                         data = pieChartMachines,
                         modifier = Modifier

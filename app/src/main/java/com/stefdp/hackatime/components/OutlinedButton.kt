@@ -23,7 +23,10 @@ fun OutlinedButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.outlinedShape,
-    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors().copy(
+        contentColor = MaterialTheme.colorScheme.primary,
+        disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+    ),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = if (enabled) BorderStroke(
         color = MaterialTheme.colorScheme.primary,
