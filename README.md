@@ -54,6 +54,9 @@ The app is available on the following platforms:
 
 # Creating a development build
 
+> [!NOTE]
+> The build will fail unless you have a `google-services.json` file obtained from firebase in the `app/` folder
+
 To create a development build just run `./gradlew assembleDebug` or use the Android Studio Emulator
 
 This will create an APK in `app/build/outputs/apk/debug/app-debug.apk`
