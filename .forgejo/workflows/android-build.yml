@@ -86,9 +86,8 @@ jobs:
           # Copy the debug APK
           cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
           
-          # Target ONLY the files the action explicitly marked as signed
           cp signing_staging/*signed*.apk ${{ github.workspace }}/output/
-          cp signing_staging/*signed*.aab ${{ github.workspace }}/output/
+          cp signing_staging/*.aab ${{ github.workspace }}/output/
 
       - name: Publish Release
         uses: actions/forgejo-release@v2.7.3
