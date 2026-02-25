@@ -61,6 +61,9 @@ jobs:
           cp ${{ env.main_project_module }}/build/outputs/apk/release/*.apk signing_staging/
           cp ${{ env.main_project_module }}/build/outputs/bundle/release/*.aab signing_staging/
 
+      - name: DEBUG 1
+        run: ls signing_staging
+
       - name: Sign Release Artifacts
         id: sign_app
         uses: https://github.com/r0adkll/sign-android-release@v1
@@ -73,14 +76,19 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
+      - name: DEBUG 2
+        run: ls signing_staging
+
       - name: Copy debug and signed artifacts to output
         run: |
           mkdir -p ${{ github.workspace }}/output
           
+          # Copy the debug APK
           cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
           
-          cp ${{ steps.sign_app.outputs.signedReleaseFile0 }} ${{ github.workspace }}/output/
-          cp ${{ steps.sign_app.outputs.signedReleaseFile0 }} ${{ github.workspace }}/output/
+          # Target ONLY the files the action explicitly marked as signed
+          cp signing_staging/*signed*.apk ${{ github.workspace }}/output/
+          cp signing_staging/*signed*.aab ${{ github.workspace }}/output/
 
       - name: Publish Release
         uses: actions/forgejo-release@v2.7.3
