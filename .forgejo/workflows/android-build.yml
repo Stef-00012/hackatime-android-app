@@ -92,4 +92,3 @@ jobs:
           token: ${{ secrets.FORGEJO_TOKEN }}
           tag: "v${{ steps.version.outputs.app_version }}-${{ steps.sha.outputs.commit_sha }}"
           release-dir: ${{ github.workspace }}/output
-          verbose: true

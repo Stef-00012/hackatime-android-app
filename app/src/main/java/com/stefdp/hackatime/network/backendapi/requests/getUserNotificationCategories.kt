@@ -34,7 +34,6 @@ suspend fun getUserNotificationCategories(
 
         if (!response.isSuccessful) {
             val statusCode = response.code()
-
             Log.e(TAG, "Request failed with code: $statusCode and message: ${response.message()}")
 
             val errorBody = response.errorBody()?.string()
@@ -52,8 +51,8 @@ suspend fun getUserNotificationCategories(
 
         if (body is NotificationCategoriesResponse) {
             return mapOf(
-                NotificationCategory.MOTIVATIONAL_QUOTES to body.motivationalQuotes,
-                NotificationCategory.GOALS to body.goals,
+                NotificationCategory.MOTIVATIONAL_QUOTES to body.notificationCategories.motivationalQuotes,
+                NotificationCategory.GOALS to body.notificationCategories.goals,
             )
         }
 

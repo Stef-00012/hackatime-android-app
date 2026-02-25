@@ -406,13 +406,15 @@ fun SettingsScreen(
             var motivationalNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
             var goalsNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
 
-            var isLoading by remember { mutableStateOf(false) }
+            var isLoading by remember { mutableStateOf(true) }
 
             LaunchedEffect(Unit) {
                 val notificationCategories = getUserNotificationCategories(context)
 
                 motivationalNotificationsEnabled = notificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
                 goalsNotificationsEnabled = notificationCategories[NotificationCategory.GOALS] == true
+
+                isLoading = false
             }
 
             Text(
