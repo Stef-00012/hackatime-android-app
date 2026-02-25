@@ -43,9 +43,6 @@ jobs:
         with:
           packages: 'tools build-tools;34.0.0 platform-tools'
 
-      - name: test
-        run: ls $ANDROID_HOME/build-tools
-
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
@@ -86,7 +83,7 @@ jobs:
           # Copy the debug APK
           cp ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk ${{ github.workspace }}/output/
           
-          cp signing_staging/*signed*.apk ${{ github.workspace }}/output/
+          cp signing_staging/*-signed*.apk ${{ github.workspace }}/output/
           cp signing_staging/*.aab ${{ github.workspace }}/output/
 
       - name: Publish Release
