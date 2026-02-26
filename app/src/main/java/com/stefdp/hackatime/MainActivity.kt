@@ -97,9 +97,6 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            Log.d("IS_DEBUG", "IS_DEBUG: $IS_DEBUG")
-            Log.d("NETWORK_DEBUG", "IS_DEBUG: $DEBUG_NETWORK")
-
             HackatimeStatsTheme {
                 val activity = this@MainActivity
 

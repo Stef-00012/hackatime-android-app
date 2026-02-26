@@ -4,17 +4,16 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.stefdp.hackatime.network.ApiClient
-import com.stefdp.hackatime.network.backendapi.models.requests.SendPushNotificationTokenBody
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserBody
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.backendapi.models.responses.SendPushNotificationTokenResponse
+import com.stefdp.hackatime.network.backendapi.models.responses.UpdateUserResponse
 import com.stefdp.hackatime.utils.SecureStorage
 import kotlinx.datetime.TimeZone
 
-private const val TAG = "BackendApi[sendPushNotificationToken]"
+private const val TAG = "BackendApi[updateUser]"
 
-suspend fun sendPushNotificationToken(
+suspend fun updateUser(
     context: Context,
-    token: String,
 ): Boolean {
     try {
         val secureStore = SecureStorage.getInstance(context)
@@ -27,10 +26,9 @@ suspend fun sendPushNotificationToken(
 
         val timeZoneId = TimeZone.currentSystemDefault().id
 
-        val response = ApiClient.backendApi.sendPushNotificationToken(
+        val response = ApiClient.backendApi.updateUser(
             apiKey = apiKey,
-            token = SendPushNotificationTokenBody(
-                androidPushToken = token,
+            userData = UpdateUserBody(
                 timeZone = timeZoneId
             )
         )
@@ -52,7 +50,7 @@ suspend fun sendPushNotificationToken(
             return false
         }
 
-        if (body is SendPushNotificationTokenResponse) {
+        if (body is UpdateUserResponse) {
             return body.success
         }
 

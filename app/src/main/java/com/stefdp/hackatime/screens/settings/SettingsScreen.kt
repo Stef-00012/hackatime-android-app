@@ -66,6 +66,7 @@ import com.stefdp.hackatime.network.backendapi.requests.getUser
 import com.stefdp.hackatime.network.backendapi.requests.getUserNotificationCategories
 import com.stefdp.hackatime.network.backendapi.requests.sendApiKey
 import com.stefdp.hackatime.network.backendapi.requests.sendPushNotificationToken
+import com.stefdp.hackatime.network.backendapi.requests.updateUser
 import com.stefdp.hackatime.network.backendapi.requests.updateUserNotificationCategories
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.settings.components.Container
@@ -520,6 +521,8 @@ fun SettingsScreen(
                                 NotificationCategory.GOALS to goalsNotificationsEnabled
                             )
                         )
+
+                        updateUser(context)
 
                         motivationalNotificationsEnabled = newNotificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
                         goalsNotificationsEnabled = newNotificationCategories[NotificationCategory.GOALS] == true

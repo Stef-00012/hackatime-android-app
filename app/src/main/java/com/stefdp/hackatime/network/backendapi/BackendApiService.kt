@@ -4,6 +4,7 @@ import com.stefdp.hackatime.network.backendapi.models.Goal
 import com.stefdp.hackatime.network.backendapi.models.GoalDate
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
 import com.stefdp.hackatime.network.backendapi.models.requests.SendPushNotificationTokenBody
+import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserBody
 import com.stefdp.hackatime.network.backendapi.models.requests.UpdateUserGoalBody
 import com.stefdp.hackatime.network.backendapi.models.responses.NotificationCategoriesResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.DeleteUserResponse
@@ -12,6 +13,7 @@ import com.stefdp.hackatime.network.backendapi.models.responses.GetUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendApiKeyResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.SendPushNotificationTokenResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.UpdateNotificationCategoriesResponse
+import com.stefdp.hackatime.network.backendapi.models.responses.UpdateUserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -53,6 +55,12 @@ interface BackendApiService {
     suspend fun deleteUser(
         @Header("Authorization") apiKey: String,
     ): Response<DeleteUserResponse>
+
+    @PATCH("user")
+    suspend fun updateUser(
+        @Header("Authorization") apiKey: String,
+        @Body userData: UpdateUserBody
+    ): Response<UpdateUserResponse>
 
     @GET("goals")
     suspend fun getUserGoals(
