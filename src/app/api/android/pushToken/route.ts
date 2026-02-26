@@ -15,9 +15,10 @@ export async function POST(req: NextRequest) {
 
 	const body = (await req.json()) as {
 		androidPushToken: string;
+		timeZone: string;
 	};
 
-	if (!body.androidPushToken)
+	if (!body.androidPushToken || !body.timeZone)
 		return NextResponse.json(
 			{ error: "Invalid body", success: false },
 			{ status: 400 },
@@ -33,25 +34,36 @@ export async function POST(req: NextRequest) {
 			{ status: 400 },
 		);
 
+	const timeZone = body.timeZone;
+
+	if (!Intl.supportedValuesOf("timeZone").includes(timeZone)) 
+		return NextResponse.json(
+			{ error: "Invalid time zone", success: false },
+			{ status: 400 },
+		);
+
 	const user = await db.query.users.findFirst({
 		where: eq(schema.users.apiKey, apiKey),
 	});
 
-	if (user?.androidPushToken === androidPushToken)
+	if (user?.androidPushToken === androidPushToken && user.timeZone === timeZone) {
 		return NextResponse.json({
 			success: true,
 		});
+	}
 
 	await db
 		.insert(schema.users)
 		.values({
 			apiKey,
 			androidPushToken,
+			timeZone,
 		})
 		.onConflictDoUpdate({
 			target: schema.users.apiKey,
 			set: {
 				androidPushToken,
+				timeZone,
 			},
 		});
 

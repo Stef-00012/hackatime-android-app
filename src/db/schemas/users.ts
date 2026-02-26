@@ -10,4 +10,7 @@ export const users = sqliteTable("users", {
 		.notNull()
 		.default({})
 		.$type<Record<NotificationCategory, boolean>>(),
+	timeZone: text("time_zone")
+		.notNull()
+		.default("Europe/Rome"),
 });

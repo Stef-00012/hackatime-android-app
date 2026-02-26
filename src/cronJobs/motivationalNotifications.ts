@@ -49,6 +49,10 @@ export async function motivationalNotificationsCronJob() {
 
 		if (!token) continue;
 
+		const timeZone = user.timeZone;
+
+		if (!isNotificationTime(timeZone)) continue;
+
 		const motivationalMessage =
 			motivationalMessages[
 				Math.floor(Math.random() * motivationalMessages.length)
@@ -74,4 +78,21 @@ export async function motivationalNotificationsCronJob() {
 	}
 
 	await sendPushNotifications(notifications);
+}
+
+function isNotificationTime(timezone: string): boolean {
+	const formatter = new Intl.DateTimeFormat("en-US", {
+		hour: "numeric",
+		hour12: false,
+		timeZone: timezone,
+	});
+
+	const parts = formatter.formatToParts(new Date());
+	const hourPart = parts.find((part) => part.type === "hour");
+
+	if (!hourPart) return false;
+
+	const hour = parseInt(hourPart.value, 10);
+
+	return hour === 9 || hour === 21;
 }

@@ -38,7 +38,7 @@ app.prepare().then(async () => {
 			`\x1b[33m[\x1b[1m${new Date().toISOString()}\x1b[0;33m] \x1b[34mStarted cron jobs\x1b[0m`,
 		);
 
-		const motivationalNotifsCronJobInterval = "0 */12 * * *"; // every 12 hours
+		const motivationalNotifsCronJobInterval = "0 */1 * * *"; // every 1 hour
 
 		schedule.scheduleJob(
 			motivationalNotifsCronJobInterval,

@@ -83,11 +83,13 @@ export async function goalsCronJob() {
 						date: today,
 						achieved: userTodayData.grand_total.total_seconds,
 						goal: goal.goal,
+						notificationsSent: notificationsSent,
 					})
 					.onConflictDoUpdate({
 						target: [schema.goals.apiKey, schema.goals.date],
 						set: {
 							achieved: userTodayData.grand_total.total_seconds,
+							notificationsSent: notificationsSent,
 						},
 					});
 
@@ -98,9 +100,13 @@ export async function goalsCronJob() {
 				.update(schema.goals)
 				.set({
 					achieved: userTodayData.grand_total.total_seconds,
+					notificationsSent: notificationsSent,
 				})
 				.where(
-					and(eq(schema.goals.apiKey, apiKey), eq(schema.goals.date, today)),
+					and(
+						eq(schema.goals.apiKey, apiKey),
+						eq(schema.goals.date, today),
+					),
 				);
 		}
 
