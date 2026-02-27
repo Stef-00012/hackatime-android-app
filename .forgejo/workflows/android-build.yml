@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: test
-        run: which zip
+      - name: Install ZIP Util
+        run: apt install zip -y
 
       - name: Get App Version
         id: app_version
