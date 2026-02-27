@@ -16,22 +16,29 @@ android {
         applicationId = "com.stefdp.hackatime"
         minSdk = 26
         targetSdk = 36
-        versionCode = 13
-        versionName = "2.0.2"
+        versionCode = 14
+        versionName = "2.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-//            isMinifyEnabled = false
             isMinifyEnabled = true
+            isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
 
+            isDebuggable = false
+
 //            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        debug {
+            isDebuggable = true
         }
     }
     compileOptions {
