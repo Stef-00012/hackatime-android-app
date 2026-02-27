@@ -18,6 +18,7 @@ android {
         targetSdk = 36
         versionCode = 14
         versionName = "2.0.3"
+        ndkVersion = "29.0.14206865"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +34,10 @@ android {
             )
 
             isDebuggable = false
+
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
 
 //            signingConfig = signingConfigs.getByName("debug")
         }
