@@ -17,8 +17,8 @@ jobs:
 
       - name: Install ZIP Util
         run: |
-          sudo apt-get update
-          sudo apt-get install zip -y
+          apt-get update
+          apt-get install zip -y
 
       - name: test
         run: |
