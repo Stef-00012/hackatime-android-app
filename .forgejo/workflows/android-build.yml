@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    if: forgejo.event_name == 'workflow_dispatch' || (forgejo.event_name == 'push' && (startsWith(forgejo.event.head_commit.message, '[build]') || startsWith(forgejo.event.head_commit.message, '[release]')))
     runs-on: node
     steps:
       - uses: actions/checkout@v4

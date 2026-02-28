@@ -16,7 +16,7 @@ android {
         applicationId = "com.stefdp.hackatime"
         minSdk = 26
         targetSdk = 36
-        versionCode = 15
+        versionCode = 16
         versionName = "2.0.4"
         ndkVersion = "29.0.14206865"
 
