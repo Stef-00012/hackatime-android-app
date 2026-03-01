@@ -92,6 +92,7 @@ fun BiometricAuthScreen(
                 text = stringResource(R.string.unlock_button),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             )
         }
