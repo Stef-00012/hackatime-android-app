@@ -1,6 +1,7 @@
 "use client";
 
 import previewImage1 from "#/images/app/image1.png";
+import previewImage10 from "#/images/app/image10.png";
 import previewImage2 from "#/images/app/image2.png";
 import previewImage3 from "#/images/app/image3.png";
 import previewImage4 from "#/images/app/image4.png";
@@ -9,7 +10,6 @@ import previewImage6 from "#/images/app/image6.png";
 import previewImage7 from "#/images/app/image7.png";
 import previewImage8 from "#/images/app/image8.png";
 import previewImage9 from "#/images/app/image9.png";
-import previewImage10 from "#/images/app/image10.png"
 import githubButton from "#/images/github.png";
 import googlePlayButton from "#/images/google-play.png";
 import icon from "#/images/icon.png";
@@ -128,7 +128,7 @@ export default function Home() {
 
 				<Tooltip
 					clickable
-					anchorSelect="#som-tooltip-target"
+					anchorSelect="#flavortown-tooltip-target"
 					style={{
 						backgroundColor: elevated,
 					}}
@@ -156,9 +156,9 @@ export default function Home() {
 				{/** biome-ignore lint/a11y/useValidAnchor: The anchor is used just for the tooltip */}
 				<a
 					className="cursor-pointer font-semibold text-white text-[1.15em] underline! decoration-dotted"
-					id="som-tooltip-target"
+					id="flavortown-tooltip-target"
 				>
-					From Summer of Making?
+					From Flavortown?
 				</a>
 
 				<h1 className="font-bold text-5xl! my-4">Features</h1>
