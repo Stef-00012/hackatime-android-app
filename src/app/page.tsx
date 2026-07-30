@@ -43,7 +43,7 @@ export default function Home() {
 	useEffect(() => {
 		axios
 			.get(
-				"https://api.github.com/repos/Stef-00012/Hackatime-Android-App/releases/latest",
+				"https://api.github.com/repos/Stef-DP/Hackatime-Android-App/releases/latest",
 			)
 			.then((res) => {
 				const data = res.data;
@@ -72,7 +72,7 @@ export default function Home() {
 
 				<div>
 					<Link
-						href="https://github.com/Stef-00012/Hackatime-Android-App"
+						href="https://github.com/Stef-DP/Hackatime-Android-App"
 						rel="noopener noreferrer"
 						target="_blank"
 					>
