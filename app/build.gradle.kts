@@ -9,18 +9,20 @@ plugins {
 android {
     namespace = "com.stefdp.hackatime"
     compileSdk {
-        version = release(36)
+        version = release(37)
     }
 
     defaultConfig {
         applicationId = "com.stefdp.hackatime"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 18
         versionName = "2.0.6"
         ndkVersion = "29.0.14206865"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["appAuthRedirectScheme"] = "hackatime"
     }
 
     buildTypes {
@@ -107,4 +109,7 @@ dependencies {
     implementation(libs.glance.appwidget.preview)
     debugImplementation(libs.glance.preview)
     debugImplementation(libs.glance.appwidget.preview)
+
+    // OAuth
+    implementation(libs.openid.appauth)
 }

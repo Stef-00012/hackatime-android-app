@@ -1,43 +1,46 @@
 [versions]
-agp = "9.1.0"
-coreKtx = "1.17.0"
+agp = "9.3.2"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.4"
-kotlin = "2.3.10"
-composeBom = "2026.02.01"
-workRuntimeKtx = "2.11.1"
-datastore-preferences = "1.2.0"
-kotlinxSerialization = "1.10.0"
-kotlinx-datetime = "0.7.1"
-biometric = "1.4.0-alpha05"
-fragment = "1.8.9"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+kotlin = "2.4.10"
+composeBom = "2026.08.00"
+workRuntimeKtx = "2.11.2"
+datastore-preferences = "1.2.1"
+kotlinxSerialization = "1.11.0"
+kotlinx-datetime = "0.8.0"
+biometric = "1.4.0-alpha07"
+fragment = "1.9.0"
 core-splashscreen = "1.2.0"
 
 # Firebase
-firebase-bom = "34.10.0"
-google-services = "4.4.4"
+firebase-bom = "34.18.0"
+google-services = "4.5.0"
 
 # Retrofit
 retrofit = "3.0.0"
 converter-gson = "3.0.0"
-logging-interceptor = "5.3.2"
-navigationCompose = "2.9.7"
+logging-interceptor = "5.5.0"
+navigationCompose = "2.10.0"
 
 # Charts
 #vico = "3.0.0-beta.3"
-compose-charts = "0.2.5"
+compose-charts = "1.0.0"
 
 # Skeleton Loading
-compose-shimmer = "1.3.3"
+compose-shimmer = "1.5.0"
 
 # Date to Human Readable
-human-readbale = "1.12.3"
+human-readbale = "1.13.1"
 
 # Widgets
-glance = "1.1.1"
+glance = "1.2.0"
+
+# OAuth
+openid-appauth = "0.11.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -89,6 +92,9 @@ glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", versi
 glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 glance-preview = { group = "androidx.glance", name = "glance-preview", version.ref = "glance" }
 glance-appwidget-preview = { group = "androidx.glance", name = "glance-appwidget-preview", version.ref = "glance" }
+
+# OAuth
+openid-appauth = { group = "net.openid", name = "appauth", version.ref = "openid-appauth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
