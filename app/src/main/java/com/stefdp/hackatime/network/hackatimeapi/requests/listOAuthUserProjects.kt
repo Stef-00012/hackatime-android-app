@@ -5,38 +5,45 @@ import com.google.gson.Gson
 import com.stefdp.hackatime.Logger
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
+import com.stefdp.hackatime.network.hackatimeapi.models.Project
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserHoursResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserStreakResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserLast7DaysStatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListOAuthUserProjectsResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getWakatimeUser]"
+private const val TAG = "HackatimeApi[listOAuthUserProjects]"
 
-suspend fun getWakatimeUser(
+suspend fun listOAuthUserProjects(
     context: Context,
-    userId: String = "current"
-): Result<GetWakatimeUserResponse.Data> {
+    includeArchived: Boolean? = null,
+    projects: List<String>? = null,
+    projectsStart: String? = null,
+    projectsEnd: String? = null,
+    statsStart: String? = null,
+    statsEnd: String? = null
+): Result<List<Project>> {
     try {
         val secureStore = SecureStorage.getInstance(context)
 
-        var apiKey = secureStore.get(SecureStorage.STORAGE_API_KEY)
+        val accessToken = secureStore.get(SecureStorage.STORAGE_ACCESS_TOKEN)
 
-        if (apiKey.isNullOrBlank()) {
-            val apiKeysResponse = getOAuthUserApiKeys(context)
-
-            if (apiKeysResponse.isFailure) {
-                return Result.failure(
-                    Exception(context.getString(R.string.missing_api_key))
-                )
-            }
-
-            apiKey = apiKeysResponse.getOrNull()?.token ?: return Result.failure(
-                Exception(context.getString(R.string.missing_api_key))
+        if (accessToken.isNullOrBlank()) {
+            return Result.failure(
+                Exception(context.getString(R.string.missing_access_token))
             )
         }
 
-        val response = ApiClient.hackatimeApi.getWakatimeUser(
-            authorization = "Bearer $apiKey",
-            userId = userId
+        val response = ApiClient.hackatimeApi.listOAuthUserProjects(
+            authorization = "Bearer $accessToken",
+            includeArchived = includeArchived,
+            projects = projects?.joinToString(","),
+            projectsStart = projectsStart,
+            projectsEnd = projectsEnd,
+            statsStart = statsStart,
+            statsEnd = statsEnd
         )
 
         val body = response.body()
@@ -68,8 +75,8 @@ suspend fun getWakatimeUser(
             )
         }
 
-        if (body is GetWakatimeUserResponse) {
-            return Result.success(body.data)
+        if (body is ListOAuthUserProjectsResponse) {
+            return Result.success(body.projects)
         }
 
         return Result.failure(

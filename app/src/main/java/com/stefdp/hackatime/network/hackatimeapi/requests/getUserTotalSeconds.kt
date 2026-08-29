@@ -14,15 +14,16 @@ import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboard
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserProjectNamesResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserStatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserTotalSecondsResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListUserProjectDetailsResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserStats]"
+private const val TAG = "HackatimeApi[getUserTotalSeconds]"
 
-suspend fun getUserStats(
+suspend fun getUserTotalSeconds(
     context: Context,
     username: String,
     startDate: String? = null,
@@ -32,7 +33,7 @@ suspend fun getUserStats(
     filterByProject: List<String>? = null,
     filterByCategory: List<String>? = null,
     noAiCoding: Boolean? = null,
-): Result<GetUserStatsResponse> {
+): Result<Long> {
     try {
         val response = if (username == "my") {
             val secureStore = SecureStorage.getInstance(context)
@@ -45,7 +46,7 @@ suspend fun getUserStats(
                 )
             }
 
-            ApiClient.hackatimeApi.getUserStats(
+            ApiClient.hackatimeApi.getUserTotalSeconds(
                 authorization = "Bearer $accessToken",
                 username = username,
                 startDate = startDate,
@@ -57,7 +58,7 @@ suspend fun getUserStats(
                 noAiCoding = noAiCoding
             )
         } else {
-            ApiClient.hackatimeApi.getUserStats(
+            ApiClient.hackatimeApi.getUserTotalSeconds(
                 username = username,
                 startDate = startDate,
                 endDate = endDate,
@@ -98,8 +99,8 @@ suspend fun getUserStats(
             )
         }
 
-        if (body is GetUserStatsResponse) {
-            return Result.success(body)
+        if (body is GetUserTotalSecondsResponse) {
+            return Result.success(body.totalSeconds)
         }
 
         return Result.failure(

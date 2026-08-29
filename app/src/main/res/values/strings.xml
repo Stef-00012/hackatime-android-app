@@ -9,10 +9,9 @@
     <string name="close_button">Close</string>
     <string name="cancel_button">Cancel</string>
     <string name="save_button">Save</string>
-    <string name="login_button">Login</string>
-    <string name="hackatime_api_key_input_label">Hackatime API Key</string>
-    <string name="share_api_key_with_server_switch_label">Share API key with the app\'s server</string>
-    <string name="send_api_key_fail_message">Failed to send the API key to the server. Please try again later</string>
+    <string name="login_button">Login with Hackatime</string>
+    <string name="share_data_with_server_switch_label">Share Data with the app\'s server</string>
+    <string name="send_data_fail_message">Failed to send the data to the server. Please try again later</string>
     <string name="biometric_authentication_failed">Biometric authentication failed</string>
     <string name="unknown">Unknown</string>
     <string name="top_project">Top Project</string>
@@ -76,8 +75,8 @@
     <string name="side_button_content_description_generic">Side Button</string>
 
     <!--  screens.goals.GoalsScreen  -->
-    <string name="api_key_not_on_server_title">API key not on the server</string>
-    <string name="api_key_not_on_server_message">You must share your API key with the server in order to  use the goals feature</string>
+    <string name="data_not_on_server_title">Data not on the server</string>
+    <string name="data_not_on_server_message">You must share your data with the server in order to  use the goals feature</string>
     <string name="api_key_not_on_server_home_button">Go to Home</string>
     <string name="update_goal_button">Update Goal</string>
     <string name="update_goal_popup_title">Update Goal</string>
@@ -113,8 +112,7 @@
 
     <!--  screens.login.LoginScreen  -->
     <string name="login_title">Login</string>
-    <string name="share_api_key_with_server_switch_description_login">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature</string>
-    <string name="no_api_key_tooltip">Don\'t have an API key? Get it [link]here[/link]</string>
+    <string name="share_data_with_server_switch_description_login">If you don\'t share the data, you won\'t be able to receive push notifications or use the goals feature</string>
     <string name="privacy_policy_tooltip">Privacy Policy</string>
 
     <!--  screens.projects.ProjectsScreen  -->
@@ -127,11 +125,11 @@
 
     <!--  screens.settings.SettingsScreen  -->
     <string name="app_settings_title">App Settings</string>
-    <string name="share_api_key_with_server_switch_description_settings">If you don\'t share the API key, you won\'t be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your API key from the server</string> <!--  \n stands for new line  -->
+    <string name="share_data_with_server_switch_description_settings">If you don\'t share the data, you won\'t be able to receive push notifications or use the goals feature.\nDisabling this toggle will also delete your data from the server</string> <!--  \n stands for new line  -->
     <string name="unlock_with_biometrics_switch_label">Unlock with Biometrics</string>
     <string name="unlock_with_biometrics_switch_description">Require biometric authentication to unlock the app%1$s</string>
     <string name="unlock_with_biometrics_switch_description_enroll_warning">.&lt;br&gt; &lt;b&gt;NOTE:&lt;/b&gt; You will be prompted to enroll an authentication method</string>  <!--  &lt;b&gt; and &lt;/b&gt; stand respectively for start and end of bold text | &lt;br&gt; stands for new line  -->
-    <string name="delete_api_key_fail_message">Failed to delete the API key from the server. Please try again later</string>
+    <string name="delete_data_fail_message">Failed to delete the data from the server. Please try again later</string>
     <string name="settings_saved_message">Settings Saved</string>
     <string name="save_settings_content_description">Save App Settings</string>
     <string name="logout_content_description">Logout</string>
@@ -163,9 +161,12 @@
     <string name="loading_title">Loading…</string>
 
     <!--  network.hackatimeapi.requests.*  -->
+    <string name="missing_access_token">Missing Access Token</string>
     <string name="missing_api_key">Missing API Key</string>
+    <string name="invalid_access_token">Invalid Access Token</string>
     <string name="invalid_api_key">Invalid API Key</string>
     <string name="generic_error">Something went wrong…</string>
+    <string name="no_heartbeat_available">No Heartbeat Available</string>
 
     <!--  MainActivity  -->
     <string name="no_internet_connection_content_description">No Internet Connection</string>

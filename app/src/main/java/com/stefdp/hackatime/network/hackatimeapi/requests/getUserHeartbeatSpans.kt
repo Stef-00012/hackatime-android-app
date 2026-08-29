@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import com.stefdp.hackatime.Logger
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
-import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
@@ -15,15 +14,23 @@ import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserTrustFactor]"
+private const val TAG = "HackatimeApi[getUserHeartbeatSpans]"
 
-suspend fun getUserTrustFactor(
+suspend fun getUserHeartbeatSpans(
     context: Context,
-    username: String
-): Result<TrustFactor> {
+    username: String,
+    startDate: String? = null,
+    endDate: String? = null,
+    project: String? = null,
+    filterByProject: List<String>? = null,
+): Result<List<Heartbeat.Span>> {
     try {
-        val response = ApiClient.hackatimeApi.getUserTrustFactor(
-            username = username
+        val response = ApiClient.hackatimeApi.getUserHeartbeatSpans(
+            username = username,
+            startDate = startDate,
+            endDate = endDate,
+            project = project,
+            filterByProject = filterByProject?.joinToString(",")
         )
 
         val body = response.body()
@@ -55,8 +62,8 @@ suspend fun getUserTrustFactor(
             )
         }
 
-        if (body is TrustFactor) {
-            return Result.success(body)
+        if (body is GetUserHeartbeatSpansResponse) {
+            return Result.success(body.spans)
         }
 
         return Result.failure(

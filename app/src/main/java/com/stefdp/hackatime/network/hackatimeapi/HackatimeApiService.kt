@@ -1,15 +1,26 @@
 package com.stefdp.hackatime.network.hackatimeapi
 
-import com.stefdp.hackatime.network.hackatimeapi.models.UserTrustFactor
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.CurrentUserRawHeartbeatsResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ProjectDetail
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserHeartbeatSpansResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserProjectDetailsResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserProjectsResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStatsLast7DaysResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStatsResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStatsTotalSecondsResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserTodayDataResponse
+import com.google.gson.JsonObject
+import com.stefdp.hackatime.network.hackatimeapi.models.ProjectDetails
+import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetMyMostRecentHeartbeatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserApiKeysResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserHoursResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserStreakResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserProjectNamesResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserStatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserTotalSecondsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserLast7DaysStatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserTodayDataResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListMyHeartbeatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListOAuthUserProjectsResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListUserProjectDetailsResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -19,116 +30,168 @@ import retrofit2.http.Query
 private const val API_VERSION = "v1"
 
 interface HackatimeApiService {
-    @GET("${API_VERSION}/users/my/stats")
-    suspend fun getCurrentUserStats(
-        @Header("Authorization") authorization: String,
-        @Query("start_date") startDate: String? = null,
-        @Query("end_date") endDate: String? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("filter_by_project") filterByProject: String? = null,
-        @Query("features") features: String? = null,
-    ): Response<UserStatsResponse>
+    // Wakatime Compatibility - require api key
 
-    @GET("hackatime/${API_VERSION}/users/current/stats/last_7_days")
-    suspend fun getCurrentUserStatsLast7Days(
-        @Header("Authorization") authorization: String,
-        @Query("features") features: String? = null,
-    ): Response<UserStatsLast7DaysResponse>
-
-    @GET("${API_VERSION}/users/my/stats?total_seconds=true")
-    suspend fun getCurrentUserStatsTotalSeconds(
-        @Header("Authorization") authorization: String,
-    ): Response<UserStatsTotalSecondsResponse>
-
-    @GET("${API_VERSION}/users/{userId}/stats")
-    suspend fun getUserStats(
+    @GET("hackatime/${API_VERSION}/users/{userId}")
+    suspend fun getWakatimeUser(
         @Header("Authorization") authorization: String,
         @Path("userId") userId: String,
-        @Query("start_date") startDate: String? = null,
-        @Query("end_date") endDate: String? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("filter_by_project") filterByProject: String? = null,
-        @Query("features") features: String? = null,
-    ): Response<UserStatsResponse>
+    ): Response<GetWakatimeUserResponse>
 
-    @GET("hackatime/${API_VERSION}/users/current/statusbar/today")
-    suspend fun getCurrentUserTodayData(
+    @GET("hackatime/${API_VERSION}/users/{userId}/summaries")
+    suspend fun getWakatimeUserSummaries(
         @Header("Authorization") authorization: String,
-    ): Response<UserTodayDataResponse>
+        @Path("userId") userId: String = "current",
+        @Query("start") startDate: String,
+        @Query("end") endDate: String,
+        @Query("project") projects: String? = null,
+        @Query("timezone") timezone: String? = null,
+    ): Response<GetWakatimeUserSummariesResponse>
 
     @GET("hackatime/${API_VERSION}/users/{userId}/statusbar/today")
-    suspend fun getUserTodayData(
+    suspend fun getWakatimeUserTodayData(
         @Header("Authorization") authorization: String,
-        @Path("userId") userId: String
-    ): Response<UserTodayDataResponse>
+        @Path("userId") userId: String = "current"
+    ): Response<GetWakatimeUserTodayDataResponse>
 
-    @GET("${API_VERSION}/users/{userId}/trust_factor")
-    suspend fun getUserTrustFactor(
+    @GET("hackatime/${API_VERSION}/users/{userId}/stats/last_7_days")
+    suspend fun getWakatimeUserLast7DaysStats(
         @Header("Authorization") authorization: String,
-        @Path("userId") userId: String
-    ): Response<UserTrustFactor>
+        @Path("userId") userId: String = "current"
+    ): Response<GetWakatimeUserLast7DaysStatsResponse>
 
-    @GET("${API_VERSION}/my/heartbeats")
-    suspend fun getCurrentUserRawHeartbeats(
+    // OAuth2-specific - require access token
+
+    @GET("${API_VERSION}/authenticated/me")
+    suspend fun getOAuthUser(
+        @Header("Authorization") authorization: String
+    ): Response<GetOAuthUserResponse>
+
+    @GET("${API_VERSION}/authenticated/hours")
+    suspend fun getOAuthUserHours(
         @Header("Authorization") authorization: String,
         @Query("start_date") startDate: String? = null,
         @Query("end_date") endDate: String? = null,
-        @Query("limit") limit: Int? = null,
-    ): Response<CurrentUserRawHeartbeatsResponse>
+    ): Response<GetOAuthUserHoursResponse>
+
+    @GET("${API_VERSION}/authenticated/streak")
+    suspend fun getOAuthUserStreak(
+        @Header("Authorization") authorization: String,
+    ): Response<GetOAuthUserStreakResponse>
+
+    @GET("${API_VERSION}/authenticated/projects")
+    suspend fun listOAuthUserProjects(
+        @Header("Authorization") authorization: String,
+        @Query("include_archived") includeArchived: Boolean? = null,
+        @Query("projects") projects: String? = null, // comma separated names
+        @Query("since") projectsStart: String? = null,
+        @Query("until") projectsEnd: String? = null,
+        @Query("start") statsStart: String? = null,
+        @Query("end") statsEnd: String? = null,
+    ): Response<ListOAuthUserProjectsResponse>
+
+    @GET("${API_VERSION}/authenticated/api_keys")
+    suspend fun getOAuthUserApiKeys(
+        @Header("Authorization") authorization: String,
+    ): Response<GetOAuthUserApiKeysResponse>
+
+    @GET("${API_VERSION}/authenticated/heartbeats/latest")
+    suspend fun getOAuthUserLatestHeartbeat(
+        @Header("Authorization") authorization: String
+    ): Response<JsonObject> // either GetOAuthUserLatestHeartbeatsResponse or GetOAuthUserLatestHeartbeatsError
+
+    // Currently hacking - no auth
+
+    @GET("${API_VERSION}/currently_hacking")
+    suspend fun listCurrentlyHackingUsers(): Response<ListCurrentlyHackingUsers>
+
+    // Leaderboard - no auth
+
+    @GET("${API_VERSION}/leaderboard/daily")
+    suspend fun getDailyLeaderboard(): Response<GetLeaderboardResponse>
+
+    @GET("${API_VERSION}/leaderboard/weekly")
+    suspend fun getWeeklyLeaderboard(): Response<GetLeaderboardResponse>
+
+    // My Data - require access token or api key
 
     @GET("${API_VERSION}/my/heartbeats/most_recent")
-    suspend fun getCurrentUserMostRecentRawHeartbeats(
+    suspend fun getMyMostRecentHeartbeats(
         @Header("Authorization") authorization: String,
-        @Query("start_date") startDate: String? = null,
-        @Query("end_date") endDate: String? = null,
-        @Query("limit") limit: Int? = null,
-    ): Response<CurrentUserRawHeartbeatsResponse>
+        @Query("editor") editor: String? = null,
+    ): Response<GetMyMostRecentHeartbeatsResponse>
 
-    @GET("${API_VERSION}/users/{userId}/heartbeats/spans")
-    suspend fun getUserHeartbeatsSpans(
-        @Header("Authorization") authorization: String,
-        @Path("userId") userId: String,
+    @GET("${API_VERSION}/my/heartbeats")
+    suspend fun listMyHeartbeats(
+         @Header("Authorization") authorization: String,
+         @Query("start_date") startDate: String? = null,
+         @Query("end_date") endDate: String? = null,
+    ): Response<ListMyHeartbeatsResponse>
+
+    // Stats - no auth
+
+    @GET("${API_VERSION}/users/{username}/heartbeats/spans")
+    fun getUserHeartbeatSpans(
+        @Path("username") username: String,
         @Query("start_date") startDate: String? = null,
         @Query("end_date") endDate: String? = null,
         @Query("project") project: String? = null,
-        @Query("filter_by_project") filterByProject: String? = null,
-    ): Response<UserHeartbeatSpansResponse>
+        @Query("filter_by_project") filterByProject: String? = null, // comma separated projects
+    ): Response<GetUserHeartbeatSpansResponse>
 
-    @GET("${API_VERSION}/users/{userId}/projects")
-    suspend fun getUserProjects(
-        @Header("Authorization") authorization: String,
-        @Path("userId") userId: String,
-    ): Response<UserProjectsResponse>
+    @GET("${API_VERSION}/users/{username}/trust_factor")
+    suspend fun getUserTrustFactor(
+        @Path("username") username: String
+    ): Response<TrustFactor>
 
-    @GET("${API_VERSION}/users/{userId}/projects/details")
-    suspend fun getUserDetailedProjects(
-        @Header("Authorization") authorization: String,
-        @Path("userId") userId: String,
-    ): Response<UserProjectDetailsResponse>
+    @GET("${API_VERSION}/users/{username}/projects")
+    suspend fun getUserProjectNames(
+        @Path("username") username: String
+    ): Response<GetUserProjectNamesResponse>
 
-    @GET("${API_VERSION}/users/my/projects")
-    suspend fun getCurrentUserProjects(
-        @Header("Authorization") authorization: String,
-    ): Response<UserProjectsResponse>
-
-    @GET("${API_VERSION}/users/my/projects/details")
-    suspend fun getCurrentUserDetailedProjects(
-        @Header("Authorization") authorization: String,
-    ): Response<UserProjectDetailsResponse>
-
-    @GET("${API_VERSION}/users/my/project/{projectName}")
-    suspend fun getCurrentUserProject(
-        @Header("Authorization") authorization: String,
+    @GET("${API_VERSION}/users/{username}/projects/{projectName}")
+    suspend fun getUserProjectDetails(
+        @Path("username") username: String,
         @Path("projectName") projectName: String,
-    ): Response<ProjectDetail>
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+    ): Response<ProjectDetails>
 
-    @GET("${API_VERSION}/users/{userId}/project/{projectName}")
-    suspend fun getUserProject(
-        @Header("Authorization") authorization: String,
-        @Path("userId") userId: String,
-        @Path("projectName") projectName: String,
-    ): Response<ProjectDetail>
+    @GET("${API_VERSION}/users/{username}/projects/details")
+    suspend fun listUserProjectDetails(
+        @Path("username") username: String,
+        @Query("projects") projects: String? = null, // comma separated project names
+        @Query("since") projectsStartDate: String? = null,
+        @Query("until") projectsEndDate: String? = null,
+        @Query("start") statsStartDate: String? = null,
+        @Query("end") statsEndDate: String? = null,
+    ): Response<ListUserProjectDetailsResponse>
 
-    @GET("${API_VERSION}/ysws_programs")
-    suspend fun getYSWSPrograms(): Response<List<String>>
+    @GET("${API_VERSION}/users/{username}/stats")
+    suspend fun getUserStats(
+        @Header("Authorization") authorization: String? = null, // only needed if username = "my"
+        @Path("username") username: String,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("features") features: String? = null, // comma separated list of Feature
+        @Query("filter_by_project") filterByProject: String? = null, // comma separated list of project names
+        @Query("filter_by_category") filterByCategory: String? = null, // comma separated list of category names
+        @Query("no_ai_coding") noAiCoding: Boolean? = null,
+    ): Response<GetUserStatsResponse>
+
+    @GET("${API_VERSION}/users/{username}/stats")
+    suspend fun getUserTotalSeconds(
+        @Header("Authorization") authorization: String? = null, // only needed if username = "my"
+        @Path("username") username: String,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("features") features: String? = null, // comma separated list of Feature
+        @Query("filter_by_project") filterByProject: String? = null, // comma separated list of project names
+        @Query("filter_by_category") filterByCategory: String? = null, // comma separated list of category names
+        @Query("no_ai_coding") noAiCoding: Boolean? = null,
+        @Query("total_seconds") totalSeconds: Boolean = true,
+        @Query("boundary_aware") useBoundaryAwakeCalculation: Boolean? = null
+    ): Response<GetUserTotalSecondsResponse>
 }

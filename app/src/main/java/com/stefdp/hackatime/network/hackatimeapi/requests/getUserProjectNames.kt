@@ -10,19 +10,20 @@ import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserProjectNamesResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserTrustFactor]"
+private const val TAG = "HackatimeApi[getUserProjectNames]"
 
-suspend fun getUserTrustFactor(
+suspend fun getUserProjectNames(
     context: Context,
     username: String
-): Result<TrustFactor> {
+): Result<List<String>> {
     try {
-        val response = ApiClient.hackatimeApi.getUserTrustFactor(
+        val response = ApiClient.hackatimeApi.getUserProjectNames(
             username = username
         )
 
@@ -55,8 +56,8 @@ suspend fun getUserTrustFactor(
             )
         }
 
-        if (body is TrustFactor) {
-            return Result.success(body)
+        if (body is GetUserProjectNamesResponse) {
+            return Result.success(body.projects)
         }
 
         return Result.failure(

@@ -1,17 +1,23 @@
 package com.stefdp.hackatime.network.hackatimeapi.models
 
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import com.stefdp.hackatime.utils.GeneralStat
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 data class Project(
-    override val name: String,
-    @SerializedName("total_seconds") override val totalSeconds: Double,
-    override val text: String,
-    override val hours: Double,
-    override val minutes: Double,
-    override val percent: Double,
-    override val digital: String,
-) : GeneralStat, Parcelable
+    val archived: Boolean,
+    val languages: List<String>,
+    @SerializedName("most_recent_heartbeat") val mostRecentHeartbeat: String? = null,
+    val name: String,
+    @SerializedName("total_seconds") val totalSeconds: Long,
+)
+
+data class ProjectDetails(
+    val archived: Boolean,
+    @SerializedName("first_heartbeat") val firstHeartbeat: String? = null,
+    val languages: List<String>,
+    @SerializedName("last_heartbeat") val lastHeartbeat: String? = null,
+    @SerializedName("most_recent_heartbeat") val mostRecentHeartbeat: String? = null,
+    val name: String,
+    @SerializedName("repo_url") val repoUrl: String? = null,
+    @SerializedName("total_heartbeats") val totalHeartbeats: Long,
+    @SerializedName("total_seconds") val totalSeconds: Long,
+)

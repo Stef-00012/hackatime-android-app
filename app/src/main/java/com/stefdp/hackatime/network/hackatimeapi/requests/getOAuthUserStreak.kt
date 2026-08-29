@@ -1,29 +1,35 @@
 package com.stefdp.hackatime.network.hackatimeapi.requests
 
-import android.R.attr.apiKey
 import android.content.Context
 import com.google.gson.Gson
 import com.stefdp.hackatime.Logger
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
-import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserHoursResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserStreakResponse
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserLast7DaysStatsResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserTrustFactor]"
+private const val TAG = "HackatimeApi[getOAuthUserStreak]"
 
-suspend fun getUserTrustFactor(
-    context: Context,
-    username: String
-): Result<TrustFactor> {
+suspend fun getOAuthUserStreak(
+    context: Context
+): Result<Long> {
     try {
-        val response = ApiClient.hackatimeApi.getUserTrustFactor(
-            username = username
+        val secureStore = SecureStorage.getInstance(context)
+
+        val accessToken = secureStore.get(SecureStorage.STORAGE_ACCESS_TOKEN)
+
+        if (accessToken.isNullOrBlank()) {
+            return Result.failure(
+                Exception(context.getString(R.string.missing_access_token))
+            )
+        }
+
+        val response = ApiClient.hackatimeApi.getOAuthUserStreak(
+            authorization = "Bearer $accessToken"
         )
 
         val body = response.body()
@@ -55,8 +61,8 @@ suspend fun getUserTrustFactor(
             )
         }
 
-        if (body is TrustFactor) {
-            return Result.success(body)
+        if (body is GetOAuthUserStreakResponse) {
+            return Result.success(body.streakDays)
         }
 
         return Result.failure(

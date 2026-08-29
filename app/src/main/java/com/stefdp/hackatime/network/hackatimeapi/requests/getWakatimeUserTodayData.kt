@@ -1,29 +1,42 @@
 package com.stefdp.hackatime.network.hackatimeapi.requests
 
-import android.R.attr.apiKey
 import android.content.Context
 import com.google.gson.Gson
 import com.stefdp.hackatime.Logger
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
-import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserTodayDataResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserTrustFactor]"
+private const val TAG = "HackatimeApi[getWakatimeUserTodayData]"
 
-suspend fun getUserTrustFactor(
+suspend fun getWakatimeUserTodayData(
     context: Context,
-    username: String
-): Result<TrustFactor> {
+    userId: String = "current",
+): Result<GetWakatimeUserTodayDataResponse> {
     try {
-        val response = ApiClient.hackatimeApi.getUserTrustFactor(
-            username = username
+        val secureStore = SecureStorage.getInstance(context)
+
+        var apiKey = secureStore.get(SecureStorage.STORAGE_API_KEY)
+
+        if (apiKey.isNullOrBlank()) {
+            val apiKeysResponse = getOAuthUserApiKeys(context)
+
+            if (apiKeysResponse.isFailure) {
+                return Result.failure(
+                    Exception(context.getString(R.string.missing_api_key))
+                )
+            }
+
+            apiKey = apiKeysResponse.getOrNull()?.token ?: return Result.failure(
+                Exception(context.getString(R.string.missing_api_key))
+            )
+        }
+
+        val response = ApiClient.hackatimeApi.getWakatimeUserTodayData(
+            authorization = "Bearer $apiKey",
+            userId = userId
         )
 
         val body = response.body()
@@ -55,7 +68,7 @@ suspend fun getUserTrustFactor(
             )
         }
 
-        if (body is TrustFactor) {
+        if (body is GetWakatimeUserTodayDataResponse) {
             return Result.success(body)
         }
 

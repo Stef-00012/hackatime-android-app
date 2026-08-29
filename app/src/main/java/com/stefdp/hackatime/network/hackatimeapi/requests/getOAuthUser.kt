@@ -1,29 +1,32 @@
 package com.stefdp.hackatime.network.hackatimeapi.requests
 
-import android.R.attr.apiKey
 import android.content.Context
 import com.google.gson.Gson
 import com.stefdp.hackatime.Logger
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
-import com.stefdp.hackatime.network.hackatimeapi.models.TrustFactor
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.ErrorResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetLeaderboardResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserHeartbeatSpansResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserSummariesResponse
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.Heartbeat
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ListCurrentlyHackingUsers
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetOAuthUserResponse
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "HackatimeApi[getUserTrustFactor]"
+private const val TAG = "HackatimeApi[getOAuthUser]"
 
-suspend fun getUserTrustFactor(
-    context: Context,
-    username: String
-): Result<TrustFactor> {
+suspend fun getOAuthUser(
+    context: Context
+): Result<GetOAuthUserResponse> {
     try {
-        val response = ApiClient.hackatimeApi.getUserTrustFactor(
-            username = username
+        val secureStore = SecureStorage.getInstance(context)
+
+        val accessToken = secureStore.get(SecureStorage.STORAGE_ACCESS_TOKEN)
+
+        if (accessToken.isNullOrBlank()) {
+            return Result.failure(
+                Exception(context.getString(R.string.missing_access_token))
+            )
+        }
+
+        val response = ApiClient.hackatimeApi.getOAuthUser(
+            authorization = "Bearer $accessToken"
         )
 
         val body = response.body()
@@ -55,7 +58,7 @@ suspend fun getUserTrustFactor(
             )
         }
 
-        if (body is TrustFactor) {
+        if (body is GetOAuthUserResponse) {
             return Result.success(body)
         }
 
