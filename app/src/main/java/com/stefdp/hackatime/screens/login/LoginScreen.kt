@@ -1,7 +1,11 @@
 package com.stefdp.hackatime.screens.login
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +23,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +47,6 @@ import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.LocalUpdateUserStats
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Switch
-import com.stefdp.hackatime.components.TextInput
 import com.stefdp.hackatime.network.backendapi.requests.sendApiKey
 import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
 import com.stefdp.hackatime.screens.HomeScreen
@@ -50,6 +54,14 @@ import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.ui.theme.getButtonColors
 import com.stefdp.hackatime.utils.SecureStorage
 import kotlinx.coroutines.launch
+import net.openid.appauth.AuthorizationRequest
+import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.ResponseTypeValues
+import androidx.core.net.toUri
+import kotlinx.coroutines.coroutineScope
+import net.openid.appauth.AuthorizationException
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.AuthorizationService
 
 @Composable
 fun LoginScreen(
@@ -65,6 +77,8 @@ fun LoginScreen(
             popUpTo(navController.graph.id) { inclusive = true }
         }
     }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -103,70 +117,73 @@ fun LoginScreen(
                     fontWeight = FontWeight.Bold,
                 )
 
-                TextInput(
-                    value = apiKey,
-                    onValueChange = { apiKey = it },
-                    isPassword = true,
-                    placeholder = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-                    label = stringResource(R.string.hackatime_api_key_input_label),
-                    enabled = !isLoading
-                )
-
                 Switch(
                     modifier = Modifier.padding(top = 10.dp),
                     checked = shareApiKeyChecked,
                     onCheckedChange = { shareApiKeyChecked = it },
-                    label = stringResource(R.string.share_api_key_with_server_switch_label),
-                    description = stringResource(R.string.share_api_key_with_server_switch_description_login),
+                    label = stringResource(R.string.share_data_with_server_switch_label),
+                    description = stringResource(R.string.share_data_with_server_switch_description_login),
                     enabled = !isLoading
                 )
 
-                val coroutineScope = rememberCoroutineScope()
                 val updateUserStats = LocalUpdateUserStats.current
+
+                val launcher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult()
+                ) { result ->
+                    val intent = result.data
+                    if (intent != null) {
+                        val response = AuthorizationResponse.fromIntent(intent)
+                        val ex = AuthorizationException.fromIntent(intent)
+
+                        if (response != null) {
+                            val authService = AuthorizationService(context)
+                            authService.performTokenRequest(response.createTokenExchangeRequest()) { tokenResponse, authException ->
+                                if (tokenResponse != null) {
+                                    val accessToken = tokenResponse.accessToken
+
+                                    coroutineScope.launch {
+                                        val secureStorage = SecureStorage.getInstance(context)
+                                        if (accessToken != null) secureStorage.set("access_token", accessToken)
+
+                                        Log.d("Auth", "Access Token: $accessToken")
+                                    }
+                                } else {
+                                    Log.e("Auth", "Token exchange failed", authException)
+                                }
+                            }
+                        } else {
+                            Log.e("Auth", "Authorization failed", ex)
+                        }
+                    }
+                }
 
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            isLoading = true
+                            val clientId = "jE6VgCwPlOCZKoAHjGGwBASkpHAmVOMpKrp_OYzVKXg"
+                            val redirectUri = "hackatime://oauth/callback".toUri()
 
-                            val secureStore = SecureStorage.getInstance(context)
+                            val authorizationEndpoint = "https://hackatime.hackclub.com/oauth/authorize".toUri()
+                            val tokenEndpoint = "https://hackatime.hackclub.com/oauth/token".toUri()
 
-                            secureStore.set("apiKey", apiKey.text)
-                            secureStore.set("shareApiKey", shareApiKeyChecked.toString())
+                            val serviceConfig = AuthorizationServiceConfiguration(
+                                authorizationEndpoint,
+                                tokenEndpoint
+                            )
 
-                            val userStatsRes = updateUserStats()
+                            val authRequest = AuthorizationRequest.Builder(
+                                serviceConfig,
+                                clientId,
+                                ResponseTypeValues.CODE,
+                                redirectUri
+                            )
+                                .setScopes("profile", "read")
+                                .build()
 
-                            if (shareApiKeyChecked) {
-                                val res = sendApiKey(
-                                    context = context
-                                )
-
-                                if (!res) {
-                                    secureStore.set("shareApiKey", "false")
-
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.send_api_key_fail_message),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-
-                            userStatsRes
-                                .onSuccess {
-                                    if (currentDestination?.route == LoginScreen::class.qualifiedName) {
-                                        navController.navigate(HomeScreen) {
-                                            popUpTo(navController.graph.id) { inclusive = true }
-                                        }
-                                    }
-
-                                    isLoading = false
-                                }
-                                .onFailure { error ->
-                                    errorMessage = error.message
-
-                                    isLoading = false
-                                }
+                            val authService = AuthorizationService(context)
+                            val authIntent = authService.getAuthorizationRequestIntent(authRequest)
+                            launcher.launch(authIntent)
                         }
                     },
                     enabled = !isLoading,
@@ -196,38 +213,6 @@ fun LoginScreen(
                         )
                     }
                 }
-
-                val noApiKeyText = buildAnnotatedString {
-                    val rawString = stringResource(R.string.no_api_key_tooltip)
-                    val linkTag = "[link]"
-                    val linkEndTag = "[/link]"
-
-                    val startIndex = rawString.indexOf(linkTag)
-                    val endIndex = rawString.indexOf(linkEndTag)
-
-                    if (startIndex != -1 && endIndex != -1) {
-                        val cleanString = rawString.replace(linkTag, "").replace(linkEndTag, "")
-
-                        append(cleanString)
-
-                        addLink(
-                            url = LinkAnnotation.Url(
-                                url = "https://hackatime.hackclub.com/my/settings/access",
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(color = MaterialTheme.colorScheme.primary)
-                                )
-                            ),
-                            start = startIndex,
-                            end = endIndex - linkTag.length
-                        )
-                    } else {
-                        append(rawString)
-                    }
-                }
-
-                Text(
-                    text = noApiKeyText,
-                )
 
                 val privacyPolicyText = buildAnnotatedString {
                     pushLink(
