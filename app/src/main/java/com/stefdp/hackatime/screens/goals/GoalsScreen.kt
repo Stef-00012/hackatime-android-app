@@ -91,20 +91,20 @@ fun GoalsScreen(
         ) {
             Icon(
                 painter = painterResource(R.drawable.key_off),
-                contentDescription = stringResource(R.string.api_key_not_on_server_title),
+                contentDescription = stringResource(R.string.data_not_on_server_title),
                 modifier = Modifier.size(50.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = stringResource(R.string.api_key_not_on_server_title),
+                text = stringResource(R.string.data_not_on_server_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 )
             )
 
             Text(
-                text = stringResource(R.string.api_key_not_on_server_message),
+                text = stringResource(R.string.data_not_on_server_message),
                 textAlign = TextAlign.Center
             )
 

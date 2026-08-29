@@ -173,14 +173,6 @@ fun SettingsScreen(
                 )
             }
 
-            TextInput(
-                isPassword = true,
-                value = apiKey,
-                onValueChange = { apiKey = it },
-                label = stringResource(R.string.hackatime_api_key_input_label),
-                enabled = !isLoading
-            )
-
             Spacer(
                 modifier = Modifier.height(10.dp)
             )
@@ -188,8 +180,8 @@ fun SettingsScreen(
             Switch(
                 checked = shareApikey,
                 onCheckedChange = { shareApikey = it },
-                label = stringResource(R.string.share_api_key_with_server_switch_label),
-                description = stringResource(R.string.share_api_key_with_server_switch_description_settings),
+                label = stringResource(R.string.share_data_with_server_switch_label),
+                description = stringResource(R.string.share_data_with_server_switch_description_settings),
                 enabled = !isLoading
             )
 
@@ -286,7 +278,7 @@ fun SettingsScreen(
 
                                 Toast.makeText(
                                     context,
-                                    context.getString(R.string.delete_api_key_fail_message),
+                                    context.getString(R.string.delete_data_fail_message),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -300,7 +292,7 @@ fun SettingsScreen(
 
                                 Toast.makeText(
                                     context,
-                                    context.getString(R.string.send_api_key_fail_message),
+                                    context.getString(R.string.send_data_fail_message),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
