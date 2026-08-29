@@ -14,12 +14,10 @@ import kotlin.time.Duration.Companion.seconds
 
 fun formatMs(
     context: Context,
-    ms: Double,
+    ms: Long,
     abbreviated: Boolean = true,
     limit: Int = 7
 ): String {
-    val duration = ms.toLong()
-
     val secondsShortSuffix = context.getString(R.string.seconds_short)
     val minutesShortSuffix = context.getString(R.string.minutes_short)
     val hoursShortSuffix = context.getString(R.string.hours_short)
@@ -27,7 +25,7 @@ fun formatMs(
     val monthsShortSuffix = context.getString(R.string.months_short)
     val yearsShortSuffix = context.getString(R.string.years_short)
 
-    if (duration == 0L) return "0$secondsShortSuffix"
+    if (ms == 0L) return "0$secondsShortSuffix"
 
     val second = 1.seconds.inWholeMilliseconds // 1000L
     val minute = 1.minutes.inWholeMilliseconds // second * 60
@@ -36,12 +34,12 @@ fun formatMs(
     val month = day * 30
     val year = day * 365
 
-    val years = duration / year
-    val months = (duration % year) / month
-    val days = (duration % month) / day
-    val hours = (duration % day) / hour
-    val minutes = (duration % hour) / minute
-    val seconds = (duration % minute) / second
+    val years = ms / year
+    val months = (ms % year) / month
+    val days = (ms % month) / day
+    val hours = (ms % day) / hour
+    val minutes = (ms % hour) / minute
+    val seconds = (ms % minute) / second
 
     val secondsLongSuffix = context.resources.getQuantityString(R.plurals.seconds_unit, seconds.toInt()) //if (seconds > 1) "seconds" else "second"
     val minutesLongSuffix = context.resources.getQuantityString(R.plurals.minutes_unit, minutes.toInt()) //if (minutes > 1) "minutes" else "minute"

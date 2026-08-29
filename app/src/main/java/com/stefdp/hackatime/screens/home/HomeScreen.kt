@@ -1,7 +1,6 @@
 package com.stefdp.hackatime.screens.home
 
 import android.content.Context
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,17 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Popup
-import com.stefdp.hackatime.network.hackatimeapi.models.EditorLast7Days
-import com.stefdp.hackatime.network.hackatimeapi.models.Feature
-import com.stefdp.hackatime.network.hackatimeapi.models.MachineLast7Days
-import com.stefdp.hackatime.network.hackatimeapi.models.OperatingSystemLast7Days
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.home.components.Container
 import com.stefdp.hackatime.utils.DayData
@@ -89,7 +84,8 @@ val pieChartSize = 250.dp
 fun HomeScreen(
     navController: NavHostController,
     context: Context,
-    activity: FragmentActivity
+    activity: FragmentActivity,
+    viewModel: HomeViewModel = viewModel()
 ) {
     val localUserStats = LocalLoggedUser.current
     val scrollState = rememberScrollState()
@@ -100,108 +96,19 @@ fun HomeScreen(
         }
     }
 
-    var last7DaysData by rememberSaveable { mutableStateOf<List<DayData>>(emptyList()) }
+    val state by viewModel.state.collectAsState()
 
-    var statsRange by rememberSaveable { mutableStateOf(Range.LAST_SEVEN_DAYS) }
-    var rangeStart by rememberSaveable { mutableStateOf("") }
-    var rangeEnd by rememberSaveable { mutableStateOf("") }
-
-    var totalSeconds by remember { mutableDoubleStateOf(0.0) }
-    var topProject by remember { mutableStateOf<GeneralStat?>(null) }
-    var topLanguage by remember { mutableStateOf<GeneralStat?>(null) }
-    var topOperatingSystem by remember { mutableStateOf<GeneralStat?>(null) }
-    var topEditor by remember { mutableStateOf<GeneralStat?>(null) }
-    var topMachine by remember { mutableStateOf<GeneralStat?>(null) }
-
-    var languages by remember { mutableStateOf<List<GeneralStat>>(emptyList()) }
-    var editors by remember { mutableStateOf<List<EditorLast7Days>>(emptyList()) }
-    var operatingSystems by remember { mutableStateOf<List<OperatingSystemLast7Days>>(emptyList()) }
-    var machines by remember { mutableStateOf<List<MachineLast7Days>>(emptyList()) }
-
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(statsRange, rangeStart, rangeEnd) {
-        isLoading = true
-
-        when (statsRange) {
-            Range.LAST_SEVEN_DAYS -> {
-                val currentUserStats = getCurrentUserStatsLast7Days(
-                    context = context,
-                    features = listOf(
-                        Feature.PROJECTS,
-                        Feature.LANGUAGES,
-                        Feature.OPERATING_SYSTEMS,
-                        Feature.EDITORS,
-                        Feature.MACHINES,
-                    )
-                )
-
-                if (currentUserStats.isSuccess) {
-                    val stats = currentUserStats.getOrNull() ?: return@LaunchedEffect
-
-                    totalSeconds = stats.totalSeconds
-                    topProject = getTop(stats.projects)
-                    topLanguage = getTop(stats.languages)
-                    topOperatingSystem = getTop(stats.operatingSystems)
-                    topEditor = getTop(stats.editors)
-                    topMachine = getTop(stats.machines)
-                    languages = stats.languages ?: emptyList()
-                    editors = stats.editors ?: emptyList()
-                    operatingSystems = stats.operatingSystems ?: emptyList()
-                    machines = stats.machines ?: emptyList()
-                }
-            }
-            Range.ALL_TIME -> {
-                val currentUserStats = getCurrentUserStats(
-                    context = context,
-                    features = listOf(
-                        Feature.PROJECTS,
-                        Feature.LANGUAGES,
-                    )
-                )
-
-                if (currentUserStats.isSuccess) {
-                    val stats = currentUserStats.getOrNull() ?: return@LaunchedEffect
-
-                    totalSeconds = stats.totalSeconds
-                    topProject = getTop(stats.projects)
-                    topLanguage = getTop(stats.languages)
-                    languages = stats.languages ?: emptyList()
-                }
-            }
-            Range.CUSTOM, Range.ONE_DAY -> {
-                val currentUserStats = getCurrentUserStats(
-                    context = context,
-                    features = listOf(
-                        Feature.PROJECTS,
-                        Feature.LANGUAGES,
-                    ),
-                    startDate = rangeStart,
-                    endDate = rangeEnd
-                )
-
-                if (currentUserStats.isSuccess) {
-                    val stats = currentUserStats.getOrNull() ?: return@LaunchedEffect
-
-                    totalSeconds = stats.totalSeconds
-                    topProject = getTop(stats.projects)
-                    topLanguage = getTop(stats.languages)
-                    languages = stats.languages ?: emptyList()
-                }
-            }
-        }
-
-        isLoading = false
+    LaunchedEffect(
+        state.statsRange,
+        state.rangeStart,
+        state.rangeEnd
+    ) {
+        viewModel.init(context)
+        viewModel.updateRangeText(context)
     }
 
     LaunchedEffect(Unit) {
-        val stats = getLast7DaysData(
-            context = context
-        )
-
-        last7DaysData = stats
-
-        isLoading = false
+        viewModel.updateLast7DaysData(context)
     }
 
     Column(
@@ -209,29 +116,27 @@ fun HomeScreen(
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
-        var showRangePopup by rememberSaveable { mutableStateOf(false) }
-        val rangeText = when (statsRange) {
-            Range.LAST_SEVEN_DAYS -> stringResource(R.string.date_range_last_7_days)
-            Range.ALL_TIME -> stringResource(R.string.date_range_all_time)
-            Range.CUSTOM -> "$rangeStart - $rangeEnd"
-            Range.ONE_DAY -> rangeStart
-        }
-
         OutlinedButton(
-            enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
-            onClick = { showRangePopup = true },
+            enabled = !state.isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp),
+            onClick = {
+                viewModel.showRangePopup()
+            },
         ) {
             Text(
-                text = stringResource(R.string.date_range, rangeText),
+                text = stringResource(R.string.date_range, state.rangeText),
                 color = LocalContentColor.current,
                 fontWeight = FontWeight.Bold
             )
         }
 
         Popup(
-            showPopup = showRangePopup,
-            onDismissRequest = { showRangePopup = false },
+            showPopup = state.showRangePopup,
+            onDismissRequest = {
+                viewModel.hideRangePopup()
+            },
         ) {
             val today = Clock.System.now().toEpochMilliseconds()
 
@@ -274,10 +179,11 @@ fun HomeScreen(
 
                 if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
 
-                rangeStart = startDateString
-                rangeEnd = endDateString
-                statsRange = if (isOneDay) Range.ONE_DAY else Range.CUSTOM
-                showRangePopup = false
+                viewModel.setRangeStart(startDateString)
+                viewModel.setRangeEnd(endDateString)
+                viewModel.setStatsRange(if (isOneDay) Range.ONE_DAY else Range.CUSTOM)
+
+                viewModel.hideRangePopup()
             }
 
             DateRangePicker(
@@ -296,12 +202,14 @@ fun HomeScreen(
             )
 
             Button(
-                modifier = Modifier.fillMaxWidth(1f).padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
                 onClick = {
-                    statsRange = Range.LAST_SEVEN_DAYS
-                    showRangePopup = false
+                    viewModel.setStatsRange(Range.LAST_SEVEN_DAYS)
+                    viewModel.hideRangePopup()
                 },
-                enabled = statsRange != Range.LAST_SEVEN_DAYS
+                enabled = state.statsRange != Range.LAST_SEVEN_DAYS
             ) {
                 Text(
                     text = stringResource(R.string.date_range_last_7_days_button),
@@ -311,12 +219,14 @@ fun HomeScreen(
             }
 
             Button(
-                modifier = Modifier.fillMaxWidth(1f).padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
                 onClick = {
-                    statsRange = Range.ALL_TIME
-                    showRangePopup = false
+                    viewModel.setStatsRange(Range.ALL_TIME)
+                    viewModel.hideRangePopup()
                 },
-                enabled = statsRange != Range.ALL_TIME
+                enabled = state.statsRange != Range.ALL_TIME
             ) {
                 Text(
                     text = stringResource(R.string.date_range_all_time_button),
@@ -326,9 +236,11 @@ fun HomeScreen(
             }
 
             Button(
-                modifier = Modifier.fillMaxWidth(1f).padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
                 onClick = {
-                    showRangePopup = false
+                    viewModel.hideRangePopup()
                 }
             ) {
                 Text(
@@ -354,12 +266,12 @@ fun HomeScreen(
             Text(
                 text = formatMs(
                     context = context,
-                    ms = totalSeconds * 1000L
+                    ms = state.totalSeconds * 1000L
                 ),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.shimmerable(
-                    enabled = isLoading,
+                    enabled = state.isLoading,
                 )
             )
         }
@@ -373,11 +285,11 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = topProject?.name ?: stringResource(R.string.unknown_project),
+                text = state.topProject?.name ?: stringResource(R.string.unknown_project),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.shimmerable(
-                    enabled = isLoading,
+                    enabled = state.isLoading,
                 )
             )
         }
@@ -391,16 +303,16 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = topLanguage?.name ?: stringResource(R.string.unknown_language),
+                text = state.topLanguage?.name ?: stringResource(R.string.unknown_language),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.shimmerable(
-                    enabled = isLoading,
+                    enabled = state.isLoading,
                 )
             )
         }
 
-        if (statsRange == Range.LAST_SEVEN_DAYS) {
+        if (state.statsRange == Range.LAST_SEVEN_DAYS) {
             Container(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
@@ -410,11 +322,11 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
+                    text = state.topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.shimmerable(
-                        enabled = isLoading,
+                        enabled = state.isLoading,
                     )
                 )
             }
@@ -428,11 +340,11 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topEditor?.name ?: stringResource(R.string.unknown_editor),
+                    text = state.topEditor?.name ?: stringResource(R.string.unknown_editor),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.shimmerable(
-                        enabled = isLoading,
+                        enabled = state.isLoading,
                     )
                 )
             }
@@ -446,11 +358,11 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = topMachine?.name ?: stringResource(R.string.unknown_machine),
+                    text = state.topMachine?.name ?: stringResource(R.string.unknown_machine),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.shimmerable(
-                        enabled = isLoading,
+                        enabled = state.isLoading,
                     )
                 )
             }
@@ -468,17 +380,17 @@ fun HomeScreen(
                 val primaryColor = MaterialTheme.colorScheme.primary
                 val chartHeight = 250.dp
 
-                if (!isLoading && last7DaysData.isNotEmpty()) {
-                    val lines by remember(last7DaysData) { mutableStateOf(
+                if (!state.isLoading && state.last7DaysData.isNotEmpty()) {
+                    val lines by remember(state.last7DaysData) { mutableStateOf(
                         listOf(
                             Line(
-                                values = last7DaysData.map { it.data?.totalSeconds ?: 0.0 },
+                                values = state.last7DaysData.map { it.data?.totalSeconds?.toDouble() ?: 0.0 },
                                 color = SolidColor(primaryColor),
                             )
                         )
                     ) }
 
-                    val labels = last7DaysData.map { userData ->
+                    val labels = state.last7DaysData.map { userData ->
                         userData.date.let { date ->
                             val weekDayNumber = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)
                                 .dayOfWeek.value
@@ -537,7 +449,7 @@ fun HomeScreen(
                             contentBuilder = { value ->
                                 formatMs(
                                     context = context,
-                                    ms = value.value * 1000L,
+                                    ms = value.value.toLong() * 1000L,
                                     limit = 2
                                 )
                             }
@@ -556,7 +468,7 @@ fun HomeScreen(
                             contentBuilder = { value ->
                                 formatMs(
                                     context = context,
-                                    ms = value * 1000L,
+                                    ms = value.toLong() * 1000L,
                                     limit = 2
                                 )
                             }
@@ -564,7 +476,10 @@ fun HomeScreen(
                     )
                 } else {
                     Box(
-                        modifier = Modifier.fillMaxWidth().height(chartHeight).shimmerable(true)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(chartHeight)
+                            .shimmerable(true)
                     )
                 }
             }
@@ -589,7 +504,9 @@ fun HomeScreen(
                 Icon(
                     painter = painterResource(R.drawable.info),
                     contentDescription = stringResource(R.string.pie_chart_tooltip_content_description),
-                    modifier = Modifier.size(15.dp).align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .size(15.dp)
+                        .align(Alignment.CenterVertically),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
@@ -615,24 +532,24 @@ fun HomeScreen(
             )
 
             var selectedLanguage by remember { mutableStateOf<Pie?>(null) }
-            var pieChartLanguages by remember(languages, selectedLanguage) { mutableStateOf(
-                languages
+            var pieChartLanguages by remember(state.languages, selectedLanguage) { mutableStateOf(
+                state.languages
                     .groupBy { it.name }
                     .map { (name, language) ->
                         Pie(
                             label = name,
-                            data = language.sumOf { it.totalSeconds },
+                            data = language.sumOf { it.totalSeconds.toDouble() },
                             color = languageColors[name.lowercase()] ?: colorHash(name),
                             selected = name == selectedLanguage?.label
                         )
                     }
             ) }
 
-            LaunchedEffect(statsRange, rangeStart, rangeEnd) {
+            LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
                 selectedLanguage = null
             }
 
-            if (!isLoading && pieChartLanguages.isNotEmpty()) {
+            if (!state.isLoading && pieChartLanguages.isNotEmpty()) {
                 PieChart(
                     data = pieChartLanguages,
                     modifier = Modifier
@@ -665,7 +582,7 @@ fun HomeScreen(
                         Text(
                             text = "${selectedLanguage?.label}: ${formatMs(
                                 context = context,
-                                ms = (selectedLanguage?.data ?: 0.0) * 1000L,
+                                ms = (selectedLanguage?.data?.toLong() ?: 0L) * 1000L,
                                 limit = 2
                             )}"
                         )
@@ -680,7 +597,7 @@ fun HomeScreen(
             }
         }
 
-        if (statsRange == Range.LAST_SEVEN_DAYS) {
+        if (state.statsRange == Range.LAST_SEVEN_DAYS) {
             Container(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
@@ -692,26 +609,26 @@ fun HomeScreen(
                 )
 
                 var selectedEditor by remember { mutableStateOf<Pie?>(null) }
-                var pieChartEditors by remember(editors, selectedEditor) { mutableStateOf(
-                    editors
+                var pieChartEditors by remember(state.editors, selectedEditor) { mutableStateOf(
+                    state.editors
                         .groupBy { it.name }
                         .map { (name, editor) ->
                             Pie(
                                 label = name,
-                                data = editor.sumOf { it.totalSeconds },
+                                data = editor.sumOf { it.totalSeconds.toDouble() },
                                 color = colorHash(name),
                                 selected = name == selectedEditor?.label
                             )
                         }
                 ) }
 
-                LaunchedEffect(statsRange, rangeStart, rangeEnd) {
+                LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
                     selectedEditor = null
                 }
 
                 val chartSize = 250.dp
 
-                if (!isLoading && pieChartEditors.isNotEmpty()) {
+                if (!state.isLoading && pieChartEditors.isNotEmpty()) {
                     PieChart(
                         data = pieChartEditors,
                         modifier = Modifier
@@ -744,7 +661,7 @@ fun HomeScreen(
                             Text(
                                 text = "${selectedEditor?.label}: ${formatMs(
                                     context = context,
-                                    ms = (selectedEditor?.data ?: 0.0) * 1000L,
+                                    ms = (selectedEditor?.data?.toLong() ?: 0L) * 1000L,
                                     limit = 2
                                 )}"
                             )
@@ -770,26 +687,26 @@ fun HomeScreen(
                 )
 
                 var selectedOperatingSystem by remember { mutableStateOf<Pie?>(null) }
-                var pieChartOperatingSystems by remember(operatingSystems, selectedOperatingSystem) { mutableStateOf(
-                    operatingSystems
+                var pieChartOperatingSystems by remember(state.operatingSystems, selectedOperatingSystem) { mutableStateOf(
+                    state.operatingSystems
                         .groupBy { it.name }
                         .map { (name, operatingSystem) ->
                             Pie(
                                 label = name,
-                                data = operatingSystem.sumOf { it.totalSeconds },
+                                data = operatingSystem.sumOf { it.totalSeconds.toDouble() },
                                 color = colorHash(name),
                                 selected = name == selectedOperatingSystem?.label
                             )
                         }
                 ) }
 
-                LaunchedEffect(statsRange, rangeStart, rangeEnd) {
+                LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
                     selectedOperatingSystem = null
                 }
 
                 val chartSize = 250.dp
 
-                if (!isLoading && pieChartOperatingSystems.isNotEmpty()) {
+                if (!state.isLoading && pieChartOperatingSystems.isNotEmpty()) {
                     PieChart(
                         data = pieChartOperatingSystems,
                         modifier = Modifier
@@ -822,7 +739,7 @@ fun HomeScreen(
                             Text(
                                 text = "${selectedOperatingSystem?.label}: ${formatMs(
                                     context = context,
-                                    ms = (selectedOperatingSystem?.data ?: 0.0) * 1000L,
+                                    ms = (selectedOperatingSystem?.data?.toLong() ?: 0L) * 1000L,
                                     limit = 2
                                 )}"
                             )
@@ -848,26 +765,26 @@ fun HomeScreen(
                 )
 
                 var selectedMachine by remember { mutableStateOf<Pie?>(null) }
-                var pieChartMachines by remember(machines, selectedMachine) { mutableStateOf(
-                    machines
+                var pieChartMachines by remember(state.machines, selectedMachine) { mutableStateOf(
+                    state.machines
                         .groupBy { it.name }
                         .map { (name, machine) ->
                             Pie(
                                 label = name,
-                                data = machine.sumOf { it.totalSeconds },
+                                data = machine.sumOf { it.totalSeconds.toDouble() },
                                 color = colorHash(name),
                                 selected = name == selectedMachine?.label
                             )
                         }
                 ) }
 
-                LaunchedEffect(statsRange, rangeStart, rangeEnd) {
+                LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
                     selectedMachine = null
                 }
 
                 val chartSize = 250.dp
 
-                if (!isLoading && pieChartMachines.isNotEmpty()) {
+                if (!state.isLoading && pieChartMachines.isNotEmpty()) {
                     PieChart(
                         data = pieChartMachines,
                         modifier = Modifier
@@ -900,7 +817,7 @@ fun HomeScreen(
                             Text(
                                 text = "${selectedMachine?.label}: ${formatMs(
                                     context = context,
-                                    ms = (selectedMachine?.data ?: 0.0) * 1000L,
+                                    ms = (selectedMachine?.data?.toLong() ?: 0L) * 1000L,
                                     limit = 2
                                 )}"
                             )
@@ -918,7 +835,7 @@ fun HomeScreen(
     }
 }
 
-private enum class Range(val value: String) {
+enum class Range(val value: String) {
     @SerializedName("7d")
     LAST_SEVEN_DAYS("7d"),
 

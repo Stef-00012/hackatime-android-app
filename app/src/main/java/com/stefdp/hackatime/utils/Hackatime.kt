@@ -1,11 +1,9 @@
 package com.stefdp.hackatime.utils
 
 import android.content.Context
-import android.os.Parcelable
 import com.stefdp.hackatime.network.hackatimeapi.models.Feature
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
-import kotlinx.parcelize.Parcelize
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetUserStatsResponse
+import com.stefdp.hackatime.network.hackatimeapi.requests.getUserStats
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -14,10 +12,11 @@ import kotlin.time.Duration.Companion.days
 
 interface GeneralStat {
     val name: String
-    val totalSeconds: Double
+    val totalSeconds: Long
     val text: String
-    val hours: Double
-    val minutes: Double
+    val hours: Long
+    val minutes: Long
+    val seconds: Long
     val percent: Double
     val digital: String
 }
@@ -30,11 +29,10 @@ fun <T : GeneralStat> getTop(
     return list.maxByOrNull { it.totalSeconds }
 }
 
-@Parcelize
 data class DayData(
     var date: String,
-    var data: UserStats? = null
-) : Parcelable
+    var data: GetUserStatsResponse.Data? = null
+)
 
 suspend fun getLast7DaysData(
     context: Context
@@ -57,8 +55,9 @@ suspend fun getLast7DaysData(
             .atZone(ZoneOffset.UTC)
             .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-        val userStats = getCurrentUserStats(
+        val userStats = getUserStats(
             context = context,
+            username = "my",
             startDate = startDateString,
             endDate = endDateString,
             features = listOf(
@@ -70,7 +69,7 @@ suspend fun getLast7DaysData(
         last7DaysData.add(
             DayData(
                 date = startDateString,
-                data = userStats.getOrNull()
+                data = userStats.getOrNull()?.data
             )
         )
     }
