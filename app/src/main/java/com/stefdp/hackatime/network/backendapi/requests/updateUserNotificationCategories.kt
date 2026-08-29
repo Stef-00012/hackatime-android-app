@@ -7,6 +7,7 @@ import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.UpdateNotificationCategoriesResponse
+import com.stefdp.hackatime.network.hackatimeapi.requests.getOAuthUserApiKeys
 import com.stefdp.hackatime.utils.SecureStorage
 
 private const val TAG = "BackendApi[updateUserNotificationCategories]"
@@ -18,10 +19,21 @@ suspend fun updateUserNotificationCategories(
     try {
         val secureStore = SecureStorage.getInstance(context)
 
-        val apiKey = secureStore.get("apiKey")
+        var apiKey = secureStore.get(SecureStorage.STORAGE_API_KEY)
 
         if (apiKey.isNullOrEmpty()) {
-            return mapOf(
+            val apiKeysResponse = getOAuthUserApiKeys(context)
+
+            if (apiKeysResponse.isFailure) {
+                return mapOf(
+                    NotificationCategory.MOTIVATIONAL_QUOTES to false,
+                    NotificationCategory.GOALS to false,
+                )
+            }
+
+            secureStore.set(SecureStorage.STORAGE_API_KEY, apiKeysResponse.getOrNull()?.token ?: "")
+
+            apiKey = apiKeysResponse.getOrNull()?.token ?: return mapOf(
                 NotificationCategory.MOTIVATIONAL_QUOTES to false,
                 NotificationCategory.GOALS to false,
             )

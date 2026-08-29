@@ -33,6 +33,8 @@ suspend fun getWakatimeUserSummaries(
                 )
             }
 
+            secureStore.set(SecureStorage.STORAGE_API_KEY, apiKeysResponse.getOrNull()?.token ?: "")
+
             apiKey = apiKeysResponse.getOrNull()?.token ?: return Result.failure(
                 Exception(context.getString(R.string.missing_api_key))
             )

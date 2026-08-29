@@ -3,9 +3,11 @@ package com.stefdp.hackatime.network.backendapi.requests
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.ApiClient
 import com.stefdp.hackatime.network.backendapi.models.responses.DeleteUserResponse
 import com.stefdp.hackatime.network.backendapi.models.responses.ErrorResponse
+import com.stefdp.hackatime.network.hackatimeapi.requests.getOAuthUserApiKeys
 import com.stefdp.hackatime.utils.SecureStorage
 
 private const val TAG = "BackendApi[deleteUser]"
@@ -16,10 +18,18 @@ suspend fun deleteUser(
     try {
         val secureStore = SecureStorage.getInstance(context)
 
-        val apiKey = secureStore.get("apiKey")
+        var apiKey = secureStore.get(SecureStorage.STORAGE_API_KEY)
 
         if (apiKey.isNullOrEmpty()) {
-            return false
+            val apiKeysResponse = getOAuthUserApiKeys(context)
+
+            if (apiKeysResponse.isFailure) {
+                return false
+            }
+
+            secureStore.set(SecureStorage.STORAGE_API_KEY, apiKeysResponse.getOrNull()?.token ?: "")
+
+            apiKey = apiKeysResponse.getOrNull()?.token ?: return false
         }
         
         val response = ApiClient.backendApi.deleteUser(
