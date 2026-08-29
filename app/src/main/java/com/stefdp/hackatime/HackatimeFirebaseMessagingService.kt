@@ -17,11 +17,27 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.core.graphics.createBitmap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 // for this class I took https://github.com/firebase/snippets-android/blob/a413b0658ff2fc7a72c4b0c59e84a889ff7fac45/messaging/app/src/main/java/com/google/firebase/example/messaging/kotlin/MyFirebaseMessagingService.kt
 // and slightly modified it
 
 class HackatimeFirebaseMessagingService : FirebaseMessagingService() {
+    override fun onRegistered(installationId: String) {
+        Log.d("FCM", "Installation ID: $installationId")
+
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            val success = sendPushNotificationToken(
+                context = applicationContext,
+                token = installationId
+            )
+
+            Log.d("FCM", "Installation ID sent to server: $success")
+        }
+    }
+
     // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
