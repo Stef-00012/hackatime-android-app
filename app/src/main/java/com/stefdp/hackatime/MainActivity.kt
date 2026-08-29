@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -39,21 +40,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.common.Feature
 import com.google.firebase.messaging.FirebaseMessaging
 import com.stefdp.hackatime.components.Header
 import com.stefdp.hackatime.components.NavBar
 import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
-import com.stefdp.hackatime.network.backendapi.requests.sendPushNotificationToken
-import com.stefdp.hackatime.network.hackatimeapi.models.Feature
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.UserStats
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStats
+import com.stefdp.hackatime.network.hackatimeapi.models.responses.GetWakatimeUserResponse
 import com.stefdp.hackatime.screens.*
 import com.stefdp.hackatime.screens.biometricauth.BiometricAuthScreen
 import com.stefdp.hackatime.screens.goals.GoalsScreen
@@ -66,9 +67,11 @@ import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.NetworkMonitor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.onSuccess
+import kotlin.time.Duration.Companion.milliseconds
 
-val LocalLoggedUser = compositionLocalOf<UserStats?> { null }
-val LocalUpdateUserStats = compositionLocalOf<suspend () -> Result<UserStats>> {
+val LocalLoggedUser = compositionLocalOf<GetWakatimeUserResponse.Data?> { null }
+val LocalUpdateUserStats = compositionLocalOf<suspend (context: Context) -> Result<GetWakatimeUserResponse.Data>> {
     {
         Result.failure(
             Exception("Placeholder")
@@ -76,10 +79,10 @@ val LocalUpdateUserStats = compositionLocalOf<suspend () -> Result<UserStats>> {
     }
 }
 
-// TODO: maybe switch to hackatime OAuth if i find a way for play store staff to test it
-
 class MainActivity : FragmentActivity() {
     private var isAppReady by mutableStateOf(false)
+
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -91,118 +94,60 @@ class MainActivity : FragmentActivity() {
         }
 
         lifecycleScope.launch {
-            delay(100L)
+            delay(100.milliseconds)
             isAppReady = true
         }
 
+        val context = applicationContext
+
         enableEdgeToEdge()
+
         setContent {
             HackatimeStatsTheme {
                 val activity = this@MainActivity
 
                 val navController = rememberNavController()
-                val context = LocalContext.current
 
-                var userStats by rememberSaveable {
-                    mutableStateOf<UserStats?>(null)
-                }
+                val state by viewModel.state.collectAsState()
 
                 val networkMonitor = NetworkMonitor(context)
 
                 val isConnected by networkMonitor.isConnected.collectAsState(initial = true)
 
-                suspend fun updateUserStats(): Result<UserStats> {
-                    val tag = "MainActivity[updateUserStats]"
-
-                    Log.d(tag, "Checking if user is already logged in...")
-
-                    val userStatsRes = getCurrentUserStats(
-                        context = context,
-                        features = listOf(
-                            Feature.PROJECTS,
-                            Feature.LANGUAGES,
-                            Feature.OPERATING_SYSTEMS,
-                            Feature.MACHINES,
-                            Feature.EDITORS
-                        )
-                    )
-
-                    userStatsRes
-                        .onSuccess { userStatsData ->
-                            Log.d(tag, "User is logged in as ${userStatsData.username}")
-
-                           userStats = userStatsData
-
-                            return@updateUserStats Result.success(userStatsData)
-                        }
-                        .onFailure { error ->
-                            Log.d(tag, "User is not logged in")
-                            Log.e(tag, "Failed to fetch user stats: ${error.message}")
-
-                            userStats = null
-
-                            return@updateUserStats Result.failure(error)
-                        }
-
-                    return Result.failure(
-                        Exception("Something went wrong...")
-                    )
-                }
+                val coroutineScope = rememberCoroutineScope()
 
                 LaunchedEffect(isConnected) {
                     if (isConnected) {
-                        updateUserStats()
+                        viewModel.updateLoggedUser(context)
                     }
                 }
-
-                val coroutineScope = rememberCoroutineScope()
 
                 LaunchedEffect(Unit) {
-                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val token = task.result
-
-                            coroutineScope.launch {
-                                val success = sendPushNotificationToken(
-                                    context = context,
-                                    token = token
-                                )
-
-                                Log.d("FCM", "Token sent to server: $success")
+                    FirebaseMessaging.getInstance()
+                        .register()
+                        .addOnCompleteListener { task ->
+                            if (!task.isSuccessful) {
+                                Log.e("FCM", "FCM registration failed", task.exception)
                             }
-                        } else {
-                            Log.e("FCM", "Failed to send token", task.exception)
+
                         }
-                    }
                 }
 
-                // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
-//                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-//                val scope = rememberCoroutineScope()
-
-//                LaunchedEffect(Unit) {
-//                    updateUserStats()
-//                }
-
                 CompositionLocalProvider(
-                    LocalLoggedUser provides userStats,
-                    LocalUpdateUserStats provides ::updateUserStats
+                    LocalLoggedUser provides state.loggedUser,
+                    LocalUpdateUserStats provides viewModel::updateLoggedUser
                 ) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         topBar = {
                             Header(
                                 navController = navController
-                                // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
-//                            onMenuClick = {
-//                                scope.launch {
-//                                    if (drawerState.isClosed) drawerState.open() else drawerState.close()
-//                                }
-//                            }
                             )
                         },
                         bottomBar = {
-                            NavBar(navController = navController)
+                            NavBar(
+                                navController = navController
+                            )
                         }
                     ) { innerPadding ->
                         Surface(
@@ -215,22 +160,6 @@ class MainActivity : FragmentActivity() {
                                 activity = activity
                             )
                         }
-
-                        // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
-//                    ModalNavigationDrawer(
-//                        modifier = Modifier.padding(innerPadding),
-//                        drawerState = drawerState,
-//                        drawerContent = {
-//                            Sidebar(
-//                                onItemClick = { screen ->
-//                                    scope.launch { drawerState.close() }
-//                                    navController.navigate(screen)
-//                                }
-//                            )
-//                        }
-//                    ) {
-//                        AppNavigation(navController = navController)
-//                    }
                     }
                 }
 
@@ -385,118 +314,3 @@ fun AppNavigation(
         }
     }
 }
-
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-//        setContent {
-//            HackatimeStatsTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Text(
-//                        text = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//
-////                    Button(
-////                        onClick = {
-////                            val l = listOf(Feature.OPERATING_SYSTEMS, Feature.CATEGORIES, Feature.MACHINES)
-////                            Log.d("test", l.joinToString(","))
-////                        }
-////                    ) {
-////                        Text("Test log")
-////                    }
-//
-//                    val scrollState = rememberScrollState()
-//
-//                    // tests tryna see how to make HTTP requests
-//                    Column(
-//                        modifier = Modifier
-//                            .padding(innerPadding)
-//                            .verticalScroll(scrollState)
-//
-//                    ) {
-//                        Text(
-//                            text = "Android",
-//                        )
-//
-//                        var programs by remember { mutableStateOf("") }
-//                        var programsCount by remember { mutableStateOf(0) }
-//
-//                        var programs1 by remember { mutableStateOf("") }
-//                        var programsCount1 by remember { mutableStateOf(0) }
-//
-//                        val context = LocalContext.current
-//
-//                        LaunchedEffect(Unit) {
-//                            val res = getYSWSPrograms()
-//                            var secureStore = SecureStorage.getInstance(context)
-//                            secureStore.set("apiKey", "TEST")
-//                            Log.d("TEST", "API Key set to: ${secureStore.get("apiKey")}")
-//
-//                            res.onSuccess {
-//                                val programsString = it.joinToString("\n- ")
-//
-////                                Log.d("To do", "Programs:\n- $programsString")
-//                                programs = programsString
-//
-//                                programsCount = it.size
-//                            }.onFailure {
-//                                Log.e("TEST", "Failed to fetch programs: ${it.message}")
-//                            }
-//                        }
-//
-//                        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-//                            if (task.isSuccessful) {
-//                                val token = task.result
-//                                Log.d("FCM", "Token: $token")
-//                            } else {
-//                                Log.e("FCM", "Failed to fetch token", task.exception)
-//                            }
-//                        }
-//
-//                        if (programs.isNotEmpty()) {
-//                            Text("Boot programs:\n- $programs")
-//                        }
-//
-//                        Text("Boot Programs Count: $programsCount")
-//
-//                        if (programs1.isNotEmpty()) {
-//                            Text("Button programs:\n- $programs1")
-//                        }
-//
-//                        Text("Button Programs Count: $programsCount1")
-//
-//                        Button(
-//                            onClick = {
-//                                lifecycleScope.launch {
-//                                    val secureStore = SecureStorage.getInstance(context)
-//
-//                                    val apiKey = secureStore.get("apiKey")
-//
-//                                    if (apiKey != null) secureStore.del("apiKey")
-//                                    else secureStore.set("apiKey", "TEST123")
-//
-//                                    val res = getYSWSPrograms()
-//
-//                                     res.onSuccess {
-//                                        val programsString = it.joinToString("\n- ")
-//
-////                                Log.d("To do", "Programs:\n- $programsString")
-//                                        programs1 = programsString
-//
-//                                        programsCount1 = it.size
-//                                    }.onFailure {
-//                                        Log.e("TEST", "Failed to fetch programs: ${it.message}")
-//                                    }
-//                                }
-//                            }
-//                        ) {
-//                            Text("Test API")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
