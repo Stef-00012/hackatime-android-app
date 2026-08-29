@@ -13,6 +13,9 @@ class SecureStorage private constructor(context: Context) {
      private val dataStore = context.applicationContext.dataStore
 
     companion object {
+        const val STORAGE_API_KEY = "apiKey"
+        const val STORAGE_ACCESS_TOKEN = "accessToken"
+
         @Volatile
         private var INSTANCE: SecureStorage? = null
 
