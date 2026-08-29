@@ -41,7 +41,7 @@ fun LoadingScreen(
         val unlockWithBiometrics = secureStore.get("unlockWithBiometrics")?.toBoolean() ?: false
         val biometricAuthenticationStatus = getBiometricStatus(context)
 
-        val newUserStatsRes = updateUserStats()
+        val newUserStatsRes = updateUserStats(context)
 
         newUserStatsRes
             .onFailure {

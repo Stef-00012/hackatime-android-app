@@ -2,6 +2,12 @@ package com.stefdp.hackatime.screens.goals
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +55,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.R
+import com.stefdp.hackatime.components.Notification
 import com.stefdp.hackatime.components.Popup
 import com.stefdp.hackatime.components.TextInput
 import com.stefdp.hackatime.network.backendapi.models.Goal
@@ -60,6 +70,8 @@ import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.screens.goals.components.GoalContainer
 import com.stefdp.hackatime.utils.parseTimeToMillis
 import com.stefdp.hackatime.utils.shimmerable
+import com.stefdp.hackatime.utils.verticalLazyScrollbar
+import com.stefdp.hackatime.utils.verticalScrollWithScrollbar
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
@@ -74,17 +86,17 @@ import kotlin.time.Duration.Companion.minutes
 fun GoalsScreen(
     navController: NavHostController,
     context: Context,
-    activity: FragmentActivity
+    activity: FragmentActivity,
+    viewModel: GoalsViewModel = viewModel()
 ) {
-    var isAPiOnServer by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        isAPiOnServer = getUser(
-            context = context
-        )
+        viewModel.updateIsApiOnServer(context)
+        viewModel.updateRangeText(context)
     }
 
-    if (!isAPiOnServer) {
+    if (!state.isApiOnServer) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -134,87 +146,35 @@ fun GoalsScreen(
         return
     }
 
-    var statsRange by rememberSaveable { mutableStateOf(Range.CUSTOM) }
-    var rangeStart by rememberSaveable { mutableStateOf(
-        Instant
-            .now()
-            .minus(Duration.ofDays(7))
-            .atZone(ZoneOffset.UTC)
-            .format(DateTimeFormatter.ISO_LOCAL_DATE)
-    ) }
-    var rangeEnd by rememberSaveable { mutableStateOf(
-        Instant
-            .now()
-            .atZone(ZoneOffset.UTC)
-            .format(DateTimeFormatter.ISO_LOCAL_DATE)
-    ) }
-
-    var showRangePopup by rememberSaveable { mutableStateOf(false) }
-    var showUpdateGoalPopup by rememberSaveable { mutableStateOf(false) }
-
-    val rangeText = when (statsRange) {
-        Range.ALL_TIME -> stringResource(R.string.date_range_all_time)
-        Range.CUSTOM -> "$rangeStart - $rangeEnd"
-        Range.ONE_DAY -> rangeStart
-    }
-
-    var goals by remember { mutableStateOf<List<Goal>?>(null) }
-
-    var isLoading by remember { mutableStateOf(true) }
-
     LaunchedEffect(Unit) {
-        goals = getUserGoals(
-            context = context,
-            startDate = rangeStart,
-            endDate = rangeEnd
-        )
-
-        isLoading = false
+        viewModel.updateGoals(context)
     }
 
-    suspend fun updateUserGoals() {
-        isLoading = true
-
-        goals = when (statsRange) {
-            Range.ALL_TIME -> {
-                getUserGoals(
-                    context = context,
-                    all = true
-                )
-            }
-
-            Range.CUSTOM, Range.ONE_DAY -> {
-                getUserGoals(
-                    context = context,
-                    startDate = rangeStart,
-                    endDate = rangeEnd
-                )
-            }
-        }
-
-        isLoading = false
-    }
-
-    LaunchedEffect(statsRange, rangeStart, rangeEnd) {
-        updateUserGoals()
+    LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
+        viewModel.updateGoals(context)
+        viewModel.updateRangeText(context)
     }
 
     Column {
         OutlinedButton(
-            enabled = !isLoading,
+            enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
-            onClick = { showRangePopup = true },
+            onClick = {
+                viewModel.showRangePopup()
+            },
         ) {
             Text(
-                text = stringResource(R.string.date_range, rangeText),
+                text = stringResource(R.string.date_range, state.rangeText),
                 color = LocalContentColor.current,
                 fontWeight = FontWeight.Bold
             )
         }
 
         Popup(
-            showPopup = showRangePopup,
-            onDismissRequest = { showRangePopup = false },
+            showPopup = state.showRangePopup,
+            onDismissRequest = {
+                viewModel.hideRangePopup()
+            },
         ) {
             val today = Clock.System.now().toEpochMilliseconds()
 
@@ -257,10 +217,10 @@ fun GoalsScreen(
 
                 if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
 
-                rangeStart = startDateString
-                rangeEnd = endDateString
-                statsRange = if (isOneDay) Range.ONE_DAY else Range.CUSTOM
-                showRangePopup = false
+                viewModel.setRangeStart(startDateString)
+                viewModel.setRangeEnd(endDateString)
+                viewModel.setStatsRange(if (isOneDay) Range.ONE_DAY else Range.CUSTOM)
+                viewModel.hideRangePopup()
             }
 
             DateRangePicker(
@@ -281,10 +241,10 @@ fun GoalsScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(1f).padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
                 onClick = {
-                    statsRange = Range.ALL_TIME
-                    showRangePopup = false
+                    viewModel.setStatsRange(Range.ALL_TIME)
+                    viewModel.hideRangePopup()
                 },
-                enabled = statsRange != Range.ALL_TIME
+                enabled = state.statsRange != Range.ALL_TIME
             ) {
                 Text(
                     text = stringResource(R.string.date_range_all_time),
@@ -296,7 +256,7 @@ fun GoalsScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(1f).padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
                 onClick = {
-                    showRangePopup = false
+                    viewModel.hideRangePopup()
                 }
             ) {
                 Text(
@@ -307,9 +267,11 @@ fun GoalsScreen(
         }
 
         OutlinedButton(
-            enabled = !isLoading,
+            enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp),
-            onClick = { showUpdateGoalPopup = true },
+            onClick = {
+                viewModel.showUpdateGoalPopup()
+            },
         ) {
             Text(
                 text = stringResource(R.string.update_goal_button),
@@ -319,8 +281,10 @@ fun GoalsScreen(
         }
 
         Popup(
-            showPopup = showUpdateGoalPopup,
-            onDismissRequest = { showUpdateGoalPopup = false },
+            showPopup = state.showUpdateGoalPopup,
+            onDismissRequest = {
+                viewModel.hideUpdateGoalPopup()
+            },
         ) {
             Column(
                 modifier = Modifier.padding(10.dp)
@@ -332,13 +296,11 @@ fun GoalsScreen(
                     )
                 )
 
-                var newGoal by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
-
-                var isNewGoalLoading by remember { mutableStateOf(false) }
-
                 TextInput(
-                    value = newGoal,
-                    onValueChange = { newGoal = it },
+                    value = state.newGoal,
+                    onValueChange = {
+                        viewModel.setNewGoal(it)
+                    },
                     placeholder = "5h",
                     label = stringResource(R.string.update_goal_input_label),
                 )
@@ -348,67 +310,64 @@ fun GoalsScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     onClick = {
-                        coroutineScope.launch {
-                            isNewGoalLoading = true
-
-                            val newGoalDuration = parseTimeToMillis(newGoal.text)
-
-                            if (newGoalDuration == null || newGoalDuration < 1.minutes.inWholeMilliseconds || newGoalDuration > 23.hours.inWholeMilliseconds) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.invalid_goal_error),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } else {
-                                val success = updateUserGoal(
-                                    context = context,
-                                    date = Instant.now().atZone(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE),
-                                    goal = newGoalDuration / 1000
-                                )
-
-                                if (!success) {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.goal_update_fail_message),
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.goal_update_success_message),
-                                        Toast.LENGTH_LONG
-                                    ).show()
-
-                                    updateUserGoals()
-
-                                    showUpdateGoalPopup = false
+                        viewModel.saveNewGoal(
+                            context = context,
+                            onError = { error ->
+                                Notification.show(
+                                    activity = activity,
+                                    duration = 3000L
+                                ) {
+                                    Text(
+                                        text = error,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
+                            onSuccess = {
+                                Notification.show(
+                                    activity = activity,
+                                    duration = 3000L
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.goal_update_success_message)
+                                    )
                                 }
                             }
-
-                            isNewGoalLoading = false
-                        }
+                        )
                     },
-                    enabled = !isNewGoalLoading
+                    enabled = !state.isLoading
                 ) {
-                    if (isNewGoalLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = LocalContentColor.current
-                        )
+                    AnimatedContent(
+                        targetState = state.isLoading,
+                        transitionSpec = {
+                            (
+                                    fadeIn() + slideInVertically { height -> height }
+                                    ) togetherWith (
+                                    fadeOut() + slideOutVertically { height -> -height }
+                                    )
+                        },
+                        label = "UpdateButtonAnimation"
+                    ) { isLoading ->
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = LocalContentColor.current
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(16.dp)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.save),
-                            contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.save),
+                                contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(5.dp)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(5.dp)
+                            )
+                        }
                     }
 
                     Text(
@@ -420,13 +379,13 @@ fun GoalsScreen(
             }
         }
 
-        if (isLoading || goals == null) {
+        if (state.isLoading || state.goals == null) {
             val loadingScrollState = rememberScrollState()
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(loadingScrollState)
+                    .verticalScrollWithScrollbar(loadingScrollState)
             ) {
                 val repeatCount = 6
 
@@ -437,7 +396,7 @@ fun GoalsScreen(
                     )
                 }
             }
-        } else if (goals!!.isEmpty()) {
+        } else if (state.goals!!.isEmpty()) {
             Text(
                 text = stringResource(R.string.no_goals_message),
                 modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
@@ -447,16 +406,21 @@ fun GoalsScreen(
                 )
             )
         } else {
-            LazyColumn {
-                items(count = goals!!.size) { index ->
+            val listState = rememberLazyListState()
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.verticalLazyScrollbar(listState)
+            ) {
+                items(count = state.goals!!.size) { index ->
                     GoalContainer(
                         modifier = Modifier.padding(
                             start = 10.dp,
                             end = 10.dp,
                             top = if (index == 0) 10.dp else 5.dp,
-                            bottom = if (index == goals!!.size - 1) 10.dp else 5.dp
+                            bottom = if (index == state.goals!!.size - 1) 10.dp else 5.dp
                         ),
-                        goal = goals!![index],
+                        goal = state.goals!![index],
                         context = context
                     )
                 }
@@ -465,7 +429,7 @@ fun GoalsScreen(
     }
 }
 
-private enum class Range(val value: String) {
+enum class Range(val value: String) {
     @SerializedName("alltime")
     ALL_TIME("alltime"),
 

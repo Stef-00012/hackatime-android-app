@@ -61,7 +61,7 @@ fun GoalContainer(
             Text(
                 text = formatMs(
                     context = context,
-                    ms = goal.goal * 1000,
+                    ms = goal.goal.toLong() * 1000,
                     limit = 2
                 ),
                 style = MaterialTheme.typography.titleLarge.copy(
@@ -86,11 +86,11 @@ fun GoalContainer(
             Text(
                 text = "${formatMs(
                     context = context,
-                    ms = goalAchieved * 1000,
+                    ms = goalAchieved.toLong() * 1000,
                     limit = 2
                 )} / ${formatMs(
                     context = context,
-                    ms = goalGoal * 1000,
+                    ms = goalGoal.toLong() * 1000,
                     limit = 2
                 )}",
                 style = MaterialTheme.typography.labelLarge.copy(

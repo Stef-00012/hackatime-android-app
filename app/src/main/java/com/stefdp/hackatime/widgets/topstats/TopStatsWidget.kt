@@ -31,8 +31,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.LocalContext as GlanceLocalContext
-import androidx.glance.LocalSize as GlanceLocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
@@ -40,11 +38,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
-import androidx.glance.layout.Spacer as GlanceSpacer
 import androidx.glance.layout.fillMaxHeight
-import androidx.glance.layout.Row as GlanceRow
-import androidx.glance.layout.Alignment as GlanceAlignment
-import androidx.glance.layout.Column as GlanceColumn
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -53,12 +47,9 @@ import androidx.glance.layout.width
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.stefdp.hackatime.R
-import com.stefdp.hackatime.network.hackatimeapi.models.Feature
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserStatsLast7Days
+import com.stefdp.hackatime.network.hackatimeapi.requests.getWakatimeUserLast7DaysStats
 import com.stefdp.hackatime.ui.theme.DarkWidgetBackground
 import com.stefdp.hackatime.ui.theme.DarkWidgetSurface
-import androidx.glance.preview.Preview as GlancePreview
-import androidx.glance.text.FontWeight as GlanceFontWeight
 import com.stefdp.hackatime.ui.theme.HackatimeStatsWidgetTheme
 import com.stefdp.hackatime.ui.theme.LightWidgetBackground
 import com.stefdp.hackatime.ui.theme.LightWidgetSurface
@@ -66,6 +57,14 @@ import com.stefdp.hackatime.utils.getTop
 import com.stefdp.hackatime.widgets.CELL_HEIGHT
 import com.stefdp.hackatime.widgets.CELL_WIDTH
 import com.stefdp.hackatime.widgets.cornerRadius
+import androidx.glance.LocalContext as GlanceLocalContext
+import androidx.glance.LocalSize as GlanceLocalSize
+import androidx.glance.layout.Alignment as GlanceAlignment
+import androidx.glance.layout.Column as GlanceColumn
+import androidx.glance.layout.Row as GlanceRow
+import androidx.glance.layout.Spacer as GlanceSpacer
+import androidx.glance.preview.Preview as GlancePreview
+import androidx.glance.text.FontWeight as GlanceFontWeight
 import com.stefdp.hackatime.widgets.components.Text as GlanceText
 
 const val StringOpacityKey = "topStats_backgroundOpacity"
@@ -82,14 +81,8 @@ open class TopStatsWidget : GlanceAppWidget() {
         var topEditor = context.getString(R.string.unknown)
         var topOperatingSystem = context.getString(R.string.unknown)
 
-        val last7DaysStatsRes = getCurrentUserStatsLast7Days(
-            context = context,
-            features = listOf(
-                Feature.PROJECTS,
-                Feature.LANGUAGES,
-                Feature.EDITORS,
-                Feature.OPERATING_SYSTEMS
-            )
+        val last7DaysStatsRes = getWakatimeUserLast7DaysStats(
+            context = context
         )
 
         last7DaysStatsRes.onSuccess {

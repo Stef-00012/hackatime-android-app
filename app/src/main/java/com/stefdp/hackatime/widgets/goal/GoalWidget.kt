@@ -222,7 +222,7 @@ private fun WidgetContent(
                 GlanceText(
                     text = formatMs(
                         context = context,
-                        ms = todayGoal.achieved * 1000,
+                        ms = todayGoal.achieved.toLong() * 1000,
                         limit = 2
                     ),
                     modifier = GlanceModifier,
@@ -308,7 +308,7 @@ private fun WidgetContent(
                                     R.string.goal_widget_target_time,
                                     formatMs(
                                         context = context,
-                                        ms = todayGoal.goal * 1000,
+                                        ms = todayGoal.goal.toLong() * 1000,
                                         limit = 2
                                     )
                                 ),
@@ -359,7 +359,7 @@ private fun WidgetContent(
                     GlanceText(
                         text = formatMs(
                             context = context,
-                            ms = todayGoal.achieved * 1000,
+                            ms = todayGoal.achieved.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 30.sp,
@@ -369,7 +369,7 @@ private fun WidgetContent(
                     GlanceText(
                         text = "/" + formatMs(
                             context = context,
-                            ms = todayGoal.goal * 1000,
+                            ms = todayGoal.goal.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 20.sp,
@@ -421,7 +421,7 @@ private fun WidgetContent(
                         GlanceText(
                             text = formatMs(
                                 context = context,
-                                ms = todayGoal.achieved * 1000,
+                                ms = todayGoal.achieved.toLong() * 1000,
                                 limit = 2
                             ),
                             fontSize = 20.sp,
@@ -431,7 +431,7 @@ private fun WidgetContent(
                         GlanceText(
                             text = "/" + formatMs(
                                 context = context,
-                                ms = todayGoal.goal * 1000,
+                                ms = todayGoal.goal.toLong() * 1000,
                                 limit = 2
                             ),
                             fontSize = 15.sp,
@@ -500,7 +500,7 @@ private fun WidgetContent(
                         GlanceText(
                             text = formatMs(
                                 context = context,
-                                ms = todayGoal.achieved * 1000,
+                                ms = todayGoal.achieved.toLong() * 1000,
                                 limit = 2
                             ),
                             fontSize = 20.sp,
@@ -510,7 +510,7 @@ private fun WidgetContent(
                         GlanceText(
                             text = "/" + formatMs(
                                 context = context,
-                                ms = todayGoal.goal * 1000,
+                                ms = todayGoal.goal.toLong() * 1000,
                                 limit = 2
                             ),
                             fontSize = 15.sp,
@@ -677,7 +677,7 @@ fun WidgetPreview(
             Text(
                 text = formatMs(
                     context = context,
-                    ms = todayGoal.achieved * 1000,
+                    ms = todayGoal.achieved.toLong() * 1000,
                     limit = 2
                 ),
                 modifier = Modifier,
@@ -766,7 +766,7 @@ fun WidgetPreview(
                                 R.string.goal_widget_target_time,
                                 formatMs(
                                     context = context,
-                                    ms = todayGoal.goal * 1000,
+                                    ms = todayGoal.goal.toLong() * 1000,
                                     limit = 2
                                 )
                             ),
@@ -820,7 +820,7 @@ fun WidgetPreview(
                 Text(
                     text = formatMs(
                         context = context,
-                        ms = todayGoal.achieved * 1000,
+                        ms = todayGoal.achieved.toLong() * 1000,
                         limit = 2
                     ),
                     fontSize = 30.sp,
@@ -830,7 +830,7 @@ fun WidgetPreview(
                 Text(
                     text = "/" + formatMs(
                         context = context,
-                        ms = todayGoal.goal * 1000,
+                        ms = todayGoal.goal.toLong() * 1000,
                         limit = 2
                     ),
                     fontSize = 20.sp,
@@ -885,7 +885,7 @@ fun WidgetPreview(
                     Text(
                         text = formatMs(
                             context = context,
-                            ms = todayGoal.achieved * 1000,
+                            ms = todayGoal.achieved.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 20.sp,
@@ -895,7 +895,7 @@ fun WidgetPreview(
                     Text(
                         text = "/" + formatMs(
                             context = context,
-                            ms = todayGoal.goal * 1000,
+                            ms = todayGoal.goal.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 15.sp,
@@ -964,7 +964,7 @@ fun WidgetPreview(
                     Text(
                         text = formatMs(
                             context = context,
-                            ms = todayGoal.achieved * 1000,
+                            ms = todayGoal.achieved.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 20.sp,
@@ -974,7 +974,7 @@ fun WidgetPreview(
                     Text(
                         text = "/" + formatMs(
                             context = context,
-                            ms = todayGoal.goal * 1000,
+                            ms = todayGoal.goal.toLong() * 1000,
                             limit = 2
                         ),
                         fontSize = 15.sp,

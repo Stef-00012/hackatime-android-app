@@ -26,21 +26,21 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.currentState
-import androidx.glance.layout.Alignment as GlanceAlignment
-import androidx.glance.layout.Column as GlanceColumn
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.stefdp.hackatime.R
-import androidx.glance.preview.Preview as GlancePreview
-import androidx.glance.text.FontWeight as GlanceFontWeight
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserTodayData
+import com.stefdp.hackatime.network.hackatimeapi.requests.getWakatimeUserTodayData
 import com.stefdp.hackatime.ui.theme.DarkWidgetBackground
 import com.stefdp.hackatime.ui.theme.HackatimeStatsWidgetTheme
 import com.stefdp.hackatime.ui.theme.LightWidgetBackground
 import com.stefdp.hackatime.utils.formatMs
 import com.stefdp.hackatime.widgets.CELL_HEIGHT
 import com.stefdp.hackatime.widgets.CELL_WIDTH
+import androidx.glance.layout.Alignment as GlanceAlignment
+import androidx.glance.layout.Column as GlanceColumn
+import androidx.glance.preview.Preview as GlancePreview
+import androidx.glance.text.FontWeight as GlanceFontWeight
 import com.stefdp.hackatime.widgets.components.Text as GlanceText
 
 const val StringOpacityKey = "todayCodingHours_backgroundOpacity"
@@ -53,7 +53,7 @@ open class TodayCodingHoursWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         var todayTime = context.getString(R.string.unknown)
-        val todayDataRes = getCurrentUserTodayData(context)
+        val todayDataRes = getWakatimeUserTodayData(context)
 
         todayDataRes.onSuccess {
             todayTime = formatMs(
