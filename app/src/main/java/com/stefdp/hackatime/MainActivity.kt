@@ -311,5 +311,9 @@ fun AppNavigation(
                 activity = activity
             )
         }
+
+        composable<LeaderboardScreen> {
+            Text("WIP")
+        }
     }
 }

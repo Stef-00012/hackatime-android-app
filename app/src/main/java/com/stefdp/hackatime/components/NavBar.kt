@@ -17,6 +17,7 @@ import com.stefdp.hackatime.R
 import com.stefdp.hackatime.screens.BiometricAuthScreen
 import com.stefdp.hackatime.screens.GoalsScreen
 import com.stefdp.hackatime.screens.HomeScreen
+import com.stefdp.hackatime.screens.LeaderboardScreen
 import com.stefdp.hackatime.screens.LoadingScreen
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.ProjectsScreen
@@ -99,6 +100,25 @@ fun NavBar(navController: NavHostController) {
             selected = currentDestination?.route == GoalsScreen::class.qualifiedName,
             enabled = currentDestination?.route != GoalsScreen::class.qualifiedName,
             onClick = { navController.navigate(GoalsScreen) },
+            colors = navBarItemColors
+        )
+
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.leaderboard),
+                    contentDescription = stringResource(R.string.leaderboard_button_text)
+                )
+            },
+            label = {
+                Text(
+                    text = stringResource(R.string.leaderboard_button_text),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            selected = currentDestination?.route == LeaderboardScreen::class.qualifiedName,
+            enabled = currentDestination?.route != LeaderboardScreen::class.qualifiedName,
+            onClick = { navController.navigate(LeaderboardScreen) },
             colors = navBarItemColors
         )
     }

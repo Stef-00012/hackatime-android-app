@@ -27,6 +27,9 @@ object ProjectsScreen : AppScreen
 object GoalsScreen : AppScreen
 
 @Serializable
+object LeaderboardScreen : AppScreen
+
+@Serializable
 object SettingsScreen : AppScreen
 
 @Serializable

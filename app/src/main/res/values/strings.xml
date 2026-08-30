@@ -68,6 +68,7 @@
     <string name="home_button_text">Home</string>
     <string name="projects_button_text">Projects</string>
     <string name="goals_button_text">Goals</string>
+    <string name="leaderboard_button_text">Leaderboard</string>
 
     <!--  components.TextInput  -->
     <string name="side_button_content_description_password_hide">Hide Password</string>
@@ -122,6 +123,7 @@
     <string name="open_repository_content_description">Open Project Repository</string>
     <string name="project_languages_content_description">Project Languages</string>
     <string name="project_last_heartbeat_content_description">Project Last Heartbeat</string>
+    <string name="project_archived_content_description">Project is Archived</string>
 
     <!--  screens.settings.SettingsScreen  -->
     <string name="app_settings_title">App Settings</string>
@@ -151,6 +153,7 @@
     <string name="notifications_permission_status">&lt;b&gt;Notifications Permission:&lt;/b&gt; %1$s</string> <!--  &lt;b&gt; and &lt;/b&gt; stand respectively for start and end of bold text  -->
     <string name="notifications_permission_status_granted">Granted</string>
     <string name="notifications_permission_status_denied">Denied</string>
+    <string name="logout_revoke_fail">Failed to revoke Hackatime login</string>
 
     <!--  screens.biometricauth.BiometricAuthScreen  -->
     <string name="hackatime_locked_content_description">Hackatime Locked</string>
