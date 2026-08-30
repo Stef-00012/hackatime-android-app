@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 data class HomeUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val last7DaysData: List<DayData> = emptyList(),
     val statsRange: Range = Range.LAST_SEVEN_DAYS,
     val rangeStart: String = "",
@@ -45,12 +46,14 @@ class HomeViewModel : ViewModel() {
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
 
     fun init(
-        context: Context
+        context: Context,
+        isRefresh: Boolean
     ) {
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    isLoading = true
+                    isLoading = true,
+                    isRefreshing = isRefresh
                 )
             }
 
@@ -64,7 +67,8 @@ class HomeViewModel : ViewModel() {
                     if (currentUserStats.isFailure) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
@@ -76,12 +80,15 @@ class HomeViewModel : ViewModel() {
                     if (stats == null) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
                         return@launch
                     }
+
+                    updateLast7DaysData(context)
 
                     _state.update {
                         it.copy(
@@ -95,7 +102,8 @@ class HomeViewModel : ViewModel() {
                             editors = stats.editors,
                             operatingSystems = stats.operatingSystems,
                             machines = stats.machines,
-                            isLoading = false
+                            isLoading = false,
+                            isRefreshing = false
                         )
                     }
                 }
@@ -113,7 +121,8 @@ class HomeViewModel : ViewModel() {
                     if (currentUserStats.isFailure) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
@@ -125,7 +134,8 @@ class HomeViewModel : ViewModel() {
                     if (stats == null) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
@@ -138,7 +148,8 @@ class HomeViewModel : ViewModel() {
                             topProject = getTop(stats.projects),
                             topLanguage = getTop(stats.languages),
                             languages = stats.languages,
-                            isLoading = false
+                            isLoading = false,
+                            isRefreshing = false
                         )
                     }
                 }
@@ -158,7 +169,8 @@ class HomeViewModel : ViewModel() {
                     if (currentUserStats.isFailure) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
@@ -170,7 +182,8 @@ class HomeViewModel : ViewModel() {
                     if (stats == null) {
                         _state.update {
                             it.copy(
-                                isLoading = false
+                                isLoading = false,
+                                isRefreshing = false
                             )
                         }
 
@@ -183,34 +196,28 @@ class HomeViewModel : ViewModel() {
                             topProject = getTop(stats.projects),
                             topLanguage = getTop(stats.languages),
                             languages = stats.languages,
-                            isLoading = false
+                            isLoading = false,
+                            isRefreshing = false
                         )
                     }
                 }
             }
+
+            updateRangeText(context)
         }
     }
 
-    fun updateLast7DaysData(
+    private suspend fun updateLast7DaysData(
         context: Context
     ) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isLoading = true
-                )
-            }
+        val stats = getLast7DaysData(
+            context = context
+        )
 
-            val stats = getLast7DaysData(
-                context = context
+        _state.update {
+            it.copy(
+                last7DaysData = stats
             )
-
-            _state.update {
-                it.copy(
-                    last7DaysData = stats,
-                    isLoading = false
-                )
-            }
         }
     }
 
@@ -238,7 +245,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun updateRangeText(
+    private fun updateRangeText(
         context: Context
     ) {
         _state.update {

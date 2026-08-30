@@ -49,6 +49,7 @@ import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Popup
+import com.stefdp.hackatime.components.PullToRefreshBox
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.home.components.Container
 import com.stefdp.hackatime.utils.DayData
@@ -99,559 +100,490 @@ fun HomeScreen(
 
     val state by viewModel.state.collectAsState()
 
+    fun reload(isRefresh: Boolean = false) {
+        viewModel.init(
+            context = context,
+            isRefresh = isRefresh
+        )
+    }
+
+
     LaunchedEffect(
         state.statsRange,
         state.rangeStart,
         state.rangeEnd
     ) {
-        viewModel.init(context)
-        viewModel.updateRangeText(context)
+        reload()
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.updateLast7DaysData(context)
-    }
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = {
+            reload(true)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScrollWithScrollbar(scrollState)
+        }
     ) {
-        OutlinedButton(
-            enabled = !state.isLoading,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 5.dp),
-            onClick = {
-                viewModel.showRangePopup()
-            },
+                .fillMaxSize()
+                .verticalScrollWithScrollbar(scrollState)
         ) {
-            Text(
-                text = stringResource(R.string.date_range, state.rangeText),
-                color = LocalContentColor.current,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            OutlinedButton(
+                enabled = !state.isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp),
+                onClick = {
+                    viewModel.showRangePopup()
+                },
+            ) {
+                Text(
+                    text = stringResource(R.string.date_range, state.rangeText),
+                    color = LocalContentColor.current,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-        Popup(
-            showPopup = state.showRangePopup,
-            onDismissRequest = {
-                viewModel.hideRangePopup()
-            },
-        ) {
-            val today = Clock.System.now().toEpochMilliseconds()
+            Popup(
+                showPopup = state.showRangePopup,
+                onDismissRequest = {
+                    viewModel.hideRangePopup()
+                },
+            ) {
+                val today = Clock.System.now().toEpochMilliseconds()
 
-            val selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis <= today
+                val selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis <= today
+                    }
                 }
-            }
 
-            val dateRangePickerState = rememberDateRangePickerState(
-                selectableDates = selectableDates,
-            )
-
-            LaunchedEffect(
-                dateRangePickerState.selectedStartDateMillis,
-                dateRangePickerState.selectedEndDateMillis
-            ) {
-                var isOneDay = false
-
-                val startDate = dateRangePickerState.selectedStartDateMillis
-                val endDate = if (dateRangePickerState.selectedEndDateMillis == startDate) {
-                    val oneDayMillis = 1.days.inWholeMilliseconds // 24 * 60 * 60 * 1000L
-
-                    isOneDay = true
-
-                    dateRangePickerState.selectedEndDateMillis?.plus(oneDayMillis)
-                } else dateRangePickerState.selectedEndDateMillis
-
-                if (startDate == null || endDate == null) return@LaunchedEffect
-
-                val startDateString = Instant
-                    .ofEpochMilli(startDate)
-                    .atZone(ZoneOffset.UTC)
-                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
-
-                val endDateString = Instant
-                    .ofEpochMilli(endDate)
-                    .atZone(ZoneOffset.UTC)
-                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
-
-                if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
-
-                viewModel.setRangeStart(startDateString)
-                viewModel.setRangeEnd(endDateString)
-                viewModel.setStatsRange(if (isOneDay) Range.ONE_DAY else Range.CUSTOM)
-
-                viewModel.hideRangePopup()
-            }
-
-            DateRangePicker(
-                state = dateRangePickerState,
-                modifier = Modifier.height(350.dp),
-                colors = DatePickerDefaults.colors().copy(
-                    containerColor = Color.Transparent,
-                    dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                ),
-                headline = {
-                    Text(
-                        text = stringResource(R.string.select_date_range)
-                    )
-                },
-                title = {},
-            )
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
-                onClick = {
-                    viewModel.setStatsRange(Range.LAST_SEVEN_DAYS)
-                    viewModel.hideRangePopup()
-                },
-                enabled = state.statsRange != Range.LAST_SEVEN_DAYS
-            ) {
-                Text(
-                    text = stringResource(R.string.date_range_last_7_days_button),
-                    fontWeight = FontWeight.Bold,
-                    color = LocalContentColor.current
+                val dateRangePickerState = rememberDateRangePickerState(
+                    selectableDates = selectableDates,
                 )
-            }
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
-                onClick = {
-                    viewModel.setStatsRange(Range.ALL_TIME)
-                    viewModel.hideRangePopup()
-                },
-                enabled = state.statsRange != Range.ALL_TIME
-            ) {
-                Text(
-                    text = stringResource(R.string.date_range_all_time_button),
-                    fontWeight = FontWeight.Bold,
-                    color = LocalContentColor.current
-                )
-            }
+                LaunchedEffect(
+                    dateRangePickerState.selectedStartDateMillis,
+                    dateRangePickerState.selectedEndDateMillis
+                ) {
+                    var isOneDay = false
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
-                onClick = {
+                    val startDate = dateRangePickerState.selectedStartDateMillis
+                    val endDate = if (dateRangePickerState.selectedEndDateMillis == startDate) {
+                        val oneDayMillis = 1.days.inWholeMilliseconds // 24 * 60 * 60 * 1000L
+
+                        isOneDay = true
+
+                        dateRangePickerState.selectedEndDateMillis?.plus(oneDayMillis)
+                    } else dateRangePickerState.selectedEndDateMillis
+
+                    if (startDate == null || endDate == null) return@LaunchedEffect
+
+                    val startDateString = Instant
+                        .ofEpochMilli(startDate)
+                        .atZone(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+                    val endDateString = Instant
+                        .ofEpochMilli(endDate)
+                        .atZone(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+                    if (startDateString.isNullOrEmpty() || endDateString.isNullOrEmpty()) return@LaunchedEffect
+
+                    viewModel.setRangeStart(startDateString)
+                    viewModel.setRangeEnd(endDateString)
+                    viewModel.setStatsRange(if (isOneDay) Range.ONE_DAY else Range.CUSTOM)
+
                     viewModel.hideRangePopup()
                 }
-            ) {
-                Text(
-                    text = stringResource(R.string.close_button),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
 
-        Container(
-            modifier = Modifier.padding(
-                start = 5.dp,
-                end = 5.dp,
-                top = 5.dp,
-                bottom = 2.5.dp
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.total_time),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = formatMs(
-                    context = context,
-                    ms = state.totalSeconds * 1000L
-                ),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.shimmerable(
-                    enabled = state.isLoading,
-                )
-            )
-        }
-
-        Container(
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.top_project),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = state.topProject?.name ?: stringResource(R.string.unknown_project),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.shimmerable(
-                    enabled = state.isLoading,
-                )
-            )
-        }
-
-        Container(
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.top_language),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = state.topLanguage?.name ?: stringResource(R.string.unknown_language),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.shimmerable(
-                    enabled = state.isLoading,
-                )
-            )
-        }
-
-        if (state.statsRange == Range.LAST_SEVEN_DAYS) {
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.top_operating_system),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = state.topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.shimmerable(
-                        enabled = state.isLoading,
-                    )
-                )
-            }
-
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.top_editor),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = state.topEditor?.name ?: stringResource(R.string.unknown_editor),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.shimmerable(
-                        enabled = state.isLoading,
-                    )
-                )
-            }
-
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.top_machine),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = state.topMachine?.name ?: stringResource(R.string.unknown_machine),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.shimmerable(
-                        enabled = state.isLoading,
-                    )
-                )
-            }
-
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.last_7_days_overview),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-
-                val primaryColor = MaterialTheme.colorScheme.primary
-                val chartHeight = 250.dp
-
-                if (!state.isLoading && state.last7DaysData.isNotEmpty()) {
-                    val lines by remember(state.last7DaysData) { mutableStateOf(
-                        listOf(
-                            Line(
-                                values = state.last7DaysData.map { it.data?.totalSeconds?.toDouble() ?: 0.0 },
-                                color = SolidColor(primaryColor),
-                            )
+                DateRangePicker(
+                    state = dateRangePickerState,
+                    modifier = Modifier.height(350.dp),
+                    colors = DatePickerDefaults.colors().copy(
+                        containerColor = Color.Transparent,
+                        dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                    ),
+                    headline = {
+                        Text(
+                            text = stringResource(R.string.select_date_range)
                         )
-                    ) }
+                    },
+                    title = {},
+                )
 
-                    val labels = state.last7DaysData.map { userData ->
-                        userData.date.let { date ->
-                            val weekDayNumber = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)
-                                .dayOfWeek.value
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                    onClick = {
+                        viewModel.setStatsRange(Range.LAST_SEVEN_DAYS)
+                        viewModel.hideRangePopup()
+                    },
+                    enabled = state.statsRange != Range.LAST_SEVEN_DAYS
+                ) {
+                    Text(
+                        text = stringResource(R.string.date_range_last_7_days_button),
+                        fontWeight = FontWeight.Bold,
+                        color = LocalContentColor.current
+                    )
+                }
 
-                            when (weekDayNumber) {
-                                1 -> stringResource(R.string.last_7_days_chart_monday)
-                                2 -> stringResource(R.string.last_7_days_chart_tuesday)
-                                3 -> stringResource(R.string.last_7_days_chart_wednesday)
-                                4 -> stringResource(R.string.last_7_days_chart_thursday)
-                                5 -> stringResource(R.string.last_7_days_chart_friday)
-                                6 -> stringResource(R.string.last_7_days_chart_saturday)
-                                7 -> stringResource(R.string.last_7_days_chart_sunday)
-                                else -> stringResource(R.string.last_7_days_chart_unknown)
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                    onClick = {
+                        viewModel.setStatsRange(Range.ALL_TIME)
+                        viewModel.hideRangePopup()
+                    },
+                    enabled = state.statsRange != Range.ALL_TIME
+                ) {
+                    Text(
+                        text = stringResource(R.string.date_range_all_time_button),
+                        fontWeight = FontWeight.Bold,
+                        color = LocalContentColor.current
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .padding(start = 5.dp, end = 5.dp, top = 8.dp, bottom = 0.dp),
+                    onClick = {
+                        viewModel.hideRangePopup()
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.close_button),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Container(
+                modifier = Modifier.padding(
+                    start = 5.dp,
+                    end = 5.dp,
+                    top = 5.dp,
+                    bottom = 2.5.dp
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.total_time),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = formatMs(
+                        context = context,
+                        ms = state.totalSeconds * 1000L
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = state.isLoading,
+                    )
+                )
+            }
+
+            Container(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.top_project),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = state.topProject?.name ?: stringResource(R.string.unknown_project),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = state.isLoading,
+                    )
+                )
+            }
+
+            Container(
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.top_language),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = state.topLanguage?.name ?: stringResource(R.string.unknown_language),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.shimmerable(
+                        enabled = state.isLoading,
+                    )
+                )
+            }
+
+            if (state.statsRange == Range.LAST_SEVEN_DAYS) {
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.top_operating_system),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = state.topOperatingSystem?.name ?: stringResource(R.string.unknown_operating_system),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.shimmerable(
+                            enabled = state.isLoading,
+                        )
+                    )
+                }
+
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.top_editor),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = state.topEditor?.name ?: stringResource(R.string.unknown_editor),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.shimmerable(
+                            enabled = state.isLoading,
+                        )
+                    )
+                }
+
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.top_machine),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = state.topMachine?.name ?: stringResource(R.string.unknown_machine),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.shimmerable(
+                            enabled = state.isLoading,
+                        )
+                    )
+                }
+
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.last_7_days_overview),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+
+                    val primaryColor = MaterialTheme.colorScheme.primary
+                    val chartHeight = 250.dp
+
+                    if (!state.isLoading && state.last7DaysData.isNotEmpty()) {
+                        val lines by remember(state.last7DaysData) { mutableStateOf(
+                            listOf(
+                                Line(
+                                    values = state.last7DaysData.map { it.data?.totalSeconds?.toDouble() ?: 0.0 },
+                                    color = SolidColor(primaryColor),
+                                )
+                            )
+                        ) }
+
+                        val labels = state.last7DaysData.map { userData ->
+                            userData.date.let { date ->
+                                val weekDayNumber = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)
+                                    .dayOfWeek.value
+
+                                when (weekDayNumber) {
+                                    1 -> stringResource(R.string.last_7_days_chart_monday)
+                                    2 -> stringResource(R.string.last_7_days_chart_tuesday)
+                                    3 -> stringResource(R.string.last_7_days_chart_wednesday)
+                                    4 -> stringResource(R.string.last_7_days_chart_thursday)
+                                    5 -> stringResource(R.string.last_7_days_chart_friday)
+                                    6 -> stringResource(R.string.last_7_days_chart_saturday)
+                                    7 -> stringResource(R.string.last_7_days_chart_sunday)
+                                    else -> stringResource(R.string.last_7_days_chart_unknown)
+                                }
                             }
                         }
-                    }
 
-                    val axisProperties = GridProperties.AxisProperties(
-                        enabled = true,
-                        color = SolidColor(
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
-                        ),
-                        lineCount = 7,
-                        style = StrokeStyle.Dashed(
-                            intervals = floatArrayOf(15f, 15f),
-                        )
-                    )
-
-                    LineChart(
-                        data = lines,
-                        modifier = Modifier.height(chartHeight),
-                        dotsProperties = DotProperties(
+                        val axisProperties = GridProperties.AxisProperties(
                             enabled = true,
-                            color = SolidColor(primaryColor),
-                            strokeWidth = 1.dp,
-                            radius = 4.dp,
-                            strokeColor = SolidColor(primaryColor),
-                        ),
-                        labelProperties = LabelProperties(
-                            enabled = true,
-                            labels = labels,
-                            rotation = LabelProperties.Rotation(
-                                degree = 0f
+                            color = SolidColor(
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
                             ),
-                            padding = 4.dp,
-                            textStyle = MaterialTheme.typography.labelLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            lineCount = 7,
+                            style = StrokeStyle.Dashed(
+                                intervals = floatArrayOf(15f, 15f),
                             )
-                        ),
-                        popupProperties = PopupProperties(
-                            enabled = true,
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            textStyle = MaterialTheme.typography.labelLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            contentBuilder = { value ->
-                                formatMs(
-                                    context = context,
-                                    ms = value.value.toLong() * 1000L,
-                                    limit = 2
-                                )
-                            }
-                        ),
-                        gridProperties = GridProperties(
-                            enabled = true,
-                            xAxisProperties = axisProperties,
-                            yAxisProperties = axisProperties
-                        ),
-                        indicatorProperties = HorizontalIndicatorProperties(
-                            enabled = true,
-                            textStyle = MaterialTheme.typography.labelLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
-                            count = IndicatorCount.CountBased(7),
-                            contentBuilder = { value ->
-                                formatMs(
-                                    context = context,
-                                    ms = value.toLong() * 1000L,
-                                    limit = 2
-                                )
-                            }
                         )
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(chartHeight)
-                            .shimmerable(true)
-                    )
-                }
-            }
-        }
 
-        @Composable
-        fun PieChartSkeleton() {
-            Box(
-                modifier = Modifier
-                    .size(pieChartSize)
-                    .shimmerable(
-                        enabled = true,
-                        shape = CircleShape,
-                    )
-                    .align(Alignment.CenterHorizontally)
-            )
-        }
-
-        @Composable
-        fun PieChartTooltip() {
-            Row {
-                Icon(
-                    painter = painterResource(R.drawable.info),
-                    contentDescription = stringResource(R.string.pie_chart_tooltip_content_description),
-                    modifier = Modifier
-                        .size(15.dp)
-                        .align(Alignment.CenterVertically),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(
-                    modifier = Modifier.width(6.dp)
-                )
-
-                Text(
-                    text = stringResource(R.string.pie_chart_tooltip),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-
-        Container(
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.languages_pie_chart),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 10.dp),
-            )
-
-            var selectedLanguage by remember { mutableStateOf<Pie?>(null) }
-            var pieChartLanguages by remember(state.languages, selectedLanguage) { mutableStateOf(
-                state.languages
-                    .groupBy { it.name }
-                    .map { (name, language) ->
-                        Pie(
-                            label = name,
-                            data = language.sumOf { it.totalSeconds.toDouble() },
-                            color = languageColors[name.lowercase()] ?: colorHash(name),
-                            selected = name == selectedLanguage?.label
+                        LineChart(
+                            data = lines,
+                            modifier = Modifier.height(chartHeight),
+                            dotsProperties = DotProperties(
+                                enabled = true,
+                                color = SolidColor(primaryColor),
+                                strokeWidth = 1.dp,
+                                radius = 4.dp,
+                                strokeColor = SolidColor(primaryColor),
+                            ),
+                            labelProperties = LabelProperties(
+                                enabled = true,
+                                labels = labels,
+                                rotation = LabelProperties.Rotation(
+                                    degree = 0f
+                                ),
+                                padding = 4.dp,
+                                textStyle = MaterialTheme.typography.labelLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            ),
+                            popupProperties = PopupProperties(
+                                enabled = true,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                textStyle = MaterialTheme.typography.labelLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                contentBuilder = { value ->
+                                    formatMs(
+                                        context = context,
+                                        ms = value.value.toLong() * 1000L,
+                                        limit = 2
+                                    )
+                                }
+                            ),
+                            gridProperties = GridProperties(
+                                enabled = true,
+                                xAxisProperties = axisProperties,
+                                yAxisProperties = axisProperties
+                            ),
+                            indicatorProperties = HorizontalIndicatorProperties(
+                                enabled = true,
+                                textStyle = MaterialTheme.typography.labelLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
+                                count = IndicatorCount.CountBased(7),
+                                contentBuilder = { value ->
+                                    formatMs(
+                                        context = context,
+                                        ms = value.toLong() * 1000L,
+                                        limit = 2
+                                    )
+                                }
+                            )
                         )
-                    }
-            ) }
-
-            LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
-                selectedLanguage = null
-            }
-
-            if (!state.isLoading && pieChartLanguages.isNotEmpty()) {
-                PieChart(
-                    data = pieChartLanguages,
-                    modifier = Modifier
-                        .size(pieChartSize)
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 20.dp),
-                    style = Pie.Style.Fill,
-                    selectedScale = 1.2f,
-                    onPieClick = { clickedPie ->
-                        selectedLanguage = clickedPie
-                    },
-                    labelHelperProperties = LabelHelperProperties(
-                        enabled = false
-                    )
-                )
-
-                if (selectedLanguage != null && pieChartLanguages.find { it.label == selectedLanguage?.label } != null) {
-                    Row {
+                    } else {
                         Box(
                             modifier = Modifier
-                                .size(15.dp)
-                                .background(selectedLanguage?.color ?: Color(0xFFFFFFFF))
-                                .align(Alignment.CenterVertically)
-                        )
-
-                        Spacer(
-                            modifier = Modifier.width(6.dp)
-                        )
-
-                        Text(
-                            text = "${selectedLanguage?.label}: ${formatMs(
-                                context = context,
-                                ms = (selectedLanguage?.data?.toLong() ?: 0L) * 1000L,
-                                limit = 2
-                            )}"
+                                .fillMaxWidth()
+                                .height(chartHeight)
+                                .shimmerable(true)
                         )
                     }
-                } else {
-                    PieChartTooltip()
                 }
-            } else {
-                PieChartSkeleton()
-
-                PieChartTooltip()
             }
-        }
 
-        if (state.statsRange == Range.LAST_SEVEN_DAYS) {
+            @Composable
+            fun PieChartSkeleton() {
+                Box(
+                    modifier = Modifier
+                        .size(pieChartSize)
+                        .shimmerable(
+                            enabled = true,
+                            shape = CircleShape,
+                        )
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
+            @Composable
+            fun PieChartTooltip() {
+                Row {
+                    Icon(
+                        painter = painterResource(R.drawable.info),
+                        contentDescription = stringResource(R.string.pie_chart_tooltip_content_description),
+                        modifier = Modifier
+                            .size(15.dp)
+                            .align(Alignment.CenterVertically),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(
+                        modifier = Modifier.width(6.dp)
+                    )
+
+                    Text(
+                        text = stringResource(R.string.pie_chart_tooltip),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             Container(
                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.editors_pie_chart),
+                    text = stringResource(R.string.languages_pie_chart),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 10.dp),
                 )
 
-                var selectedEditor by remember { mutableStateOf<Pie?>(null) }
-                var pieChartEditors by remember(state.editors, selectedEditor) { mutableStateOf(
-                    state.editors
+                var selectedLanguage by remember { mutableStateOf<Pie?>(null) }
+                var pieChartLanguages by remember(state.languages, selectedLanguage) { mutableStateOf(
+                    state.languages
                         .groupBy { it.name }
-                        .map { (name, editor) ->
+                        .map { (name, language) ->
                             Pie(
                                 label = name,
-                                data = editor.sumOf { it.totalSeconds.toDouble() },
-                                color = colorHash(name),
-                                selected = name == selectedEditor?.label
+                                data = language.sumOf { it.totalSeconds.toDouble() },
+                                color = languageColors[name.lowercase()] ?: colorHash(name),
+                                selected = name == selectedLanguage?.label
                             )
                         }
                 ) }
 
                 LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
-                    selectedEditor = null
+                    selectedLanguage = null
                 }
 
-                val chartSize = 250.dp
-
-                if (!state.isLoading && pieChartEditors.isNotEmpty()) {
+                if (!state.isLoading && pieChartLanguages.isNotEmpty()) {
                     PieChart(
-                        data = pieChartEditors,
+                        data = pieChartLanguages,
                         modifier = Modifier
-                            .size(chartSize)
+                            .size(pieChartSize)
                             .align(Alignment.CenterHorizontally)
                             .padding(vertical = 20.dp),
                         style = Pie.Style.Fill,
                         selectedScale = 1.2f,
                         onPieClick = { clickedPie ->
-                            selectedEditor = clickedPie
+                            selectedLanguage = clickedPie
                         },
                         labelHelperProperties = LabelHelperProperties(
                             enabled = false
                         )
                     )
 
-                    if (selectedEditor != null && pieChartEditors.find { it.label == selectedEditor?.label } != null) {
+                    if (selectedLanguage != null && pieChartLanguages.find { it.label == selectedLanguage?.label } != null) {
                         Row {
                             Box(
                                 modifier = Modifier
                                     .size(15.dp)
-                                    .background(selectedEditor?.color ?: Color(0xFFFFFFFF))
+                                    .background(selectedLanguage?.color ?: Color(0xFFFFFFFF))
                                     .align(Alignment.CenterVertically)
                             )
 
@@ -660,9 +592,9 @@ fun HomeScreen(
                             )
 
                             Text(
-                                text = "${selectedEditor?.label}: ${formatMs(
+                                text = "${selectedLanguage?.label}: ${formatMs(
                                     context = context,
-                                    ms = (selectedEditor?.data?.toLong() ?: 0L) * 1000L,
+                                    ms = (selectedLanguage?.data?.toLong() ?: 0L) * 1000L,
                                     limit = 2
                                 )}"
                             )
@@ -677,159 +609,239 @@ fun HomeScreen(
                 }
             }
 
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.operating_systems_pie_chart),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 10.dp),
-                )
-
-                var selectedOperatingSystem by remember { mutableStateOf<Pie?>(null) }
-                var pieChartOperatingSystems by remember(state.operatingSystems, selectedOperatingSystem) { mutableStateOf(
-                    state.operatingSystems
-                        .groupBy { it.name }
-                        .map { (name, operatingSystem) ->
-                            Pie(
-                                label = name,
-                                data = operatingSystem.sumOf { it.totalSeconds.toDouble() },
-                                color = colorHash(name),
-                                selected = name == selectedOperatingSystem?.label
-                            )
-                        }
-                ) }
-
-                LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
-                    selectedOperatingSystem = null
-                }
-
-                val chartSize = 250.dp
-
-                if (!state.isLoading && pieChartOperatingSystems.isNotEmpty()) {
-                    PieChart(
-                        data = pieChartOperatingSystems,
-                        modifier = Modifier
-                            .size(chartSize)
-                            .align(Alignment.CenterHorizontally)
-                            .padding(vertical = 20.dp),
-                        style = Pie.Style.Fill,
-                        selectedScale = 1.2f,
-                        onPieClick = { clickedPie ->
-                            selectedOperatingSystem = clickedPie
-                        },
-                        labelHelperProperties = LabelHelperProperties(
-                            enabled = false
-                        )
+            if (state.statsRange == Range.LAST_SEVEN_DAYS) {
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.editors_pie_chart),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 10.dp),
                     )
 
-                    if (selectedOperatingSystem != null && pieChartOperatingSystems.find { it.label == selectedOperatingSystem?.label } != null) {
-                        Row {
-                            Box(
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .background(selectedOperatingSystem?.color ?: Color(0xFFFFFFFF))
-                                    .align(Alignment.CenterVertically)
-                            )
+                    var selectedEditor by remember { mutableStateOf<Pie?>(null) }
+                    var pieChartEditors by remember(state.editors, selectedEditor) { mutableStateOf(
+                        state.editors
+                            .groupBy { it.name }
+                            .map { (name, editor) ->
+                                Pie(
+                                    label = name,
+                                    data = editor.sumOf { it.totalSeconds.toDouble() },
+                                    color = colorHash(name),
+                                    selected = name == selectedEditor?.label
+                                )
+                            }
+                    ) }
 
-                            Spacer(
-                                modifier = Modifier.width(6.dp)
-                            )
+                    LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
+                        selectedEditor = null
+                    }
 
-                            Text(
-                                text = "${selectedOperatingSystem?.label}: ${formatMs(
-                                    context = context,
-                                    ms = (selectedOperatingSystem?.data?.toLong() ?: 0L) * 1000L,
-                                    limit = 2
-                                )}"
+                    val chartSize = 250.dp
+
+                    if (!state.isLoading && pieChartEditors.isNotEmpty()) {
+                        PieChart(
+                            data = pieChartEditors,
+                            modifier = Modifier
+                                .size(chartSize)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(vertical = 20.dp),
+                            style = Pie.Style.Fill,
+                            selectedScale = 1.2f,
+                            onPieClick = { clickedPie ->
+                                selectedEditor = clickedPie
+                            },
+                            labelHelperProperties = LabelHelperProperties(
+                                enabled = false
                             )
+                        )
+
+                        if (selectedEditor != null && pieChartEditors.find { it.label == selectedEditor?.label } != null) {
+                            Row {
+                                Box(
+                                    modifier = Modifier
+                                        .size(15.dp)
+                                        .background(selectedEditor?.color ?: Color(0xFFFFFFFF))
+                                        .align(Alignment.CenterVertically)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(6.dp)
+                                )
+
+                                Text(
+                                    text = "${selectedEditor?.label}: ${formatMs(
+                                        context = context,
+                                        ms = (selectedEditor?.data?.toLong() ?: 0L) * 1000L,
+                                        limit = 2
+                                    )}"
+                                )
+                            }
+                        } else {
+                            PieChartTooltip()
                         }
                     } else {
+                        PieChartSkeleton()
+
                         PieChartTooltip()
                     }
-                } else {
-                    PieChartSkeleton()
-
-                    PieChartTooltip()
-                }
-            }
-
-            Container(
-                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.machines_pie_chart),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 10.dp),
-                )
-
-                var selectedMachine by remember { mutableStateOf<Pie?>(null) }
-                var pieChartMachines by remember(state.machines, selectedMachine) { mutableStateOf(
-                    state.machines
-                        .groupBy { it.name }
-                        .map { (name, machine) ->
-                            Pie(
-                                label = name,
-                                data = machine.sumOf { it.totalSeconds.toDouble() },
-                                color = colorHash(name),
-                                selected = name == selectedMachine?.label
-                            )
-                        }
-                ) }
-
-                LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
-                    selectedMachine = null
                 }
 
-                val chartSize = 250.dp
-
-                if (!state.isLoading && pieChartMachines.isNotEmpty()) {
-                    PieChart(
-                        data = pieChartMachines,
-                        modifier = Modifier
-                            .size(chartSize)
-                            .align(Alignment.CenterHorizontally)
-                            .padding(vertical = 20.dp),
-                        style = Pie.Style.Fill,
-                        selectedScale = 1.2f,
-                        onPieClick = { clickedPie ->
-                            selectedMachine = clickedPie
-                        },
-                        labelHelperProperties = LabelHelperProperties(
-                            enabled = false
-                        )
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.operating_systems_pie_chart),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 10.dp),
                     )
 
-                    if (selectedMachine != null && pieChartMachines.find { it.label == selectedMachine?.label } != null) {
-                        Row {
-                            Box(
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .background(selectedMachine?.color ?: Color(0xFFFFFFFF))
-                                    .align(Alignment.CenterVertically)
-                            )
+                    var selectedOperatingSystem by remember { mutableStateOf<Pie?>(null) }
+                    var pieChartOperatingSystems by remember(state.operatingSystems, selectedOperatingSystem) { mutableStateOf(
+                        state.operatingSystems
+                            .groupBy { it.name }
+                            .map { (name, operatingSystem) ->
+                                Pie(
+                                    label = name,
+                                    data = operatingSystem.sumOf { it.totalSeconds.toDouble() },
+                                    color = colorHash(name),
+                                    selected = name == selectedOperatingSystem?.label
+                                )
+                            }
+                    ) }
 
-                            Spacer(
-                                modifier = Modifier.width(6.dp)
-                            )
+                    LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
+                        selectedOperatingSystem = null
+                    }
 
-                            Text(
-                                text = "${selectedMachine?.label}: ${formatMs(
-                                    context = context,
-                                    ms = (selectedMachine?.data?.toLong() ?: 0L) * 1000L,
-                                    limit = 2
-                                )}"
+                    val chartSize = 250.dp
+
+                    if (!state.isLoading && pieChartOperatingSystems.isNotEmpty()) {
+                        PieChart(
+                            data = pieChartOperatingSystems,
+                            modifier = Modifier
+                                .size(chartSize)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(vertical = 20.dp),
+                            style = Pie.Style.Fill,
+                            selectedScale = 1.2f,
+                            onPieClick = { clickedPie ->
+                                selectedOperatingSystem = clickedPie
+                            },
+                            labelHelperProperties = LabelHelperProperties(
+                                enabled = false
                             )
+                        )
+
+                        if (selectedOperatingSystem != null && pieChartOperatingSystems.find { it.label == selectedOperatingSystem?.label } != null) {
+                            Row {
+                                Box(
+                                    modifier = Modifier
+                                        .size(15.dp)
+                                        .background(selectedOperatingSystem?.color ?: Color(0xFFFFFFFF))
+                                        .align(Alignment.CenterVertically)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(6.dp)
+                                )
+
+                                Text(
+                                    text = "${selectedOperatingSystem?.label}: ${formatMs(
+                                        context = context,
+                                        ms = (selectedOperatingSystem?.data?.toLong() ?: 0L) * 1000L,
+                                        limit = 2
+                                    )}"
+                                )
+                            }
+                        } else {
+                            PieChartTooltip()
                         }
                     } else {
+                        PieChartSkeleton()
+
                         PieChartTooltip()
                     }
-                } else {
-                    PieChartSkeleton()
+                }
 
-                    PieChartTooltip()
+                Container(
+                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.machines_pie_chart),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 10.dp),
+                    )
+
+                    var selectedMachine by remember { mutableStateOf<Pie?>(null) }
+                    var pieChartMachines by remember(state.machines, selectedMachine) { mutableStateOf(
+                        state.machines
+                            .groupBy { it.name }
+                            .map { (name, machine) ->
+                                Pie(
+                                    label = name,
+                                    data = machine.sumOf { it.totalSeconds.toDouble() },
+                                    color = colorHash(name),
+                                    selected = name == selectedMachine?.label
+                                )
+                            }
+                    ) }
+
+                    LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
+                        selectedMachine = null
+                    }
+
+                    val chartSize = 250.dp
+
+                    if (!state.isLoading && pieChartMachines.isNotEmpty()) {
+                        PieChart(
+                            data = pieChartMachines,
+                            modifier = Modifier
+                                .size(chartSize)
+                                .align(Alignment.CenterHorizontally)
+                                .padding(vertical = 20.dp),
+                            style = Pie.Style.Fill,
+                            selectedScale = 1.2f,
+                            onPieClick = { clickedPie ->
+                                selectedMachine = clickedPie
+                            },
+                            labelHelperProperties = LabelHelperProperties(
+                                enabled = false
+                            )
+                        )
+
+                        if (selectedMachine != null && pieChartMachines.find { it.label == selectedMachine?.label } != null) {
+                            Row {
+                                Box(
+                                    modifier = Modifier
+                                        .size(15.dp)
+                                        .background(selectedMachine?.color ?: Color(0xFFFFFFFF))
+                                        .align(Alignment.CenterVertically)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(6.dp)
+                                )
+
+                                Text(
+                                    text = "${selectedMachine?.label}: ${formatMs(
+                                        context = context,
+                                        ms = (selectedMachine?.data?.toLong() ?: 0L) * 1000L,
+                                        limit = 2
+                                    )}"
+                                )
+                            }
+                        } else {
+                            PieChartTooltip()
+                        }
+                    } else {
+                        PieChartSkeleton()
+
+                        PieChartTooltip()
+                    }
                 }
             }
         }
