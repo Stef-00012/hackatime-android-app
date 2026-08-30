@@ -9,7 +9,7 @@ import com.stefdp.hackatime.network.backendapi.models.responses.SendApiKeyRespon
 import com.stefdp.hackatime.network.hackatimeapi.requests.getOAuthUserApiKeys
 import com.stefdp.hackatime.utils.SecureStorage
 
-private const val TAG = "BackendApi[getUser]"
+private const val TAG = "BackendApi[sendApiKey]"
 
 suspend fun sendApiKey(
     context: Context
