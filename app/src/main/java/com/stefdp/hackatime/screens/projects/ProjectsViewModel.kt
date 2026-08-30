@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import net.openid.appauth.internal.Logger
 
 data class ProjectsUiState(
+    val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val projects: List<ProjectDetails>? = null,
 )
 
@@ -24,19 +26,31 @@ class ProjectsViewModel : ViewModel() {
     val state: StateFlow<ProjectsUiState> = _state.asStateFlow()
 
     fun init(
-        context: Context
+        context: Context,
+        username: String,
+        isRefresh: Boolean
     ) {
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    isRefreshing = isRefresh,
+                    projects = if (isRefresh) it.projects else null,
+                )
+            }
+
             val projectsRes = listUserProjectDetails(
                 context = context,
-                username = "my"
+                username = username
             )
 
             projectsRes
                 .onSuccess { projects ->
                     _state.update {
                         it.copy(
-                            projects = projects
+                            projects = projects,
+                            isLoading = false,
+                            isRefreshing = false
                         )
                     }
                 }
@@ -45,7 +59,9 @@ class ProjectsViewModel : ViewModel() {
 
                     _state.update {
                         it.copy(
-                            projects = emptyList()
+                            projects = emptyList(),
+                            isLoading = false,
+                            isRefreshing = false
                         )
                     }
                 }
