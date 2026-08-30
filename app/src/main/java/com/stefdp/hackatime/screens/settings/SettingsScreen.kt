@@ -10,6 +10,12 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,24 +28,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import com.stefdp.hackatime.components.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -47,27 +47,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.messaging.FirebaseMessaging
 import com.stefdp.hackatime.DebugWrapper
 import com.stefdp.hackatime.LocalUpdateUserStats
 import com.stefdp.hackatime.R
+import com.stefdp.hackatime.components.Button
+import com.stefdp.hackatime.components.Notification
+import com.stefdp.hackatime.components.OutlinedButton
 import com.stefdp.hackatime.components.Switch
-import com.stefdp.hackatime.components.TextInput
-import com.stefdp.hackatime.network.backendapi.models.NotificationCategory
-import com.stefdp.hackatime.network.backendapi.requests.deleteUser
-import com.stefdp.hackatime.network.backendapi.requests.getUser
-import com.stefdp.hackatime.network.backendapi.requests.getUserNotificationCategories
-import com.stefdp.hackatime.network.backendapi.requests.sendApiKey
 import com.stefdp.hackatime.network.backendapi.requests.sendPushNotificationToken
-import com.stefdp.hackatime.network.backendapi.requests.updateUser
-import com.stefdp.hackatime.network.backendapi.requests.updateUserNotificationCategories
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.settings.components.Container
 import com.stefdp.hackatime.utils.SecureStorage
@@ -76,29 +71,31 @@ import com.stefdp.hackatime.utils.createPromptInfo
 import com.stefdp.hackatime.utils.getBiometricStatus
 import com.stefdp.hackatime.utils.hasNotificationsPermission
 import com.stefdp.hackatime.utils.promptBiometricAuthentication
+import com.stefdp.hackatime.utils.verticalScrollWithScrollbar
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
     context: Context,
-    activity: FragmentActivity
+    activity: FragmentActivity,
+    viewModel: SettingsViewModel = viewModel()
 ) {
+    val state by viewModel.state.collectAsState()
+
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = Modifier.verticalScroll(scrollState)
+        modifier = Modifier.verticalScrollWithScrollbar(scrollState),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val lifecycleOwner = LocalLifecycleOwner.current
-
-        var biometricAuthenticationStatus by remember { mutableIntStateOf(getBiometricStatus(context)) }
-        var hasNotificationsPermissions by rememberSaveable { mutableStateOf(hasNotificationsPermission(context)) }
 
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    biometricAuthenticationStatus = getBiometricStatus(context)
-                    hasNotificationsPermissions = hasNotificationsPermission(context)
+                    viewModel.setBiometricAuthenticationStatus(getBiometricStatus(context))
+                    viewModel.setHasNotificationsPermissions(hasNotificationsPermission(context))
                 }
             }
 
@@ -111,25 +108,16 @@ fun SettingsScreen(
 
         val coroutineScope = rememberCoroutineScope()
 
-        LaunchedEffect(hasNotificationsPermissions) {
-            if (!hasNotificationsPermissions) return@LaunchedEffect
+        LaunchedEffect(state.hasNotificationsPermissions) {
+            if (!state.hasNotificationsPermissions) return@LaunchedEffect
 
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val token = task.result
-
-                    coroutineScope.launch {
-                        val success = sendPushNotificationToken(
-                            context = context,
-                            token = token
-                        )
-
-                        Log.d("FCM", "Token sent to server: $success")
+            FirebaseMessaging.getInstance()
+                .register()
+                .addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        Log.e("FCM", "FCM registration failed", task.exception)
                     }
-                } else {
-                    Log.e("FCM", "Failed to send token", task.exception)
                 }
-            }
         }
 
         val enrolBiometricAuthenticationLauncher = rememberLauncherForActivityResult(
@@ -141,17 +129,8 @@ fun SettingsScreen(
                 start = 5.dp,
                 end = 5.dp,
                 top = 5.dp,
-                bottom = 2.5.dp
             )
         ) {
-            var apiKey by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
-            var shareApikey by rememberSaveable { mutableStateOf(false) }
-            var unlockWithBiometrics by rememberSaveable { mutableStateOf(false) }
-
-            var isAPiOnServer by remember { mutableStateOf(false) }
-
-            var isLoading by remember { mutableStateOf(false) }
-
             val updateUserStats = LocalUpdateUserStats.current
 
             Text(
@@ -162,15 +141,7 @@ fun SettingsScreen(
             )
 
             LaunchedEffect(Unit) {
-                val secureStore = SecureStorage.getInstance(context)
-
-                apiKey = TextFieldValue(secureStore.get("apiKey") ?: "")
-                shareApikey = secureStore.get("shareApiKey")?.toBoolean() ?: false
-                unlockWithBiometrics = secureStore.get("unlockWithBiometrics")?.toBoolean() ?: false
-
-                isAPiOnServer = getUser(
-                    context = context
-                )
+                viewModel.init(context)
             }
 
             Spacer(
@@ -178,11 +149,13 @@ fun SettingsScreen(
             )
 
             Switch(
-                checked = shareApikey,
-                onCheckedChange = { shareApikey = it },
+                checked = state.shareApikey,
+                onCheckedChange = {
+                    viewModel.setShareApiKey(it)
+                },
                 label = stringResource(R.string.share_data_with_server_switch_label),
                 description = stringResource(R.string.share_data_with_server_switch_description_settings),
-                enabled = !isLoading
+                enabled = !state.isLoading
             )
 
             Spacer(
@@ -190,13 +163,13 @@ fun SettingsScreen(
             )
 
             Switch(
-                checked = unlockWithBiometrics,
-                enabled = !isLoading && (
-                        biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS || (
-                            biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
-                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                            )
-                        ),
+                checked = state.unlockWithBiometrics,
+                enabled = !state.isLoading && (
+                    state.biometricAuthenticationStatus == BiometricManager.BIOMETRIC_SUCCESS || (
+                        state.biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    )
+                ),
                 onCheckedChange = { checked ->
                     val biometricPrompt = createBiometricPrompt(
                         activity = activity,
@@ -204,9 +177,9 @@ fun SettingsScreen(
                             coroutineScope.launch {
                                 val secureStore = SecureStorage.getInstance(context)
 
-                                unlockWithBiometrics = checked
+                                viewModel.setUnlockWithBiometrics(checked)
 
-                                secureStore.set("unlockWithBiometrics", unlockWithBiometrics.toString())
+                                secureStore.set("unlockWithBiometrics", state.unlockWithBiometrics.toString())
                             }
                         },
                         onError = { _, _ ->
@@ -242,7 +215,7 @@ fun SettingsScreen(
                 description = AnnotatedString.fromHtml(
                     stringResource(
                         R.string.unlock_with_biometrics_switch_description,
-                        if (biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                        if (state.biometricAuthenticationStatus == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                             stringResource(R.string.unlock_with_biometrics_switch_description_enroll_warning)
                         else ""
                     )
@@ -252,87 +225,75 @@ fun SettingsScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    coroutineScope.launch {
-                        isLoading = true
-
-                        val secureStore = SecureStorage.getInstance(context)
-
-                        secureStore.set("apiKey", apiKey.text)
-                        secureStore.set("shareApiKey", shareApikey.toString())
-
-                        val newUserRes = updateUserStats()
-
-                        if (newUserRes.isFailure) {
-                            isLoading = false
-
+                    viewModel.saveSettings(
+                        context = context,
+                        updateUserStats = updateUserStats,
+                        onUserError = {
                             navController.navigate(LoginScreen) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }
-                        }
-
-                        if (!shareApikey && isAPiOnServer) {
-                            val res = deleteUser(context)
-
-                            if (!res) {
-                                secureStore.set("shareApiKey", "true")
-
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.delete_data_fail_message),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                        },
+                        onError = { error ->
+                            Notification.show(
+                                activity = activity,
+                                duration = 3000L
+                            ) {
+                                Text(
+                                    text = error,
+                                    color = MaterialTheme.colorScheme.error
+                                )
                             }
-                        } else if (shareApikey && !isAPiOnServer) {
-                            val res = sendApiKey(
-                                context = context
-                            )
-
-                            if (!res) {
-                                secureStore.set("shareApiKey", "false")
-
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.send_data_fail_message),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                        },
+                        onSuccess = {
+                            Notification.show(
+                                activity = activity,
+                                duration = 3000L
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.settings_saved_message),
+                                )
                             }
                         }
-
-                        isLoading = false
-
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_saved_message),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    )
                 },
-                enabled = !isLoading
+                enabled = !state.isLoading
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = LocalContentColor.current
-                        )
+                    AnimatedContent(
+                        targetState = state.isLoading,
+                        transitionSpec = {
+                            (
+                                fadeIn() + slideInVertically { height -> height }
+                            ) togetherWith (
+                                fadeOut() + slideOutVertically { height -> -height }
+                            )
+                        },
+                        label = "UpdateButtonAnimation"
+                    ) { isLoading ->
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = LocalContentColor.current
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(16.dp)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.save),
-                            contentDescription = stringResource(R.string.save_settings_content_description)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.save),
+                                contentDescription = stringResource(R.string.save_settings_content_description)
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(5.dp)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(5.dp)
+                            )
+                        }
                     }
 
                     Text(
@@ -346,19 +307,28 @@ fun SettingsScreen(
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    coroutineScope.launch {
-                        val secureStore = SecureStorage.getInstance(context)
-
-                        secureStore.set("apiKey", "")
-
-                        updateUserStats()
-
-                        navController.navigate(LoginScreen) {
-                            popUpTo(navController.graph.id) { inclusive = true }
+                    viewModel.logout(
+                        context = context,
+                        updateUserStats = updateUserStats,
+                        onError = { error ->
+                            Notification.show(
+                                activity = activity,
+                                duration = 3000L
+                            ) {
+                                Text(
+                                    text = error,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        onLogout = {
+                            navController.navigate(LoginScreen) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
                         }
-                    }
+                    )
                 },
-                enabled = !isLoading
+                enabled = !state.isLoading
             ) {
                 Icon(
                     painter = painterResource(R.drawable.logout),
@@ -380,7 +350,7 @@ fun SettingsScreen(
         val notificationPermissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
-            hasNotificationsPermissions = isGranted
+            viewModel.setHasNotificationsPermissions(isGranted)
 
             Toast.makeText(
                 context,
@@ -392,24 +362,9 @@ fun SettingsScreen(
 
         Container(
             modifier = Modifier.padding(
-                vertical = 2.5.dp,
                 horizontal = 5.dp
             )
         ) {
-            var motivationalNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
-            var goalsNotificationsEnabled by rememberSaveable { mutableStateOf(false) }
-
-            var isLoading by remember { mutableStateOf(true) }
-
-            LaunchedEffect(Unit) {
-                val notificationCategories = getUserNotificationCategories(context)
-
-                motivationalNotificationsEnabled = notificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
-                goalsNotificationsEnabled = notificationCategories[NotificationCategory.GOALS] == true
-
-                isLoading = false
-            }
-
             Text(
                 text = stringResource(R.string.notifications_settings_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -422,13 +377,15 @@ fun SettingsScreen(
             )
 
             Switch(
-                enabled = !isLoading && hasNotificationsPermissions,
-                checked = motivationalNotificationsEnabled,
-                onCheckedChange = { motivationalNotificationsEnabled = it },
+                enabled = !state.isLoading && state.hasNotificationsPermissions,
+                checked = state.motivationalNotificationsEnabled,
+                onCheckedChange = {
+                    viewModel.setMotivationalNotificationsEnabled(it)
+                },
                 label = stringResource(R.string.motivational_notifications_switch_label),
                 description = stringResource(
                     R.string.motivational_notifications_switch_description,
-                    if (!hasNotificationsPermissions)
+                    if (!state.hasNotificationsPermissions)
                         stringResource(R.string.switch_description_notifications_permission_not_granted)
                     else ""
                 ),
@@ -440,13 +397,15 @@ fun SettingsScreen(
 
 
             Switch(
-                enabled = !isLoading && hasNotificationsPermissions,
-                checked = goalsNotificationsEnabled,
-                onCheckedChange = { goalsNotificationsEnabled = it },
+                enabled = !state.isLoading && state.hasNotificationsPermissions,
+                checked = state.goalsNotificationsEnabled,
+                onCheckedChange = {
+                    viewModel.setGoalsNotificationsEnabled(it)
+                },
                 label = stringResource(R.string.goals_notifications_switch_label),
                 description = stringResource(
                     R.string.goals_notifications_switch_description,
-                    if (!hasNotificationsPermissions)
+                    if (!state.hasNotificationsPermissions)
                         stringResource(R.string.switch_description_notifications_permission_not_granted)
                     else ""
                 )
@@ -456,7 +415,7 @@ fun SettingsScreen(
                 modifier = Modifier.height(10.dp)
             )
 
-            if (!hasNotificationsPermissions) {
+            if (!state.hasNotificationsPermissions) {
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
                     border = BorderStroke(
@@ -493,61 +452,60 @@ fun SettingsScreen(
                 }
             }
 
-            val coroutineScope = rememberCoroutineScope()
-
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading && hasNotificationsPermissions,
+                enabled = !state.isLoading && state.hasNotificationsPermissions,
                 colors = ButtonDefaults.buttonColors().copy(
                     disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                     disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
                 ),
                 onClick = {
-                    coroutineScope.launch {
-                        isLoading = true
-
-                        val newNotificationCategories = updateUserNotificationCategories(
-                            context = context,
-                            categories = mapOf(
-                                NotificationCategory.MOTIVATIONAL_QUOTES to motivationalNotificationsEnabled,
-                                NotificationCategory.GOALS to goalsNotificationsEnabled
-                            )
-                        )
-
-                        updateUser(context)
-
-                        motivationalNotificationsEnabled = newNotificationCategories[NotificationCategory.MOTIVATIONAL_QUOTES] == true
-                        goalsNotificationsEnabled = newNotificationCategories[NotificationCategory.GOALS] == true
-
-                        isLoading = false
-
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.notifications_preferences_saved),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    viewModel.saveNotificationPreferences(
+                        context = context,
+                        onSuccess = {
+                            Notification.show(
+                                activity = activity,
+                                duration = 3000L
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.notifications_preferences_saved),
+                                )
+                            }
+                        }
+                    )
                 }
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = LocalContentColor.current
-                    )
+                AnimatedContent(
+                    targetState = state.isLoading,
+                    transitionSpec = {
+                        (
+                                fadeIn() + slideInVertically { height -> height }
+                                ) togetherWith (
+                                fadeOut() + slideOutVertically { height -> -height }
+                                )
+                    },
+                    label = "UpdateButtonAnimation"
+                ) { isLoading ->
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = LocalContentColor.current
+                        )
 
-                    Spacer(
-                        modifier = Modifier.width(16.dp)
-                    )
-                } else {
-                    Icon(
-                        painter = painterResource(R.drawable.save),
-                        contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
-                    )
+                        Spacer(
+                            modifier = Modifier.width(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.save),
+                            contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
+                        )
 
-                    Spacer(
-                        modifier = Modifier.width(5.dp)
-                    )
+                        Spacer(
+                            modifier = Modifier.width(5.dp)
+                        )
+                    }
                 }
 
                 Text(
@@ -562,7 +520,7 @@ fun SettingsScreen(
             )
 
             val notificationsPermissionStatus = stringResource(
-                if (hasNotificationsPermissions)
+                if (state.hasNotificationsPermissions)
                     R.string.notifications_permission_status_granted
                 else
                     R.string.notifications_permission_status_denied
