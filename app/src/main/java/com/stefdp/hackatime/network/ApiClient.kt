@@ -4,13 +4,15 @@ import com.stefdp.hackatime.DEBUG_NETWORK
 import com.stefdp.hackatime.IS_DEBUG
 import com.stefdp.hackatime.network.backendapi.BackendApiService
 import com.stefdp.hackatime.network.hackatimeapi.HackatimeApiService
+import com.stefdp.hackatime.network.hackatimeoauth.HackatimeOAuthService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val HACKATIME_BASE_URL = "https://hackatime.hackclub.com/api/"
+    private const val HACKATIME_API_BASE_URL = "https://hackatime.hackclub.com/api/"
+    private const val HACKATIME_OAUTH_BASE_URL = "https://hackatime.hackclub.com/oauth/"
 
     private const val BACKEND_BASE_URL_PRODUCTION = "https://hackatime.stefdp.com/api/"
     private const val BACKEND_BASE_URL_DEBUG = "http://10.0.2.2:3000/api/" // for API local testing
@@ -27,7 +29,7 @@ object ApiClient {
 
     val hackatimeApi: HackatimeApiService by lazy {
         val builder = Retrofit.Builder()
-            .baseUrl(HACKATIME_BASE_URL)
+            .baseUrl(HACKATIME_API_BASE_URL)
 
         if (DEBUG_NETWORK) {
             builder.client(okHttpClient)
@@ -37,6 +39,20 @@ object ApiClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(HackatimeApiService::class.java)
+    }
+
+    val hackatimeOAuth: HackatimeOAuthService by lazy {
+        val builder = Retrofit.Builder()
+            .baseUrl(HACKATIME_OAUTH_BASE_URL)
+
+        if (DEBUG_NETWORK) {
+            builder.client(okHttpClient)
+        }
+
+        builder
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(HackatimeOAuthService::class.java)
     }
 
     val backendApi: BackendApiService by lazy {
