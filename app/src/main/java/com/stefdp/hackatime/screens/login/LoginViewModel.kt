@@ -38,11 +38,18 @@ class LoginViewModel : ViewModel() {
     fun updateAccessToken(
         context: Context,
         accessToken: String?,
-        updateUserStats: suspend (context: Context) -> Result<GetWakatimeUserResponse.Data>
+        updateUserStats: suspend (context: Context) -> Result<GetWakatimeUserResponse.Data>,
+        onError: (String) -> Unit
     ) {
         if (accessToken.isNullOrBlank()) return
 
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+
             val secureStore = SecureStorage.getInstance(context)
 
             secureStore.set(SecureStorage.STORAGE_ACCESS_TOKEN, accessToken)
@@ -57,7 +64,20 @@ class LoginViewModel : ViewModel() {
                 }
             }
 
+            if (_state.value.shareApiKey) {
+                shareApiKeyWithServer(
+                    context = context,
+                    onError = onError
+                )
+            }
+
             updateUserStats(context)
+
+            _state.update {
+                it.copy(
+                    isLoading = false
+                )
+            }
         }
     }
 
@@ -69,22 +89,20 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun shareApiKeyWithServer(
+    private suspend fun shareApiKeyWithServer(
         context: Context,
         onError: (String) -> Unit
     ) {
-        viewModelScope.launch {
-            val secureStore = SecureStorage.getInstance(context)
+        val secureStore = SecureStorage.getInstance(context)
 
-            val res = sendApiKey(
-                context = context
-            )
+        val res = sendApiKey(
+            context = context
+        )
 
-            if (!res) {
-                secureStore.set(SecureStorage.STORAGE_SHARE_API_KEY, "false")
+        if (!res) {
+            secureStore.set(SecureStorage.STORAGE_SHARE_API_KEY, "false")
 
-                onError(context.getString(R.string.send_data_fail_message))
-            }
+            onError(context.getString(R.string.send_data_fail_message))
         }
     }
 }

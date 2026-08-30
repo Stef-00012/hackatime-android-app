@@ -128,27 +128,21 @@ fun LoginScreen(
                                 if (tokenResponse != null) {
                                     val accessToken = tokenResponse.accessToken
 
-                                    if (state.shareApiKey) {
-                                        viewModel.shareApiKeyWithServer(
-                                            context = context,
-                                            onError = { error ->
-                                                Notification.show(
-                                                    activity = activity,
-                                                    duration = 3000L
-                                                ) {
-                                                    Text(
-                                                        text = error,
-                                                        color = MaterialTheme.colorScheme.error,
-                                                    )
-                                                }
-                                            }
-                                        )
-                                    }
-
                                     viewModel.updateAccessToken(
                                         context = context,
                                         accessToken = accessToken,
-                                        updateUserStats = updateUserStats
+                                        updateUserStats = updateUserStats,
+                                        onError = { error ->
+                                            Notification.show(
+                                                activity = activity,
+                                                duration = 3000L
+                                            ) {
+                                                Text(
+                                                    text = error,
+                                                    color = MaterialTheme.colorScheme.error,
+                                                )
+                                            }
+                                        }
                                     )
                                 } else {
                                     Logger.error("Auth", "Token exchange failed", authException)
