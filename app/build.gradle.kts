@@ -16,8 +16,8 @@ android {
         applicationId = "com.stefdp.hackatime"
         minSdk = 26
         targetSdk = 37
-        versionCode = 18
-        versionName = "2.0.6"
+        versionCode = 19
+        versionName = "2.1.0"
         ndkVersion = "29.0.14206865"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
