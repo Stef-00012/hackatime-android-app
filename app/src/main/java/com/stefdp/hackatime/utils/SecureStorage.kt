@@ -15,6 +15,8 @@ class SecureStorage private constructor(context: Context) {
     companion object {
         const val STORAGE_API_KEY = "apiKey"
         const val STORAGE_ACCESS_TOKEN = "accessToken"
+        const val STORAGE_SHARE_API_KEY = "shareApiKey"
+        const val STORAGE_UNLOCK_WITH_BIOMETRICS = "unlockWithBiometrics"
 
         @Volatile
         private var INSTANCE: SecureStorage? = null
