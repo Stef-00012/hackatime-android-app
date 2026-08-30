@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.waterfallPadding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -56,13 +57,8 @@ fun Header(
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(horizontal = 16.dp)
+                .waterfallPadding()
         ) {
-            // NOTE: This is just a test for a sidebar, I'll probably use navbar instead of this cuz it looks better
-//            IconButton(onClick = onMenuClick) {
-//                Icon(painter = painterResource(R.drawable.menu_icon), contentDescription = "Open Sidebar")
-//            }
-//            Spacer(modifier = Modifier.width(16.dp))
-
             val username = LocalLoggedUser.current?.username
 
             Text(
