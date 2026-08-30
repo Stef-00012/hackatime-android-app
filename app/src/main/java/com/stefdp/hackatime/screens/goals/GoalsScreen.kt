@@ -1,14 +1,12 @@
 package com.stefdp.hackatime.screens.goals
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import com.stefdp.hackatime.components.Button
 import androidx.compose.material3.DatePickerDefaults
@@ -39,20 +36,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,26 +52,18 @@ import com.google.gson.annotations.SerializedName
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.components.Notification
 import com.stefdp.hackatime.components.Popup
+import com.stefdp.hackatime.components.PullToRefreshBox
 import com.stefdp.hackatime.components.TextInput
-import com.stefdp.hackatime.network.backendapi.models.Goal
-import com.stefdp.hackatime.network.backendapi.requests.getUser
-import com.stefdp.hackatime.network.backendapi.requests.getUserGoals
-import com.stefdp.hackatime.network.backendapi.requests.updateUserGoal
 import com.stefdp.hackatime.screens.HomeScreen
 import com.stefdp.hackatime.screens.goals.components.GoalContainer
-import com.stefdp.hackatime.utils.parseTimeToMillis
 import com.stefdp.hackatime.utils.shimmerable
 import com.stefdp.hackatime.utils.verticalLazyScrollbar
 import com.stefdp.hackatime.utils.verticalScrollWithScrollbar
-import kotlinx.coroutines.launch
-import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun GoalsScreen(
@@ -93,7 +76,6 @@ fun GoalsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.updateIsApiOnServer(context)
-        viewModel.updateRangeText(context)
     }
 
     if (!state.isApiOnServer) {
@@ -146,13 +128,19 @@ fun GoalsScreen(
         return
     }
 
+    fun reload(isRefresh: Boolean = false) {
+        viewModel.updateGoals(
+            context = context,
+            isRefresh = isRefresh
+        )
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.updateGoals(context)
+        reload()
     }
 
     LaunchedEffect(state.statsRange, state.rangeStart, state.rangeEnd) {
-        viewModel.updateGoals(context)
-        viewModel.updateRangeText(context)
+        reload()
     }
 
     Column {
@@ -305,8 +293,6 @@ fun GoalsScreen(
                     label = stringResource(R.string.update_goal_input_label),
                 )
 
-                val coroutineScope = rememberCoroutineScope()
-
                 Button(
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     onClick = {
@@ -341,10 +327,10 @@ fun GoalsScreen(
                         targetState = state.isLoading,
                         transitionSpec = {
                             (
-                                    fadeIn() + slideInVertically { height -> height }
-                                    ) togetherWith (
-                                    fadeOut() + slideOutVertically { height -> -height }
-                                    )
+                                fadeIn() + slideInVertically { height -> height }
+                            ) togetherWith (
+                                fadeOut() + slideOutVertically { height -> -height }
+                            )
                         },
                         label = "UpdateButtonAnimation"
                     ) { isLoading ->
@@ -379,50 +365,64 @@ fun GoalsScreen(
             }
         }
 
-        if (state.isLoading || state.goals == null) {
-            val loadingScrollState = rememberScrollState()
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = {
+                reload(true)
+            }
+        ) {
+            val scrollState = rememberScrollState()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScrollWithScrollbar(loadingScrollState)
-            ) {
-                val repeatCount = 6
+            if (state.isLoading || state.goals == null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScrollWithScrollbar(scrollState)
+                ) {
+                    val repeatCount = 6
 
-                repeat(repeatCount) {
-                    SkeletonGoal(
-                        index = it,
-                        size = repeatCount
+                    repeat(repeatCount) {
+                        SkeletonGoal(
+                            index = it,
+                            size = repeatCount
+                        )
+                    }
+                }
+            } else if (state.goals!!.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScrollWithScrollbar(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_goals_message),
+                        modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
                     )
                 }
-            }
-        } else if (state.goals!!.isEmpty()) {
-            Text(
-                text = stringResource(R.string.no_goals_message),
-                modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            )
-        } else {
-            val listState = rememberLazyListState()
+            } else {
+                val listState = rememberLazyListState()
 
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.verticalLazyScrollbar(listState)
-            ) {
-                items(count = state.goals!!.size) { index ->
-                    GoalContainer(
-                        modifier = Modifier.padding(
-                            start = 10.dp,
-                            end = 10.dp,
-                            top = if (index == 0) 10.dp else 5.dp,
-                            bottom = if (index == state.goals!!.size - 1) 10.dp else 5.dp
-                        ),
-                        goal = state.goals!![index],
-                        context = context
-                    )
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.verticalLazyScrollbar(listState)
+                ) {
+                    items(count = state.goals!!.size) { index ->
+                        GoalContainer(
+                            modifier = Modifier.padding(
+                                start = 10.dp,
+                                end = 10.dp,
+                                top = if (index == 0) 10.dp else 5.dp,
+                                bottom = if (index == state.goals!!.size - 1) 10.dp else 5.dp
+                            ),
+                            goal = state.goals!![index],
+                            context = context
+                        )
+                    }
                 }
             }
         }

@@ -26,6 +26,7 @@ import kotlin.time.Duration.Companion.minutes
 
 data class GoalsUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val isApiOnServer: Boolean = false,
     val statsRange: Range = Range.CUSTOM,
     val rangeStart: String = Instant
@@ -64,7 +65,7 @@ class GoalsViewModel : ViewModel() {
         }
     }
 
-    fun updateRangeText(context: Context) {
+    private fun updateRangeText(context: Context) {
         _state.update {
             it.copy(
                 rangeText = when (_state.value.statsRange) {
@@ -76,11 +77,15 @@ class GoalsViewModel : ViewModel() {
         }
     }
 
-    fun updateGoals(context: Context) {
+    fun updateGoals(
+        context: Context,
+        isRefresh: Boolean
+    ) {
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    isLoading = true
+                    isLoading = true,
+                    isRefreshing = isRefresh
                 )
             }
 
@@ -101,10 +106,13 @@ class GoalsViewModel : ViewModel() {
                 }
             }
 
+            updateRangeText(context)
+
             _state.update {
                 it.copy(
                     goals = goals,
-                    isLoading = false
+                    isLoading = false,
+                    isRefreshing = false
                 )
             }
         }
@@ -203,7 +211,7 @@ class GoalsViewModel : ViewModel() {
                 } else {
                     onSuccess()
 
-                    updateGoals(context)
+                    updateGoals(context, false)
 
                     hideRangePopup()
                 }
