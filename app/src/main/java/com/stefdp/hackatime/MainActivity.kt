@@ -79,6 +79,8 @@ val LocalUpdateUserStats = compositionLocalOf<suspend (context: Context) -> Resu
     }
 }
 
+const val HACKATIME_OAUTH_CLIENT_ID = "jE6VgCwPlOCZKoAHjGGwBASkpHAmVOMpKrp_OYzVKXg"
+
 class MainActivity : FragmentActivity() {
     private var isAppReady by mutableStateOf(false)
 
@@ -114,8 +116,6 @@ class MainActivity : FragmentActivity() {
 
                 val isConnected by networkMonitor.isConnected.collectAsState(initial = true)
 
-                val coroutineScope = rememberCoroutineScope()
-
                 LaunchedEffect(isConnected) {
                     if (isConnected) {
                         viewModel.updateLoggedUser(context)
@@ -129,7 +129,6 @@ class MainActivity : FragmentActivity() {
                             if (!task.isSuccessful) {
                                 Log.e("FCM", "FCM registration failed", task.exception)
                             }
-
                         }
                 }
 
