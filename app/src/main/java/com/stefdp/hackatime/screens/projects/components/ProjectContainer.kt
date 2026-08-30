@@ -27,19 +27,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.stefdp.hackatime.R
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ProjectDetail
+import com.stefdp.hackatime.network.hackatimeapi.models.ProjectDetails
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
 import com.stefdp.hackatime.utils.formatMs
 import nl.jacobras.humanreadable.HumanReadable
 import kotlin.time.Instant
-import androidx.core.net.toUri
 
 @Composable
 fun ProjectContainer(
     modifier: Modifier = Modifier,
     context: Context,
-    project: ProjectDetail
+    project: ProjectDetails
 ) {
     Column(
         modifier = modifier
@@ -57,14 +57,25 @@ fun ProjectContainer(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = project.name,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = project.name,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+
+                if (project.archived) {
+                    Icon(
+                        painter = painterResource(R.drawable.archive),
+                        contentDescription = stringResource(R.string.project_archived_content_description),
+                    )
+                }
+            }
 
             if (project.repoUrl != null) {
                 IconButton(
@@ -115,21 +126,23 @@ fun ProjectContainer(
             )
         }
 
-        Row {
-            Icon(
-                painter = painterResource(R.drawable.timeline),
-                contentDescription = stringResource(R.string.project_last_heartbeat_content_description),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        if (project.lastHeartbeat != null) {
+            Row {
+                Icon(
+                    painter = painterResource(R.drawable.timeline),
+                    contentDescription = stringResource(R.string.project_last_heartbeat_content_description),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            Spacer(
-                modifier = Modifier.width(5.dp)
-            )
+                Spacer(
+                    modifier = Modifier.width(5.dp)
+                )
 
-            Text(
-                text = HumanReadable.timeAgo(Instant.parse(project.lastHeartbeat)),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = HumanReadable.timeAgo(Instant.parse(project.lastHeartbeat)),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -140,9 +153,9 @@ fun ProjectContainer(
 )
 @Composable
 fun ProjectContainerPreview() {
-    val project = ProjectDetail(
+    val project = ProjectDetails(
         name = "hackatime",
-        totalSeconds = 1000000.0,
+        totalSeconds = 1000000,
         languages = listOf(
             "Kotlin",
             "Toml",
@@ -160,7 +173,8 @@ fun ProjectContainerPreview() {
         repoUrl = "https://git.stefdp.com/Stef/hackatime-android-app",
         totalHeartbeats = 100,
         firstHeartbeat = "2026-01-01T00:00:00Z",
-        lastHeartbeat = "2026-02-15T12:00:00Z"
+        lastHeartbeat = "2026-02-15T12:00:00Z",
+        archived = false
     )
 
     HackatimeStatsTheme {
