@@ -155,6 +155,16 @@
     <string name="notifications_permission_status_denied">Denied</string>
     <string name="logout_revoke_fail">Failed to revoke Hackatime login</string>
 
+    <!--  screens.settings.LeaderboardScreen  -->
+    <string name="leaderboard_global">🌐 Global</string>
+    <string name="leaderboard_daily">Daily</string>
+    <string name="leaderboard_weekly">Weekly</string>
+    <string name="leaderboard_range_and_last_updated">%1$s • Updated %2$s</string>
+    <string name="leaderboard_search_placeholder">Find User…</string>
+    <string name="leaderboard_unknown_range">Unknown</string>
+    <string name="leaderboard_working_on">Working on %1$s</string>
+    <string name="leaderboard_no_results">No results found</string>
+
     <!--  screens.biometricauth.BiometricAuthScreen  -->
     <string name="hackatime_locked_content_description">Hackatime Locked</string>
     <string name="hackatime_locked_title">Hackatime Locked</string>

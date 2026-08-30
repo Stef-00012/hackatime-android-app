@@ -59,6 +59,7 @@ import com.stefdp.hackatime.screens.*
 import com.stefdp.hackatime.screens.biometricauth.BiometricAuthScreen
 import com.stefdp.hackatime.screens.goals.GoalsScreen
 import com.stefdp.hackatime.screens.home.HomeScreen
+import com.stefdp.hackatime.screens.leaderboard.LeaderboardScreen
 import com.stefdp.hackatime.screens.loading.LoadingScreen
 import com.stefdp.hackatime.screens.login.LoginScreen
 import com.stefdp.hackatime.screens.projects.ProjectsScreen
@@ -313,7 +314,11 @@ fun AppNavigation(
         }
 
         composable<LeaderboardScreen> {
-            Text("WIP")
+            LeaderboardScreen(
+                navController = navController,
+                context = context,
+                activity = activity
+            )
         }
     }
 }
