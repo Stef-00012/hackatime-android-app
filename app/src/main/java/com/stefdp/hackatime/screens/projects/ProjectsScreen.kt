@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.R
+import com.stefdp.hackatime.components.PullToRefreshBox
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.projects.components.ProjectContainer
 import com.stefdp.hackatime.utils.shimmerable
@@ -51,56 +52,78 @@ fun ProjectsScreen(
 
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.init(context)
+    fun reload(isRefresh: Boolean = false) {
+        viewModel.init(
+            context = context,
+            username = localUserStats!!.username ?: localUserStats.displayName,
+            isRefresh = isRefresh
+        )
     }
 
-    if (state.projects == null) {
+    LaunchedEffect(Unit) {
+        reload()
+    }
+
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = {
+            reload(isRefresh = true)
+        }
+    ) {
         val scrollState = rememberScrollState()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScrollWithScrollbar(scrollState)
-        ) {
-            val repeatCount = 5
+        if (state.projects == null || state.isLoading) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScrollWithScrollbar(scrollState)
+            ) {
+                val repeatCount = 5
 
-            repeat(repeatCount) {
-                SkeletonProject(
-                    index = it,
-                    size = repeatCount
+                repeat(repeatCount) {
+                    SkeletonProject(
+                        index = it,
+                        size = repeatCount
+                    )
+                }
+            }
+        } else if (state.projects.isNullOrEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScrollWithScrollbar(scrollState)
+            ) {
+                Text(
+                    text = stringResource(R.string.no_projects_available),
+                    modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
             }
-        }
-    } else if (state.projects!!.isEmpty()) {
-        Text(
-            text = stringResource(R.string.no_projects_available),
-            modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold
-            )
-        )
-    } else {
-        val listState = rememberLazyListState()
+        } else {
+            val listState = rememberLazyListState()
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalLazyScrollbar(listState)
-        ) {
-            items(state.projects!!.size) { index ->
-                ProjectContainer(
-                    modifier = Modifier.padding(
-                        start = 10.dp,
-                        end = 10.dp,
-                        top = if (index == 0) 10.dp else 5.dp,
-                        bottom = if (index == state.projects!!.size - 1) 10.dp else 5.dp
-                    ),
-                    context = context,
-                    project = state.projects!![index],
-                )
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalLazyScrollbar(listState)
+            ) {
+                items(state.projects!!.size) { index ->
+                    ProjectContainer(
+                        modifier = Modifier.padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            top = if (index == 0) 10.dp else 5.dp,
+                            bottom = if (index == state.projects!!.size - 1) 10.dp else 5.dp
+                        ),
+                        context = context,
+                        activity = activity,
+                        project = state.projects!![index],
+                    )
+                }
             }
         }
     }

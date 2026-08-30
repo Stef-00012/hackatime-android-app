@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import com.stefdp.hackatime.R
 import com.stefdp.hackatime.network.hackatimeapi.models.ProjectDetails
 import com.stefdp.hackatime.ui.theme.HackatimeStatsTheme
@@ -39,6 +40,7 @@ import kotlin.time.Instant
 fun ProjectContainer(
     modifier: Modifier = Modifier,
     context: Context,
+    activity: FragmentActivity,
     project: ProjectDetails
 ) {
     Column(
@@ -81,7 +83,7 @@ fun ProjectContainer(
                 IconButton(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, project.repoUrl.toUri())
-                        context.startActivity(intent)
+                        activity.startActivity(intent)
                     },
                     modifier = Modifier
                         .size(40.dp)
@@ -147,37 +149,37 @@ fun ProjectContainer(
     }
 }
 
-@Preview(
-    showSystemUi = false, showBackground = false,
-//    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
-)
-@Composable
-fun ProjectContainerPreview() {
-    val project = ProjectDetails(
-        name = "hackatime",
-        totalSeconds = 1000000,
-        languages = listOf(
-            "Kotlin",
-            "Toml",
-            "Markdown",
-            "Kotlin",
-            "Toml",
-            "Markdown",
-            "Kotlin",
-            "Toml",
-            "Markdown",
-            "Kotlin",
-            "Toml",
-            "Markdown"
-        ),
-        repoUrl = "https://git.stefdp.com/Stef/hackatime-android-app",
-        totalHeartbeats = 100,
-        firstHeartbeat = "2026-01-01T00:00:00Z",
-        lastHeartbeat = "2026-02-15T12:00:00Z",
-        archived = false
-    )
-
-    HackatimeStatsTheme {
-        ProjectContainer(project = project, context = LocalContext.current)
-    }
-}
+//@Preview(
+//    showSystemUi = false, showBackground = false,
+////    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+//)
+//@Composable
+//fun ProjectContainerPreview() {
+//    val project = ProjectDetails(
+//        name = "hackatime",
+//        totalSeconds = 1000000,
+//        languages = listOf(
+//            "Kotlin",
+//            "Toml",
+//            "Markdown",
+//            "Kotlin",
+//            "Toml",
+//            "Markdown",
+//            "Kotlin",
+//            "Toml",
+//            "Markdown",
+//            "Kotlin",
+//            "Toml",
+//            "Markdown"
+//        ),
+//        repoUrl = "https://git.stefdp.com/Stef/hackatime-android-app",
+//        totalHeartbeats = 100,
+//        firstHeartbeat = "2026-01-01T00:00:00Z",
+//        lastHeartbeat = "2026-02-15T12:00:00Z",
+//        archived = false
+//    )
+//
+//    HackatimeStatsTheme {
+//        ProjectContainer(project = project, context = LocalContext.current, activity = LocalActivity.current )
+//    }
+//}
