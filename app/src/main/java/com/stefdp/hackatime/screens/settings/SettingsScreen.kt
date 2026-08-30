@@ -274,25 +274,27 @@ fun SettingsScreen(
                         },
                         label = "UpdateButtonAnimation"
                     ) { isLoading ->
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = LocalContentColor.current
-                            )
+                        Row {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = LocalContentColor.current
+                                )
 
-                            Spacer(
-                                modifier = Modifier.width(16.dp)
-                            )
-                        } else {
-                            Icon(
-                                painter = painterResource(R.drawable.save),
-                                contentDescription = stringResource(R.string.save_settings_content_description)
-                            )
+                                Spacer(
+                                    modifier = Modifier.width(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(R.drawable.save),
+                                    contentDescription = stringResource(R.string.save_settings_content_description)
+                                )
 
-                            Spacer(
-                                modifier = Modifier.width(5.dp)
-                            )
+                                Spacer(
+                                    modifier = Modifier.width(5.dp)
+                                )
+                            }
                         }
                     }
 
@@ -486,25 +488,27 @@ fun SettingsScreen(
                     },
                     label = "UpdateButtonAnimation"
                 ) { isLoading ->
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = LocalContentColor.current
-                        )
+                    Row {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = LocalContentColor.current
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(16.dp)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.save),
-                            contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.save),
+                                contentDescription = stringResource(R.string.save_notifications_preferences_content_description)
+                            )
 
-                        Spacer(
-                            modifier = Modifier.width(5.dp)
-                        )
+                            Spacer(
+                                modifier = Modifier.width(5.dp)
+                            )
+                        }
                     }
                 }
 
