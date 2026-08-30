@@ -42,6 +42,9 @@ glance = "1.2.0"
 # OAuth
 openid-appauth = "0.11.1"
 
+# Network Image Display
+coil-compose = "3.6.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -95,6 +98,11 @@ glance-appwidget-preview = { group = "androidx.glance", name = "glance-appwidget
 
 # OAuth
 openid-appauth = { group = "net.openid", name = "appauth", version.ref = "openid-appauth" }
+
+# Network Image Display
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil-compose" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil-compose" }
+coil-gif = { group = "io.coil-kt.coil3", name = "coil-gif", version.ref = "coil-compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

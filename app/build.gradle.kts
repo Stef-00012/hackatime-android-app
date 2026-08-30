@@ -112,4 +112,9 @@ dependencies {
 
     // OAuth
     implementation(libs.openid.appauth)
+
+    // Network Image Display
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.gif)
 }
