@@ -59,6 +59,7 @@ import com.stefdp.hackatime.utils.getLast7DaysData
 import com.stefdp.hackatime.utils.getTop
 import com.stefdp.hackatime.utils.languageColors
 import com.stefdp.hackatime.utils.shimmerable
+import com.stefdp.hackatime.utils.verticalScrollWithScrollbar
 import ir.ehsannarmani.compose_charts.LineChart
 import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.DotProperties
@@ -114,7 +115,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
+            .verticalScrollWithScrollbar(scrollState)
     ) {
         OutlinedButton(
             enabled = !state.isLoading,
