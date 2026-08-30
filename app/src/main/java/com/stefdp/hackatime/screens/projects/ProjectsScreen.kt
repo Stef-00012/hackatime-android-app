@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -15,30 +16,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.stefdp.hackatime.LocalLoggedUser
 import com.stefdp.hackatime.R
-import com.stefdp.hackatime.network.hackatimeapi.models.responses.ProjectDetail
-import com.stefdp.hackatime.network.hackatimeapi.requests.getCurrentUserDetailedProjects
 import com.stefdp.hackatime.screens.LoginScreen
 import com.stefdp.hackatime.screens.projects.components.ProjectContainer
 import com.stefdp.hackatime.utils.shimmerable
+import com.stefdp.hackatime.utils.verticalLazyScrollbar
+import com.stefdp.hackatime.utils.verticalScrollWithScrollbar
 
 @Composable
 fun ProjectsScreen(
     navController: NavHostController,
     context: Context,
-    activity: FragmentActivity
+    activity: FragmentActivity,
+    viewModel: ProjectsViewModel = viewModel()
 ) {
     val localUserStats = LocalLoggedUser.current
 
@@ -48,23 +49,19 @@ fun ProjectsScreen(
         }
     }
 
-    var projects by remember { mutableStateOf<List<ProjectDetail>?>(null) }
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        val projectsRes = getCurrentUserDetailedProjects(
-            context = context
-        )
-
-        projectsRes
-            .onSuccess { projects = it }
-            .onFailure { projects = emptyList() }
+        viewModel.init(context)
     }
 
-    if (projects == null) {
+    if (state.projects == null) {
         val scrollState = rememberScrollState()
 
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScrollWithScrollbar(scrollState)
         ) {
             val repeatCount = 5
 
@@ -75,7 +72,7 @@ fun ProjectsScreen(
                 )
             }
         }
-    } else if (projects!!.isEmpty()) {
+    } else if (state.projects!!.isEmpty()) {
         Text(
             text = stringResource(R.string.no_projects_available),
             modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
@@ -85,19 +82,24 @@ fun ProjectsScreen(
             )
         )
     } else {
+        val listState = rememberLazyListState()
+
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalLazyScrollbar(listState)
         ) {
-            items(projects!!.size) { index ->
+            items(state.projects!!.size) { index ->
                 ProjectContainer(
                     modifier = Modifier.padding(
                         start = 10.dp,
                         end = 10.dp,
                         top = if (index == 0) 10.dp else 5.dp,
-                        bottom = if (index == projects!!.size - 1) 10.dp else 5.dp
+                        bottom = if (index == state.projects!!.size - 1) 10.dp else 5.dp
                     ),
                     context = context,
-                    project = projects!![index],
+                    project = state.projects!![index],
                 )
             }
         }
